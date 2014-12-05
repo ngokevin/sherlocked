@@ -31,7 +31,7 @@ app.environments.forEach(function(env, i) {
         port: 80,
         user: sauceUsername,
         key: sauceKey,
-        logLevel: 'verbose'
+        logLevel: 'silent'
     });
 
     // Take screenshots.

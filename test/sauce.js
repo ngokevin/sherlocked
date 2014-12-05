@@ -27,7 +27,7 @@ var captures = [
                 width: 320,
                 height: 480
             })
-            .url('localhost:8675')
+            .url('http://localhost:8675')
             .waitFor('#splash-overlay.hide');
     }
 ];
