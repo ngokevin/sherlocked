@@ -1,0 +1,15 @@
+{
+  "name": "sherlocked-example",
+  "version": "0.0.0",
+  "repository": {
+    "url": "git://github.com/ngokevin/sherlocked.git",
+    "type": "git"
+  },
+  "engines": {
+    "node": ">= 0.10.x",
+    "npm": ">= 1.1.x"
+  },
+  "dependencies": {
+    "sherlocked": "*"
+  }
+}
