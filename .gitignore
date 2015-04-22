@@ -1,3 +1,5 @@
 *.sw[pon]
 node_modules
 npm-debug.log
+sc/
+screenshots/

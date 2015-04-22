@@ -1,16 +1,11 @@
 var environments = [
     {
         browserName: 'firefox',
-        version: '30',
         platform: 'OS X 10.9'
     },
     {
         browserName: 'firefox',
-        version: '32',
-        platform: 'OS X 10.9'
-    },
-    {
-        browserName: 'firefox',
+        version: '18',
         platform: 'OS X 10.9'
     },
     {
@@ -27,8 +22,8 @@ var captures = [
                 width: 320,
                 height: 480
             })
-            .url('http://localhost:8675')
-            .waitFor('#splash-overlay.hide');
+            .url('localhost:8675')
+            .waitFor('.feed-home');
     }
 ];
 

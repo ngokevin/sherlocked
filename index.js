@@ -7,7 +7,7 @@ var webdriver = require('webdriverio');
 
 
 var config = require('./config');
-var app = require('./test/sauce');
+var app = require('./example/sauce');
 
 var sauceUsername = config.SAUCE_USERNAME;
 var sauceKey = config.SAUCE_KEY;
@@ -21,22 +21,25 @@ app.environments.forEach(function(env, i) {
         if (env.platform) { name += '-' + env.platform; }
         if (env.version) { name += '-' + env.version; }
         name += '-' + counter + '.png';
-        return name;
+        return name.replace(/ /g, '-');
     };
 
     // Initialize client.
     var client = webdriver.remote({
         desiredCapabilities: env,
-        host: 'ondemand.saucelabs.com',
-        port: 80,
+        // host: 'ondemand.saucelabs.com',
+        host: 'localhost',
+        // port: 80,
+        port: 4445,
         user: sauceUsername,
         key: sauceKey,
-        logLevel: 'silent'
+        logLevel: 'verbose'
     });
 
     // Take screenshots.
     app.captures.forEach(function(captureFn) {
         captureFn(client)
-            .saveScreenshot(path.join('screenshots', getScreenshotName()));
+            .saveScreenshot(path.join('screenshots', getScreenshotName()))
+            .end();
     });
 });
