@@ -1,14 +1,10 @@
 {
-  "name": "sherlocked-api",
+  "name": "sherlocked-client",
   "version": "0.0.0",
   "repository": {
     "url": "git://github.com/ngokevin/sherlocked.git",
     "type": "git"
   },
   "dependencies": {
-    "body-parser": "^1.12.3",
-    "express": "4.12.3",
-    "orm": "^2.1.24",
-    "sqlite3": "^3.0.5"
   }
 }
