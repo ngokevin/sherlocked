@@ -13,6 +13,8 @@ The world of Sherlocked:
 - The Sherlocked webpage will contain side-by-side capture comparisons of the
   master and the pull request branch as well display image diffs.
 
+![I AM SHERLOCKED](http://imgur.com/b5jQjd7.png)
+
 ## Setup
 
 To use Sherlocked in your project, install the Node library, get a Sauce Labs
