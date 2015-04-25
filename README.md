@@ -12,7 +12,7 @@ API key, write a Sherlocked test script, and hook it into your Travis build.
 npm install sherlocked --save
 ```
 
-### 1. Sauce Labs
+### 1. Setting up Sauce Labs
 
 You must create a Sauce Labs account and generate an API key.
 
