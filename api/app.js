@@ -20,6 +20,8 @@ app.use(orm.express('sqlite://db.sqlite', {
             methods: {},
             validations: {},
         });
+
+        db.sync();
         next();
     }
 }));
@@ -34,7 +36,11 @@ app.get('/', function (req, res) {
 
 
 app.get('/builds/', function(req, res) {
-    req.models.Build.find({}, {}, function(err, items) {
+    // List builds.
+    req.models.Build.find(function(err, items) {
+        if (err) {
+            console.log(err);
+        }
         res.send(items);
     });
 });
@@ -42,8 +48,10 @@ app.get('/builds/', function(req, res) {
 
 app.post('/builds/', function(req, res) {
     // Create a build.
-    console.log(req.body);
     req.models.Build.create([req.body], function(err, items) {
+        if (err) {
+            console.log(err);
+        }
         res.send(items);
     });
 });
