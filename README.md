@@ -3,6 +3,16 @@ sherlocked
 
 Agnostic visual regression testing service with Sauce Labs and TravisCI.
 
+The world of Sherlocked:
+
+- Developer makes a pull request to GitHub.
+- TravisCI builds the project, invokes Sherlocked script.
+- Sherlocked script takes captures of project using Sauce Labs, pings API.
+- A GitHub Webhook will post the pull request summarizing the visual regression
+  test build and link to a Sherlocked webpage.
+- The Sherlocked webpage will contain side-by-side capture comparisons of the
+  master and the pull request branch as well display image diffs.
+
 ## Setup
 
 To use Sherlocked in your project, install the Node library, get a Sauce Labs
