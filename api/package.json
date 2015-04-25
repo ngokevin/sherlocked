@@ -1,6 +1,6 @@
 {
-  "name": "sherlocked",
-  "version": "0.0.2",
+  "name": "sherlocked-api",
+  "version": "0.0.0",
   "repository": {
     "url": "git://github.com/ngokevin/sherlocked.git",
     "type": "git"
@@ -10,9 +10,9 @@
     "npm": ">= 1.1.x"
   },
   "dependencies": {
-    "es6-promise": "2.0.0",
-    "request": "^2.55.0",
-    "resemblejs": "1.2.0",
-    "webdriverio": "2.4.5"
+    "body-parser": "^1.12.3",
+    "express": "4.12.3",
+    "orm": "^2.1.24",
+    "sqlite3": "^3.0.5"
   }
 }
