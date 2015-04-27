@@ -15,7 +15,8 @@ var models = {
         travisBranch: String,
         travisCommit: String,
         travisId: Number,
-        travisRepoSlug: String
+        travisRepoSlug: String,
+        travisPullRequest: travisPullRequest
     }, {
         methods: {},
         validations: {},

@@ -5,3 +5,4 @@ sc/
 screenshots/
 db.sqlite
 testdb.sqlite
+build/
