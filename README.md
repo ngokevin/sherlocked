@@ -79,15 +79,14 @@ module.exports = {
 ### 3. Setting up Sherlocked with Travis CI
 
 First, you will want to encrypt your Sauce Labs API key and set it as an
-environment variable in Travis CI.
+environment variable in Travis CI. ```-add``` will automatically add it to
+your ```.travis.yml```.
 
 ```
 gem install travis
-travis encrypt SAUCE_KEY=my-sauce-key
-travis encrypt SAUCE_USERNAME=my-sauce-username
+travis encrypt SAUCE_ACCESS_KEY=my-sauce-key --add
+travis encrypt SAUCE_USERNAME=my-sauce-username --add
 ```
-
-Place the output into your ```.travis.yml``` file.
 
 Lastly, all you need to do is to call your Sherlocked test script from your
 Travis CI build.
