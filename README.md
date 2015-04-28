@@ -1,12 +1,12 @@
 sherlocked
 ==========
 
-Agnostic visual regression testing service with Sauce Labs and TravisCI.
+Agnostic visual regression testing service with Sauce Labs and Travis CI.
 
 The world of Sherlocked:
 
 - Developer makes a pull request to GitHub.
-- TravisCI builds the project, invokes Sherlocked script.
+- Travis CI builds the project, invokes Sherlocked script.
 - Sherlocked script takes captures of project using Sauce Labs, pings API.
 - A GitHub Webhook will post the pull request summarizing the visual regression
   test build and link to a Sherlocked webpage.
@@ -76,10 +76,10 @@ module.exports = {
 };
 ```
 
-### 3. Setting up Sherlocked with TravisCI
+### 3. Setting up Sherlocked with Travis CI
 
 First, you will want to encrypt your Sauce Labs API key and set it as an
-environment variable in TravisCI.
+environment variable in Travis CI.
 
 ```
 gem install travis
@@ -89,9 +89,63 @@ travis encrypt SAUCE_USERNAME=my-sauce-username
 
 Place the output into your ```.travis.yml``` file.
 
-Lastly, all you need to do is to call your Sherlocked test script in your
-TravisCI build.
+Lastly, all you need to do is to call your Sherlocked test script from your
+Travis CI build.
 
 ```
 node my-sherlocked-script.js
 ```
+
+## API
+
+```
+GET /builds/
+```
+
+Lists builds.
+
+
+```
+POST /builds/
+```
+
+Create a build.
+
+Parameters | Description
+---------- | -----------
+travisId | The Travis build ID, retrieved from the Travis CI environment.
+travisPullRequest | The pull request triggering the build, retrieved from the
+                    Travis CI environment.
+travisRepoSlug | The slug of the repository (```owner_name```/```repo_name```),
+                 retrieved from the TravisCI environment.
+
+```
+GET /builds/:travisId
+```
+
+Get a build.
+
+Example response:
+
+```javascript
+{
+  "travisId": 221,
+  "travisPullRequest": 222,
+  "travisRepoSlug": "sherlocked/adlerjs",
+  "captures": [
+    "name": "homepageOnMobile",
+    "sauceSessionId": "N239",
+  ]
+}
+```
+
+```
+POST /builds/:buildId/captures/
+```
+
+Attach a capture to a build.
+
+Parameters | Description
+---------- | -----------
+name | Name of the capture (e.g., ```homePageOnDesktop```)
+sauceSessionId | Sauce Labs session ID, each session generates one capture.
