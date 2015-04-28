@@ -1,6 +1,8 @@
-var assert = require('assert');
 var fs = require('fs');
-var orm = require('orm');
+
+var assert = require('assert');
+var extend = require('extend');
+var Promise = require('es6-promise').Promise;
 var request = require('supertest');
 
 var app = require('./app');
@@ -22,9 +24,9 @@ describe('GET /', function() {
 });
 
 
-describe('GET /builds', function() {
+describe('GET /builds/', function() {
     it('returns 0 builds', function(done) {
-        request(app.app).get('/builds')
+        request(app.app).get('/builds/')
         .end(function(err, res) {
             assert.equal(res.body.length, 0);
             done();
@@ -32,22 +34,23 @@ describe('GET /builds', function() {
     });
 
     it('returns 1 build', function(done) {
-        createBuild([{sauceSessionId: '221B'}], function() {
-            request(app.app).get('/builds')
+        createBuilds([buildFactory()]).then(function() {
+            request(app.app).get('/builds/')
                 .end(function(err, res) {
-                    assert.equal(res.body[0].sauceSessionId, '221B');
+                    assert.equal(res.body[0].travisId, 221);
                     done();
                 });
         });
     });
 
     it('returns 2 builds', function(done) {
-        createBuild([{sauceSessionId: '221B'},
-                     {sauceSessionId: 'N239'}], function() {
-            request(app.app).get('/builds')
+        var build1 = buildFactory();
+        var build2 = buildFactory({travisId: 239});
+        createBuilds([build1, build2]).then(function() {
+            request(app.app).get('/builds/')
                 .end(function(err, res) {
-                    assert.equal(res.body[0].sauceSessionId, '221B');
-                    assert.equal(res.body[1].sauceSessionId, 'N239');
+                    assert.equal(res.body[0].travisId, 221);
+                    assert.equal(res.body[1].travisId, 239);
                     done();
                 });
         });
@@ -55,26 +58,79 @@ describe('GET /builds', function() {
 });
 
 
-describe('POST /builds', function() {
+describe('POST /builds/', function() {
     it('creates a builds', function(done) {
-        request(app.app).post('/builds')
-            .send({sauceSessionId: '221B'})
+        request(app.app).post('/builds/')
+            .send(buildFactory())
             .end(function(err, res) {
-                assert.equal(res.body.sauceSessionId, '221B');
-            });
+                assert.equal(res.body.travisId, 221);
 
-        request(app.app).get('/builds')
-            .end(function(err, res) {
-                assert.equal(res.body[0].sauceSessionId, '221B');
-                done();
+                request(app.app).get('/builds/')
+                    .end(function(err, res) {
+                        assert.equal(res.body[0].travisId, 221);
+                        done();
+                    });
             });
     });
 });
 
 
-function createBuild(builds, cb) {
-    orm.connect(process.env.SHERLOCKED_TEST_DB, function(e, db) {
-        var Build = db.define.apply(db, app.models.Build);
-        Build.create(builds, cb);
+describe('GET /builds/:id', function() {
+    it('returns a build', function(done) {
+        createBuilds([buildFactory()]).then(function() {
+            request(app.app).get('/builds/221')
+                .end(function(err, res) {
+                    assert.equal(res.body.travisId, 221);
+                    done();
+                });
+        });
     });
+});
+
+
+describe('POST /builds/:id/captures/', function() {
+    it('returns a build', function(done) {
+        createBuilds([buildFactory()]).then(function() {
+            request(app.app).post('/builds/221/captures/')
+                .end(function(err, res) {
+                    console.log(res.body);
+                    assert.equal(res.body.travisId, 221);
+                    assert.equal(res.body.captures[0].name, 'watsonsButt');
+                    done();
+                });
+        });
+    });
+});
+
+
+function createBuilds(builds) {
+    // Create Builds via POST requests to the API.
+    return Promise.all(builds.map(function(build) {
+        return new Promise(function(resolve) {
+            request(app.app).post('/builds/')
+                .send(build)
+                .end(function(err, res) {
+                    resolve(res.body);
+                });
+        });
+    }));
+}
+
+
+function buildFactory(extendObj) {
+    // Generate Build.
+    return extend({
+        travisId: 221,
+        travisPullRequest: 221,
+        travisRepoSlug: 'sherlocked/adlerjs'
+    }, extendObj);
+}
+
+
+function captureFactory(extendObj) {
+    // Generate Build.
+    return extend({
+        name: 'watsonsButt',
+        sauceSessionId: '221B'
+    }, extendObj);
 }

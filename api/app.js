@@ -4,24 +4,9 @@
 var bodyParser = require('body-parser');
 var express = require('express');
 var orm = require('orm');
+var Promise = require('es6-promise').Promise;
 
 var app = express();
-
-
-var models = {
-    // Models.
-    'Build': ['Build', {
-        sauceSessionId: String,
-        travisBranch: String,
-        travisCommit: String,
-        travisId: Number,
-        travisRepoSlug: String,
-        travisPullRequest: travisPullRequest
-    }, {
-        methods: {},
-        validations: {},
-    }]
-};
 
 
 function dbSetup(cb) {
@@ -31,10 +16,28 @@ function dbSetup(cb) {
     // Wrapped in a function to assist with test tearDowns.
     app.use(orm.express(process.env.SHERLOCKED_TEST_DB ||
                         'sqlite://db.sqlite', {
-        define: function(db, ormModels, next) {
-            Object.keys(models).forEach(function(modelKey) {
-                ormModels[modelKey] = db.define.apply(db, models[modelKey]);
+        define: function(db, models, next) {
+            // A Sherlocked test build containing all Captures.
+            models.Build = db.define('build', {
+                travisId: Number,
+                travisRepoSlug: String,
+                travisPullRequest: Number
+            }, {
+                methods: {},
+                validations: {},
             });
+
+            // A Capture (i.e., screenshot).
+            models.Capture = db.define('captures', {
+                name: String,
+                sauceSessionId: String
+            });
+
+            // A Build can have many Captures.
+            models.Build.hasMany('captures', {}, {
+                autoFetch: true
+            });
+
             db.sync(function() {
                 next();
                 if (cb) {
@@ -67,12 +70,83 @@ app.get('/builds/', function(req, res) {
 
 
 app.post('/builds/', function(req, res) {
-    // Create a build.
-    req.models.Build.create([req.body], function(err, items) {
+    // Get or create a Build, add a Capture to that Build.
+    req.models.Build.find({travisId: req.body.travisId}, function(err, items) {
+        if (err) {
+            console.log(err);
+        }
+
+        if (!items.length) {
+            // Build doesn't exist, create Build.
+            req.models.Build.create([req.body], function(err, items) {
+                if (err) {
+                    console.log(err);
+                }
+                res.send(items[0]);
+            });
+        }
+    });
+});
+
+
+app.get('/builds/:buildId', function(req, res) {
+    // Get a Build.
+    req.models.Build.find(req.param.buildId, function(err, items) {
         if (err) {
             console.log(err);
         }
         res.send(items[0]);
+    });
+});
+
+
+app.post('/builds/:buildId/captures/', function(req, res) {
+    // Attach a Capture to a Build.
+    function buildFound() {
+        return new Promise(function(resolve) {
+            req.models.Build.find(req.param.buildId, function(err, builds) {
+                // Get the Build.
+                if (err) {
+                    console.log(err);
+                }
+                resolve(builds[0]);
+            });
+        });
+    }
+
+    function captureCreated() {
+        return new Promise(function(resolve) {
+            req.models.Capture.create([req.body], function(err, captures) {
+                if (err) {
+                    console.log(err);
+                }
+                resolve(captures[0]);
+            });
+        });
+    }
+
+    function createBuildCapture(build, capture) {
+        return new Promise(function(resolve) {
+            build.addCaptures([capture], function(err) {
+                if (err) {
+                    console.log(err);
+                }
+                resolve();
+            });
+        });
+    }
+
+    // Get Build, create Capture, attach Capture to Build, return updated
+    // Build object with the Captures.
+    buildFound().then(function(build) {
+        captureCreated().then(function(capture) {
+            createBuildCapture(build, capture).then(function() {
+                buildFound().then(function(build) {
+                    console.log(build.captures);
+                    res.send(build);
+                });
+            });
+        });
     });
 });
 
@@ -86,5 +160,4 @@ var server = app.listen(process.env.SHERLOCKED_PORT || 1077, function() {
 module.exports = {
     app: app,
     dbSetup: dbSetup,
-    models: models,
 };
