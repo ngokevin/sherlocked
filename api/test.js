@@ -81,6 +81,7 @@ describe('GET /builds/:id', function() {
             request(app.app).get('/builds/221')
                 .end(function(err, res) {
                     assert.equal(res.body.travisId, 221);
+                    assert.equal(res.body.captures.length, 0);
                     done();
                 });
         });
@@ -89,14 +90,30 @@ describe('GET /builds/:id', function() {
 
 
 describe('POST /builds/:id/captures/', function() {
-    it('returns a build', function(done) {
+    it('creates capture on build', function(done) {
         createBuilds([buildFactory()]).then(function() {
             request(app.app).post('/builds/221/captures/')
+                .send(captureFactory())
                 .end(function(err, res) {
-                    console.log(res.body);
                     assert.equal(res.body.travisId, 221);
                     assert.equal(res.body.captures[0].name, 'watsonsButt');
                     done();
+                });
+        });
+    });
+
+    it('creates multiple captures on build', function(done) {
+        createBuilds([buildFactory()]).then(function() {
+            request(app.app).post('/builds/221/captures/')
+                .send(captureFactory())
+                .end(function(err, res) {
+                    request(app.app).post('/builds/221/captures/')
+                        .send(captureFactory({name: 'watsonsFace',
+                                              sauceSessionId: '221C'}))
+                        .end(function(err, res) {
+                            assert.equal(res.body.captures.length, 2);
+                            done();
+                        });
                 });
         });
     });

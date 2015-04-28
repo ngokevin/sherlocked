@@ -23,6 +23,8 @@ function dbSetup(cb) {
                 travisRepoSlug: String,
                 travisPullRequest: Number
             }, {
+                autoFetch: true,
+                cache: false,
                 methods: {},
                 validations: {},
             });
@@ -34,8 +36,8 @@ function dbSetup(cb) {
             });
 
             // A Build can have many Captures.
-            models.Build.hasMany('captures', {}, {
-                autoFetch: true
+            models.Capture.hasOne('build', models.Build, {
+                reverse: 'captures',
             });
 
             db.sync(function() {
@@ -127,7 +129,7 @@ app.post('/builds/:buildId/captures/', function(req, res) {
 
     function createBuildCapture(build, capture) {
         return new Promise(function(resolve) {
-            build.addCaptures([capture], function(err) {
+            capture.setBuild(build, function(err) {
                 if (err) {
                     console.log(err);
                 }
@@ -142,7 +144,6 @@ app.post('/builds/:buildId/captures/', function(req, res) {
         captureCreated().then(function(capture) {
             createBuildCapture(build, capture).then(function() {
                 buildFound().then(function(build) {
-                    console.log(build.captures);
                     res.send(build);
                 });
             });
