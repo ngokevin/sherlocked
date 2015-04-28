@@ -98,30 +98,23 @@ node my-sherlocked-script.js
 
 ## API
 
-```
-GET /builds/
-```
+**GET /builds/**
 
 Lists builds.
 
 
-```
-POST /builds/
-```
+**POST /builds/**
 
 Create a build.
 
 Parameters | Description
 ---------- | -----------
 travisId | The Travis build ID, retrieved from the Travis CI environment.
-travisPullRequest | The pull request triggering the build, retrieved from the
-                    Travis CI environment.
-travisRepoSlug | The slug of the repository (```owner_name```/```repo_name```),
-                 retrieved from the TravisCI environment.
+travisPullRequest | The pull request triggering the build, retrieved from the Travis CI environment.
+travisRepoSlug | The slug of the repository (```owner_name```/```repo_name```), retrieved from the TravisCI environment.
 
-```
-GET /builds/:travisId
-```
+
+**GET /builds/:travisId**
 
 Get a build.
 
@@ -139,9 +132,7 @@ Example response:
 }
 ```
 
-```
-POST /builds/:buildId/captures/
-```
+**POST /builds/:buildId/captures/**
 
 Attach a capture to a build.
 
