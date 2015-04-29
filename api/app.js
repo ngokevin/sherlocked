@@ -1,65 +1,54 @@
 /*
     API for Sherlocked.
 */
+var _ = require('underscore');
 var bodyParser = require('body-parser');
+var camelize = require('underscore.string/camelize');
 var express = require('express');
-var orm = require('orm');
 var Promise = require('es6-promise').Promise;
 
+var knex = require('knex')(require('./config'));
+var bookshelf = require('bookshelf')(knex);
+
+
 var app = express();
-
-
-function dbSetup(cb) {
-    // Set up database using the models.
-    // Creating the database and tables if they don't exist.
-    // Register the ORM as Express middleware.
-    // Wrapped in a function to assist with test tearDowns.
-    app.use(orm.express(process.env.SHERLOCKED_TEST_DB ||
-                        'sqlite://db.sqlite', {
-        define: function(db, models, next) {
-            // A Sherlocked test build containing all Captures.
-            models.Build = db.define('build', {
-                travisBranch: String,
-                travisId: Number,
-                travisPullRequest: Number,
-                travisRepoSlug: String,
-            }, {
-                autoFetch: true,
-                cache: false,
-                methods: {},
-                validations: {},
-            });
-
-            // A Capture (i.e., screenshot).
-            models.Capture = db.define('captures', {
-                browserName: String,
-                browserPlatform: String,
-                browserVersion: String,
-                name: String,
-                sauceSessionId: String
-            });
-
-            // A Build has one master Build to compare to.
-            models.Build.hasOne('masterBuild', models.Build);
-
-            // A Build can have many Captures.
-            models.Capture.hasOne('build', models.Build, {
-                reverse: 'captures',
-            });
-
-            db.sync(function() {
-                next();
-                if (cb) {
-                    cb();
-                }
-            });
-        }
-    }));
-}
-dbSetup();
-
-
+app.set('bookshelf', bookshelf);
 app.use(bodyParser.json());
+
+
+var BrowserEnv = bookshelf.Model.extend({
+    tableName: 'browserEnv',
+});
+
+
+var Capture = bookshelf.Model.extend({
+    tableName: 'capture',
+    browserEnv: function() {
+        return this.belongsTo(BrowserEnv, 'browserEnvId');
+    },
+});
+
+
+var Build = bookshelf.Model.extend({
+    tableName: 'build',
+    captures: function() {
+        return this.hasMany(Capture, 'buildId');
+    },
+    masterBuild: function() {
+        return this.belongsTo(Build, 'masterBuildId');
+    },
+});
+
+
+function sendBuild(res, build) {
+    return build.load(['captures', 'masterBuild'], function(build) {
+        Promise.all([build.captures.map(function(capture) {
+            return capture.load('browserEnv');
+        })]).then(function() {
+            res.send(build);
+        });
+    });
+}
 
 
 app.get('/', function (req, res) {
@@ -69,68 +58,46 @@ app.get('/', function (req, res) {
 
 app.get('/builds/', function(req, res) {
     // List builds.
-    req.models.Build.find(function(err, items) {
-        if (err) {
-            console.log(err);
-        }
-        res.send(items);
+    Build.fetchAll().then(function(builds) {
+        res.send(builds);
     });
 });
 
 
 app.post('/builds/', function(req, res) {
     // Get or create a Build, add a Capture to that Build.
+    var data = req.body;
+
     function buildFound() {
-        return new Promise(function(resolve) {
-            req.models.Build.find({travisId: req.body.travisId},
-                                  function(err, items) {
-                if (err) {
-                    console.log(err);
-                }
-                resolve(items);
-            });
-        });
+        return Build.where({travisId: data.travisId}).fetch();
     }
 
     function buildCreated() {
-        return new Promise(function(resolve) {
-            req.models.Build.create([req.body], function(err, builds) {
-                if (err) {
-                    console.log(err);
-                }
-                resolve(builds[0]);
-            });
-        });
+        return Build.forge(data).save();
     }
 
     function masterBuildFound() {
-        return new Promise(function(resolve) {
-            req.models.Build.find({travisBranch: 'master',
-                                   travisRepoSlug: req.body.travisRepoSlug},
-                                  function(err, masterBuilds) {
-                if (err) {
-                    console.log(err);
-                }
-                resolve(masterBuilds);
-            });
-        });
+        return Build.where({travisBranch: 'master',
+                            travisRepoSlug: data.travisRepoSlug})
+                    .fetch();
     }
 
-    buildFound().then(function(builds) {
-        // Check if a Build of the ID exists.
-        if (builds.length) {
-            return res.send(builds[0]);
+    buildFound().then(function(build) {
+        if (build) {
+            // Check if a Build exists.
+            return res.sendStatus(409);
         }
         buildCreated().then(function(build) {
             // Create a Build if it doesn't.
             masterBuildFound().then(function(masterBuild) {
                 // Attach the current master Build.
-                if (masterBuild.length) {
-                    build.setMasterBuild(masterBuild, function() {
-                        res.send(build);
+                if (masterBuild) {
+                    build.set('masterBuild', masterBuild);
+                    build.save().then(function() {
+                        res.sendStatus(201);
                     });
                 } else {
-                    res.send(build);
+                    res.sendStatus(201);
                 }
             });
         });
@@ -140,60 +107,66 @@ app.post('/builds/', function(req, res) {
 
 app.get('/builds/:buildId', function(req, res) {
     // Get a Build.
-    req.models.Build.find(req.param.buildId, function(err, items) {
-        if (err) {
-            console.log(err);
-        }
-        res.send(items[0]);
-    });
+    Build.where({travisId: req.params.buildId})
+         .fetch({withRelated: ['captures',
+                               'masterBuild']}).then(function(build) {
+             res.send(build);
+         });
 });
 
 
 app.post('/builds/:buildId/captures/', function(req, res) {
     // Attach a Capture to a Build.
+    var data = req.body;
+    var bData = {
+        name: data.browserName,
+        platform: data.browserPlatform,
+        version: data.browserVersion,
+    };
+    delete data.browserName;
+    delete data.browserPlatform;
+    delete data.browserVersion;
+
     function buildFound() {
+        return Build.where({travisId: req.params.buildId}).fetch();
+    }
+
+    function browserEnvGetOrCreate() {
         return new Promise(function(resolve) {
-            req.models.Build.find(req.param.buildId, function(err, builds) {
-                // Get the Build.
-                if (err) {
-                    console.log(err);
+            BrowserEnv.where(bData).fetch().then(function(browserEnv) {
+                if (!browserEnv) {
+                    BrowserEnv.forge(bData).save().then(function(browserEnv) {
+                        data.browserEnvId = browserEnv.id;
+                        resolve();
+                    });
+                } else {
+                    data.browserEnvId = browserEnv.id;
+                    resolve();
                 }
-                resolve(builds[0]);
             });
         });
     }
 
     function captureCreated() {
-        return new Promise(function(resolve) {
-            req.models.Capture.create([req.body], function(err, captures) {
-                if (err) {
-                    console.log(err);
-                }
-                resolve(captures[0]);
-            });
-        });
+        return Capture.forge(data).save();
     }
 
     function createBuildCapture(build, capture) {
-        return new Promise(function(resolve) {
-            capture.setBuild(build, function(err) {
-                if (err) {
-                    console.log(err);
-                }
-                resolve();
-            });
-        });
+        return capture.set('buildId', build.travisId).save();
     }
 
     buildFound().then(function(build) {
         // Get the Build.
-        captureCreated().then(function(capture) {
-            // Create Capture.
-            createBuildCapture(build, capture).then(function() {
-                // Attach Capture to Build.
-                buildFound().then(function(build) {
-                    // Return updated build.
-                    res.send(build);
+        browserEnvGetOrCreate().then(function() {
+            // Get or create BrowserEnv.
+            captureCreated().then(function(capture) {
+                // Create Capture.
+                createBuildCapture(build, capture).then(function() {
+                    // Attach Capture to Build.
+                    buildFound().then(function(build) {
+                        // Return updated build.
+                        res.sendStatus(201);
+                    });
                 });
             });
         });
@@ -209,5 +182,4 @@ var server = app.listen(process.env.SHERLOCKED_PORT || 1077, function() {
 
 module.exports = {
     app: app,
-    dbSetup: dbSetup,
 };

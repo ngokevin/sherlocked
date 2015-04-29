@@ -6,12 +6,23 @@ var Promise = require('es6-promise').Promise;
 var request = require('supertest');
 
 var app = require('./app');
+var knex = require('knex')(require('./config'));
 
 
-afterEach(function(done) {
+if (!fs.existsSync(process.env.SHERLOCKED_TEST_DB)) {
+    require('./db');
+}
+
+
+beforeEach(function(done) {
     // Teardown and rebuild database.
-    fs.unlink(process.env.SHERLOCKED_TEST_DB.split('/')[2]);
-    app.dbSetup(done);
+    Promise.all([
+        knex('build').truncate(),
+        knex('browserEnv').truncate(),
+        knex('capture').truncate()
+    ]).then(function() {
+        done();
+    });
 });
 
 
@@ -62,14 +73,11 @@ describe('POST /builds/', function() {
     it('creates a builds', function(done) {
         request(app.app).post('/builds/')
             .send(buildFactory())
-            .end(function(err, res) {
-                assert.equal(res.body.travisId, 221);
-
-                request(app.app).get('/builds/')
-                    .end(function(err, res) {
-                        assert.equal(res.body[0].travisId, 221);
-                        done();
-                    });
+            .expect(201, function() {
+                getBuild(function(build) {
+                    assert.equal(build.travisId, 221);
+                    done();
+                });
             });
     });
 
@@ -79,16 +87,18 @@ describe('POST /builds/', function() {
         createBuilds([masterBuild]).then(function() {
             request(app.app).post('/builds/')
                 .send(buildFactory({travisId: 222}))
-                .end(function(err, res) {
-                    assert.equal(res.body.masterBuild.travisId, 221);
-                    done();
+                .expect(201, function() {
+                    getBuild(function(build) {
+                        assert.equal(build.travisId, 221);
+                        done();
+                    });
                 });
         });
     });
 });
 
 
-describe('GET /builds/:id', function() {
+describe('GET /builds/:buildId', function() {
     it('returns a build', function(done) {
         createBuilds([buildFactory()]).then(function() {
             request(app.app).get('/builds/221')
@@ -98,8 +108,8 @@ describe('GET /builds/:id', function() {
                     assert.equal(res.body.travisPullRequest, 221);
                     assert.equal(res.body.travisRepoSlug,
                                  'sherlocked/adlerjs');
-                    assert.equal(res.body.masterBuild, {});
                     assert.equal(res.body.captures.length, 0);
+                    assert.ok(res.body.masterBuild);
                     done();
                 });
         });
@@ -112,15 +122,16 @@ describe('POST /builds/:id/captures/', function() {
         createBuilds([buildFactory()]).then(function() {
             request(app.app).post('/builds/221/captures/')
                 .send(captureFactory())
-                .end(function(err, res) {
-                    assert.equal(res.body.travisId, 221);
-                    var capture = res.body.captures[0];
-                    assert.equal(capture.browserName, 'firefox');
-                    assert.equal(capture.browserVersion, '40');
-                    assert.equal(capture.browserPlatform, 'OS X 10.9');
-                    assert.equal(capture.name, 'watsonsButt');
-                    assert.equal(capture.sauceSessionId, '221B');
-                    done();
+                .expect(201, function() {
+                    getBuild(function(build) {
+                        var capture = build.captures[0];
+                        assert.equal(capture.browserEnv.name, 'firefox');
+                        assert.equal(capture.browserEnv.version, '40');
+                        assert.equal(capture.browserEnv.platform, 'OS X 10.9');
+                        assert.equal(capture.name, 'watsonsButt');
+                        assert.equal(capture.sauceSessionId, '221B');
+                        done();
+                    });
                 });
         });
     });
@@ -134,13 +145,24 @@ describe('POST /builds/:id/captures/', function() {
                         .send(captureFactory({name: 'watsonsFace',
                                               sauceSessionId: '221C'}))
                         .end(function(err, res) {
-                            assert.equal(res.body.captures.length, 2);
-                            done();
+                            getBuild(function(build) {
+                                console.log(build);
+                                assert.equal(build.captures.length, 2);
+                                done();
+                            });
                         });
                 });
         });
     });
 });
+
+
+function getBuild(cb, id) {
+    request(app.app).get('/builds/' + (id || 221))
+        .end(function(err, res) {
+            cb(res.body);
+        });
+}
 
 
 function createBuilds(builds) {
