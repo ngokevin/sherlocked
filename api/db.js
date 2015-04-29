@@ -20,7 +20,7 @@ if (fs.existsSync(dbFile)) {
 knex.schema.createTable('build', function(build) {
     build.increments('id').primary();
     build.timestamp('created');
-    build.integer('masterBuild').references('travisId');
+    build.integer('masterBuildId').references('build.id');
     build.string('travisBranch');
     build.integer('travisId').unique();
     build.integer('travisPullRequest');
@@ -30,7 +30,7 @@ knex.schema.createTable('build', function(build) {
 knex.schema.createTable('capture', function(capture) {
     capture.increments('id').primary();
     capture.integer('browserEnvId').references('browserEnv.id');
-    capture.integer('buildId').references('build.travisId');
+    capture.integer('buildId').references('build.id');
     capture.timestamp('created');
     capture.string('name');
     capture.string('sauceSessionId').unique();

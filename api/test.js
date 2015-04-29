@@ -89,9 +89,9 @@ describe('POST /builds/', function() {
                 .send(buildFactory({travisId: 222}))
                 .expect(201, function() {
                     getBuild(function(build) {
-                        assert.equal(build.travisId, 221);
+                        assert.equal(build.masterBuild.travisId, 221);
                         done();
-                    });
+                    }, 222);
                 });
         });
     });
@@ -103,13 +103,13 @@ describe('GET /builds/:buildId', function() {
         createBuilds([buildFactory()]).then(function() {
             request(app.app).get('/builds/221')
                 .end(function(err, res) {
-                    assert.equal(res.body.travisId, 221);
-                    assert.equal(res.body.travisBranch, 'updateHatStyle');
-                    assert.equal(res.body.travisPullRequest, 221);
-                    assert.equal(res.body.travisRepoSlug,
+                    var build = res.body;
+                    assert.equal(build.travisId, 221);
+                    assert.equal(build.travisBranch, 'updateHatStyle');
+                    assert.equal(build.travisPullRequest, 221);
+                    assert.equal(build.travisRepoSlug,
                                  'sherlocked/adlerjs');
-                    assert.equal(res.body.captures.length, 0);
-                    assert.ok(res.body.masterBuild);
+                    assert.equal(build.captures.length, 0);
                     done();
                 });
         });
@@ -146,7 +146,6 @@ describe('POST /builds/:id/captures/', function() {
                                               sauceSessionId: '221C'}))
                         .end(function(err, res) {
                             getBuild(function(build) {
-                                console.log(build);
                                 assert.equal(build.captures.length, 2);
                                 done();
                             });

@@ -1,9 +1,7 @@
 /*
     API for Sherlocked.
 */
-var _ = require('underscore');
 var bodyParser = require('body-parser');
-var camelize = require('underscore.string/camelize');
 var express = require('express');
 var Promise = require('es6-promise').Promise;
 
@@ -40,17 +38,6 @@ var Build = bookshelf.Model.extend({
 });
 
 
-function sendBuild(res, build) {
-    return build.load(['captures', 'masterBuild'], function(build) {
-        Promise.all([build.captures.map(function(capture) {
-            return capture.load('browserEnv');
-        })]).then(function() {
-            res.send(build);
-        });
-    });
-}
-
-
 app.get('/', function (req, res) {
     res.send('<img src="http://imgur.com/b5jQjd7.png">');
 });
@@ -78,8 +65,7 @@ app.post('/builds/', function(req, res) {
 
     function masterBuildFound() {
         return Build.where({travisBranch: 'master',
-                            travisRepoSlug: data.travisRepoSlug})
-                    .fetch();
+                            travisRepoSlug: data.travisRepoSlug}).fetch();
     }
 
     buildFound().then(function(build) {
@@ -92,7 +78,7 @@ app.post('/builds/', function(req, res) {
             masterBuildFound().then(function(masterBuild) {
                 // Attach the current master Build.
                 if (masterBuild) {
-                    build.set('masterBuild', masterBuild);
+                    build.set('masterBuildId', masterBuild.id);
                     build.save().then(function() {
                         res.sendStatus(201);
                     });
@@ -107,9 +93,9 @@ app.post('/builds/', function(req, res) {
 
 app.get('/builds/:buildId', function(req, res) {
     // Get a Build.
+    var related = ['captures', 'captures.browserEnv', 'masterBuild'];
     Build.where({travisId: req.params.buildId})
-         .fetch({withRelated: ['captures',
-                               'masterBuild']}).then(function(build) {
+         .fetch({withRelated: related}).then(function(build) {
              res.send(build);
          });
 });
@@ -152,7 +138,7 @@ app.post('/builds/:buildId/captures/', function(req, res) {
     }
 
     function createBuildCapture(build, capture) {
-        return capture.set('buildId', build.travisId).save();
+        return capture.set('buildId', build.id).save();
     }
 
     buildFound().then(function(build) {
