@@ -72,6 +72,19 @@ describe('POST /builds/', function() {
                     });
             });
     });
+
+    it('attaches master build', function(done) {
+        var masterBuild = buildFactory({travisBranch: 'master'});
+
+        createBuilds([masterBuild]).then(function() {
+            request(app.app).post('/builds/')
+                .send(buildFactory({travisId: 222}))
+                .end(function(err, res) {
+                    assert.equal(res.body.masterBuild.travisId, 221);
+                    done();
+                });
+        });
+    });
 });
 
 
@@ -81,6 +94,11 @@ describe('GET /builds/:id', function() {
             request(app.app).get('/builds/221')
                 .end(function(err, res) {
                     assert.equal(res.body.travisId, 221);
+                    assert.equal(res.body.travisBranch, 'updateHatStyle');
+                    assert.equal(res.body.travisPullRequest, 221);
+                    assert.equal(res.body.travisRepoSlug,
+                                 'sherlocked/adlerjs');
+                    assert.equal(res.body.masterBuild, {});
                     assert.equal(res.body.captures.length, 0);
                     done();
                 });
@@ -96,7 +114,12 @@ describe('POST /builds/:id/captures/', function() {
                 .send(captureFactory())
                 .end(function(err, res) {
                     assert.equal(res.body.travisId, 221);
-                    assert.equal(res.body.captures[0].name, 'watsonsButt');
+                    var capture = res.body.captures[0];
+                    assert.equal(capture.browserName, 'firefox');
+                    assert.equal(capture.browserVersion, '40');
+                    assert.equal(capture.browserPlatform, 'OS X 10.9');
+                    assert.equal(capture.name, 'watsonsButt');
+                    assert.equal(capture.sauceSessionId, '221B');
                     done();
                 });
         });
@@ -137,6 +160,7 @@ function createBuilds(builds) {
 function buildFactory(extendObj) {
     // Generate Build.
     return extend({
+        travisBranch: 'updateHatStyle',
         travisId: 221,
         travisPullRequest: 221,
         travisRepoSlug: 'sherlocked/adlerjs'
@@ -147,6 +171,9 @@ function buildFactory(extendObj) {
 function captureFactory(extendObj) {
     // Generate Build.
     return extend({
+        browserName: 'firefox',
+        browserPlatform: 'OS X 10.9',
+        browserVersion: '40',
         name: 'watsonsButt',
         sauceSessionId: '221B'
     }, extendObj);

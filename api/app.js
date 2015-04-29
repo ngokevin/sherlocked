@@ -19,9 +19,10 @@ function dbSetup(cb) {
         define: function(db, models, next) {
             // A Sherlocked test build containing all Captures.
             models.Build = db.define('build', {
+                travisBranch: String,
                 travisId: Number,
+                travisPullRequest: Number,
                 travisRepoSlug: String,
-                travisPullRequest: Number
             }, {
                 autoFetch: true,
                 cache: false,
@@ -31,9 +32,15 @@ function dbSetup(cb) {
 
             // A Capture (i.e., screenshot).
             models.Capture = db.define('captures', {
+                browserName: String,
+                browserPlatform: String,
+                browserVersion: String,
                 name: String,
                 sauceSessionId: String
             });
+
+            // A Build has one master Build to compare to.
+            models.Build.hasOne('masterBuild', models.Build);
 
             // A Build can have many Captures.
             models.Capture.hasOne('build', models.Build, {
@@ -73,20 +80,60 @@ app.get('/builds/', function(req, res) {
 
 app.post('/builds/', function(req, res) {
     // Get or create a Build, add a Capture to that Build.
-    req.models.Build.find({travisId: req.body.travisId}, function(err, items) {
-        if (err) {
-            console.log(err);
-        }
-
-        if (!items.length) {
-            // Build doesn't exist, create Build.
-            req.models.Build.create([req.body], function(err, items) {
+    function buildFound() {
+        return new Promise(function(resolve) {
+            req.models.Build.find({travisId: req.body.travisId},
+                                  function(err, items) {
                 if (err) {
                     console.log(err);
                 }
-                res.send(items[0]);
+                resolve(items);
             });
+        });
+    }
+
+    function buildCreated() {
+        return new Promise(function(resolve) {
+            req.models.Build.create([req.body], function(err, builds) {
+                if (err) {
+                    console.log(err);
+                }
+                resolve(builds[0]);
+            });
+        });
+    }
+
+    function masterBuildFound() {
+        return new Promise(function(resolve) {
+            req.models.Build.find({travisBranch: 'master',
+                                   travisRepoSlug: req.body.travisRepoSlug},
+                                  function(err, masterBuilds) {
+                if (err) {
+                    console.log(err);
+                }
+                resolve(masterBuilds);
+            });
+        });
+    }
+
+    buildFound().then(function(builds) {
+        // Check if a Build of the ID exists.
+        if (builds.length) {
+            return res.send(builds[0]);
         }
+        buildCreated().then(function(build) {
+            // Create a Build if it doesn't.
+            masterBuildFound().then(function(masterBuild) {
+                // Attach the current master Build.
+                if (masterBuild.length) {
+                    build.setMasterBuild(masterBuild, function() {
+                        res.send(build);
+                    });
+                } else {
+                    res.send(build);
+                }
+            });
+        });
     });
 });
 
@@ -138,12 +185,14 @@ app.post('/builds/:buildId/captures/', function(req, res) {
         });
     }
 
-    // Get Build, create Capture, attach Capture to Build, return updated
-    // Build object with the Captures.
     buildFound().then(function(build) {
+        // Get the Build.
         captureCreated().then(function(capture) {
+            // Create Capture.
             createBuildCapture(build, capture).then(function() {
+                // Attach Capture to Build.
                 buildFound().then(function(build) {
+                    // Return updated build.
                     res.send(build);
                 });
             });
