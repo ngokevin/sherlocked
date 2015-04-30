@@ -7,7 +7,7 @@
   },
   "dependencies": {
     "es6-promise": "2.0.0",
-    "request": "^2.55.0",
+    "superagent": "^1.2.0",
     "webdriverio": "2.4.5"
   }
 }

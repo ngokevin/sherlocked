@@ -131,6 +131,8 @@ describe('GET /builds/:buildId', function() {
                          'watsonsButt');
             assert.equal(build.captures[0].captures.watsonsButt.sauceSessionId,
                          '221B');
+            assert.equal(build.captures[0].captures.watsonsButt.src,
+                         'https://sauce.com/ss0.png');
             assert.equal(Object.keys(build.captures[0].masterCaptures).length,
                          0);
             done();
@@ -290,6 +292,7 @@ function buildFactory(extendObj) {
 }
 
 
+var captureCounter = 0;
 function captureFactory(extendObj) {
     // Generate Build.
     return extend({
@@ -297,6 +300,7 @@ function captureFactory(extendObj) {
         browserPlatform: 'OS X 10.9',
         browserVersion: '40',
         name: 'watsonsButt',
-        sauceSessionId: '221B'
+        sauceSessionId: '221B',
+        src: 'https://sauce.com/ss' + captureCounter++ + '.png'
     }, extendObj);
 }

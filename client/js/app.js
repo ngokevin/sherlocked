@@ -59,10 +59,10 @@ var BrowserEnv = React.createClass({
         return state;
     },
     renderCapture: function(captureName, i) {
-        return <Capture capture={this.state.captures[captureName]}
+        return <Captures capture={this.state.captures[captureName]}
                         masterCapture={this.state.masterCaptures[captureName]}
                         key={i}>
-               </Capture>
+               </Captures>
     },
     render: function() {
         return <div className="browserEnv">
@@ -76,7 +76,7 @@ var BrowserEnv = React.createClass({
 });
 
 
-var Capture = React.createClass({
+var Captures = React.createClass({
     getInitialState: function() {
         return {
             capture: this.props.capture,
@@ -84,10 +84,16 @@ var Capture = React.createClass({
         };
     },
     render: function() {
-        return <div className="capture">
+        return <div className="captures">
           <ul>
-            <li>Capture: {this.state.capture.sauceSessionId}</li>
-            <li>Master Capture: {this.state.masterCapture.sauceSessionId}</li>
+            <li>
+              <img src={this.state.capture.src}
+                   className="capture capture--branch"/>
+            </li>
+            <li>
+              <img src={this.state.masterCapture.src}
+                   className="capture capture--master"/>
+            </li>
           </ul>
         </div>
     }
