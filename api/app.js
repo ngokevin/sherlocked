@@ -35,6 +35,69 @@ var Build = bookshelf.Model.extend({
     masterBuild: function() {
         return this.belongsTo(Build, 'masterBuildId');
     },
+    deserialize: function() {
+        var root = this;
+        function transform(build) {
+            // Rework the data structure to group Captures by BrowserEnv
+            // alongside the master Build's captures.
+
+            // Create BrowserEnv groups.
+            var browserEnvIds = [];
+            var groupedCaptures = build.captures.map(function(capture) {
+                if (browserEnvIds.indexOf(capture.browserEnv.id) !== -1) {
+                    return;
+                }
+                browserEnvIds.push(capture.browserEnv.id);
+
+                return {
+                    browserEnv: capture.browserEnv,
+                    captures: {},
+                    masterCaptures: {},
+                };
+            }).filter(function(e) {
+                return e;
+            });
+
+            // Attach Captures to our groups.
+            build.captures.forEach(function(capture) {
+                groupedCaptures.forEach(function(groupedCapture) {
+                    if (capture.browserEnv.id !=
+                        groupedCapture.browserEnv.id) {
+                        return;
+                    }
+                   groupedCapture.captures[capture.name] = capture;
+                });
+            });
+
+            if (!build.masterBuild) {
+                build.captures = groupedCaptures;
+                return build;
+            }
+
+            // Attach master Captures to our groups.
+            build.masterBuild.captures.forEach(function(mCapture) {
+                groupedCaptures.forEach(function(groupedCapture) {
+                    if (mCapture.browserEnv.id !=
+                        groupedCapture.browserEnv.id) {
+                        return;
+                    }
+                    groupedCapture.masterCaptures[mCapture.name] = mCapture;
+                });
+            });
+
+            build.captures = groupedCaptures;
+            return build;
+        }
+
+        return new Promise(function(resolve) {
+            root.load(['captures', 'captures.browserEnv', 'masterBuild',
+                       'masterBuild.captures',
+                       'masterBuild.captures.browserEnv'])
+                .then(function(build) {
+                    resolve(transform(build.toJSON()));
+                });
+        });
+    }
 });
 
 
@@ -93,11 +156,11 @@ app.post('/builds/', function(req, res) {
 
 app.get('/builds/:buildId', function(req, res) {
     // Get a Build.
-    var related = ['captures', 'captures.browserEnv', 'masterBuild'];
-    Build.where({travisId: req.params.buildId})
-         .fetch({withRelated: related}).then(function(build) {
-             res.send(build);
-         });
+    Build.where({travisId: req.params.buildId}).fetch().then(function(build) {
+        build.deserialize().then(function(build) {
+            res.send(build);
+        });
+    });
 });
 
 

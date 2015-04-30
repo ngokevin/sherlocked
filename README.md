@@ -117,21 +117,43 @@ Example response:
 
 ```javascript
 {
+  "travisBranch": "newAwesomeDetectiveHat",
+  "travisCommit": "01189998819991197253",
   "travisId": 221,
   "travisPullRequest": 222,
   "travisRepoSlug": "sherlocked/adlerjs",
   "masterBuild": {
-    "travisId": 220,
+    "travisBranch": "master",
     ...
   },
   "captures": [
-    "browserEnv": {
+    {
+      "browserEnv": {
+        "id": 1,
         "name": "firefox",
         "platform": "OS X 10.9",
         "version": "40",
-    },
-    "name": "homepageOnMobile",
-    "sauceSessionId": "N239",
+      },
+      "captures": {
+        "homepageOnMobile": {
+          "name": "homepageOnMobile",
+          "sauceSessionId": "N239"
+        },
+        "homepageOnDesktop": {
+          "name": "homepageOnDesktop",
+          "sauceSessionId": "N221B"
+        }
+      },
+      "masterCaptures": {
+        "homepageOnMobile": {
+          "name": "homepageOnMobile",
+          "sauceSessionId": "N221"
+        },
+        "homepageOnDesktop": {
+          "name": "homepageOnDesktop",
+          "sauceSessionId": "B239"
+        }
+      },
   ]
 }
 ```

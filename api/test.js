@@ -100,17 +100,87 @@ describe('POST /builds/', function() {
 
 describe('GET /builds/:buildId', function() {
     it('returns a build', function(done) {
+        function assertBuild(build) {
+            assert.equal(build.travisId, 221);
+            assert.equal(build.travisBranch, 'updateHatStyle');
+            assert.equal(build.travisCommit, '01189998819991197253');
+            assert.equal(build.travisPullRequest, 221);
+            assert.equal(build.travisRepoSlug,
+                         'sherlocked/adlerjs');
+
+            assert.equal(build.captures.length, 0);
+            assert.equal(build.masterBuild, undefined);
+            done();
+        }
+
         createBuilds([buildFactory()]).then(function() {
             request(app.app).get('/builds/221')
                 .end(function(err, res) {
-                    var build = res.body;
-                    assert.equal(build.travisId, 221);
-                    assert.equal(build.travisBranch, 'updateHatStyle');
-                    assert.equal(build.travisPullRequest, 221);
-                    assert.equal(build.travisRepoSlug,
-                                 'sherlocked/adlerjs');
-                    assert.equal(build.captures.length, 0);
-                    done();
+                    assertBuild(res.body);
+                });
+        });
+    });
+
+    it('returns a build with captures', function(done) {
+        function assertBuild(build) {
+            assert.equal(build.captures.length, 1);
+            assert.equal(build.captures[0].browserEnv.name, 'firefox');
+            assert.equal(build.captures[0].browserEnv.platform, 'OS X 10.9');
+            assert.equal(build.captures[0].browserEnv.version, '40');
+            assert.equal(build.captures[0].captures.watsonsButt.name,
+                         'watsonsButt');
+            assert.equal(build.captures[0].captures.watsonsButt.sauceSessionId,
+                         '221B');
+            assert.equal(Object.keys(build.captures[0].masterCaptures).length,
+                         0);
+            done();
+        }
+
+        createBuilds([buildFactory()]).then(function() {
+            request(app.app).post('/builds/221/captures/')
+                .send(captureFactory())
+                .end(function(err, res) {
+                    request(app.app).get('/builds/221')
+                        .end(function(err, res) {
+                            assertBuild(res.body);
+                        });
+                });
+        });
+    });
+
+    it('returns a build w/ master build captures w/ same env', function(done) {
+        function assertBuild(build) {
+            var captureGroup = build.captures[0];
+            var captures = captureGroup.captures;
+            var masterCaptures = captureGroup.masterCaptures;
+
+            assert.equal(captureGroup.browserEnv.name, 'firefox');
+            assert.equal(captureGroup.browserEnv.version, '40');
+            assert.equal(captureGroup.browserEnv.platform,
+                         'OS X 10.9');
+
+            assert.equal(Object.keys(captures).length, 1);
+            assert.equal(Object.keys(masterCaptures).length, 1);
+
+            assert.equal(captures.watsonsButt.sauceSessionId, 'abc');
+            assert.equal(masterCaptures.watsonsButt.sauceSessionId, '221B');
+            done();
+        }
+
+        var masterBuild = buildFactory({travisBranch: 'master',
+                                        travisId: 123});
+        createBuilds([buildFactory(), masterBuild]).then(function() {
+            request(app.app).post('/builds/123/captures/')
+                .send(captureFactory())
+                .end(function(err, res) {
+                    request(app.app).post('/builds/221/captures/')
+                        .send(captureFactory({sauceSessionId: 'abc'}))
+                        .end(function(err, res) {
+                            request(app.app).get('/builds/221')
+                                .end(function(err, res) {
+                                    assertBuild(res.body);
+                                });
+                        });
                 });
         });
     });
@@ -124,19 +194,24 @@ describe('POST /builds/:id/captures/', function() {
                 .send(captureFactory())
                 .expect(201, function() {
                     getBuild(function(build) {
-                        var capture = build.captures[0];
-                        assert.equal(capture.browserEnv.name, 'firefox');
-                        assert.equal(capture.browserEnv.version, '40');
-                        assert.equal(capture.browserEnv.platform, 'OS X 10.9');
-                        assert.equal(capture.name, 'watsonsButt');
-                        assert.equal(capture.sauceSessionId, '221B');
+                        assert.equal(build.captures.length, 1);
+                        var captureGroup = build.captures[0];
+                        assert.equal(Object.keys(captureGroup.captures).length,
+                                     1);
                         done();
                     });
                 });
         });
     });
 
-    it('creates multiple captures on build', function(done) {
+    it('creates multiple captures with same browserEnv', function(done) {
+        function assertBuild(build) {
+            assert.equal(build.captures.length, 1);
+            var captureGroup = build.captures[0];
+            assert.equal(Object.keys(captureGroup.captures).length, 2);
+            done();
+        }
+
         createBuilds([buildFactory()]).then(function() {
             request(app.app).post('/builds/221/captures/')
                 .send(captureFactory())
@@ -145,10 +220,34 @@ describe('POST /builds/:id/captures/', function() {
                         .send(captureFactory({name: 'watsonsFace',
                                               sauceSessionId: '221C'}))
                         .end(function(err, res) {
-                            getBuild(function(build) {
-                                assert.equal(build.captures.length, 2);
-                                done();
-                            });
+                            getBuild(assertBuild);
+                        });
+                });
+        });
+    });
+
+    it('creates multiple captures with different browserEnv', function(done) {
+        function assertBuild(build) {
+            assert.equal(build.captures.length, 2);
+            var firefoxGroup = build.captures[0];
+            assert.equal(Object.keys(firefoxGroup.captures).length, 1);
+            var chromeGroup = build.captures[1];
+            assert.equal(Object.keys(chromeGroup.captures).length, 1);
+            done();
+        }
+
+        createBuilds([buildFactory()]).then(function() {
+            request(app.app).post('/builds/221/captures/')
+                .send(captureFactory())
+                .end(function(err, res) {
+                    request(app.app).post('/builds/221/captures/')
+                        .send(captureFactory({
+                            browserName: 'chrome',
+                            name: 'watsonsFace',
+                            sauceSessionId: '221C'
+                        }))
+                        .end(function(err, res) {
+                            getBuild(assertBuild);
                         });
                 });
         });
@@ -182,6 +281,7 @@ function buildFactory(extendObj) {
     // Generate Build.
     return extend({
         travisBranch: 'updateHatStyle',
+        travisCommit: '01189998819991197253',
         travisId: 221,
         travisPullRequest: 221,
         travisRepoSlug: 'sherlocked/adlerjs'

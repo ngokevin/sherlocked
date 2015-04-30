@@ -11,11 +11,12 @@
     "es6-promise": "^2.1.1",
     "express": "4.12.3",
     "knex": "^0.7.6",
-    "sqlite3": "^3.0.5"
+    "sqlite3": "^3.0.5",
   },
   "devDependencies": {
     "extend": "^2.0.1",
     "mocha": "^2.2.4",
-    "supertest": "^0.15.0"
+    "supertest": "^0.15.0",
+    "supervisor": "^0.6.0"
   }
 }

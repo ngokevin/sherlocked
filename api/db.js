@@ -22,6 +22,7 @@ knex.schema.createTable('build', function(build) {
     build.timestamp('created');
     build.integer('masterBuildId').references('build.id');
     build.string('travisBranch');
+    build.string('travisCommit');
     build.integer('travisId').unique();
     build.integer('travisPullRequest');
     build.string('travisRepoSlug');
