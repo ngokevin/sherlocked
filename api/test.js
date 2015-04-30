@@ -214,10 +214,11 @@ describe('POST /builds/:id/captures/', function() {
 
         createBuilds([buildFactory()]).then(function() {
             request(app.app).post('/builds/221/captures/')
-                .send(captureFactory())
+                .send(captureFactory({browserVersion: undefined}))
                 .end(function(err, res) {
                     request(app.app).post('/builds/221/captures/')
-                        .send(captureFactory({name: 'watsonsFace',
+                        .send(captureFactory({browserVersion: undefined,
+                                              name: 'watsonsFace',
                                               sauceSessionId: '221C'}))
                         .end(function(err, res) {
                             getBuild(assertBuild);

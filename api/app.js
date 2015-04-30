@@ -2,6 +2,7 @@
     API for Sherlocked.
 */
 var bodyParser = require('body-parser');
+var cors = require('cors');
 var express = require('express');
 var Promise = require('es6-promise').Promise;
 
@@ -12,6 +13,7 @@ var bookshelf = require('bookshelf')(knex);
 var app = express();
 app.set('bookshelf', bookshelf);
 app.use(bodyParser.json());
+app.use(cors());
 
 
 var BrowserEnv = bookshelf.Model.extend({
@@ -168,9 +170,9 @@ app.post('/builds/:buildId/captures/', function(req, res) {
     // Attach a Capture to a Build.
     var data = req.body;
     var bData = {
-        name: data.browserName,
-        platform: data.browserPlatform,
-        version: data.browserVersion,
+        name: data.browserName || '',
+        platform: data.browserPlatform || '',
+        version: data.browserVersion || '',
     };
     delete data.browserName;
     delete data.browserPlatform;
@@ -182,7 +184,9 @@ app.post('/builds/:buildId/captures/', function(req, res) {
 
     function browserEnvGetOrCreate() {
         return new Promise(function(resolve) {
+            // console.log(bData);
             BrowserEnv.where(bData).fetch().then(function(browserEnv) {
+                // console.log(browserEnv);
                 if (!browserEnv) {
                     BrowserEnv.forge(bData).save().then(function(browserEnv) {
                         data.browserEnvId = browserEnv.id;
