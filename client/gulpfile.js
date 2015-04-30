@@ -9,7 +9,10 @@ var watchify = require('watchify');
 var webserver = require('gulp-webserver');
 
 
-var bundler = watchify(browserify('./js/app.js', watchify.args));
+var bundler = watchify(
+    browserify('./js/app.js', watchify.args)
+        .transform(reactify)
+);
 
 
 gulp.task('css', function() {
@@ -22,7 +25,7 @@ gulp.task('css', function() {
 
 
 function jsBundle() {
-    return bundler.transform(reactify)
+    return bundler
         .bundle()
         .pipe(vinylSource('bundle.js'))
         .pipe(gulp.dest('build'));
@@ -37,7 +40,8 @@ gulp.task('js', function() {
 gulp.task('serve', function() {
     return gulp.src(['./'])
         .pipe(webserver({
-            port: process.env.PORT || '2118'
+            fallback: 'index.html',
+            port: process.env.SHERLOCKED_PORT || '2118'
         }));
 });
 

@@ -2,6 +2,7 @@
   "name": "sherlocked-client",
   "version": "0.0.0",
   "dependencies": {
+    "browser-request": "^0.3.3",
     "browserify": "9.0.8",
     "gulp": "3.8.x",
     "gulp-autoprefixer": "2.1.0",
@@ -12,6 +13,7 @@
     "react": "0.13.2",
     "react-router": "^0.13.2",
     "reactify": "^1.1.0",
+    "url": "^0.10.3",
     "vinyl-source-stream": "1.1.0",
     "watchify": "3.1.2"
   }

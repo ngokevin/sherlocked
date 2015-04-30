@@ -64,13 +64,9 @@ module.exports = {
     ],
     captures: [
         function(client) {
-            return client.init()
-                         .setViewportSize({
-                            width: 320,
-                            height: 480,
-                         })
-                         .url('localhost/some-page')
-                         .waitFor('.some-element');
+            return client.setViewportSize({width: 320, height: 480})
+                .url('localhost/some-page')
+                .waitFor('.some-element');
         },
     ]
 };
@@ -99,12 +95,12 @@ node my-sherlocked-script.js
 
 **GET /builds/**
 
-Lists builds.
+Lists builds. Note this will not fetch related fields such as ```captures```.
 
 
 **POST /builds/**
 
-Create a build.
+Create a build. Returns 201 on success.
 
 Parameters | Description
 ---------- | -----------
@@ -124,7 +120,16 @@ Example response:
   "travisId": 221,
   "travisPullRequest": 222,
   "travisRepoSlug": "sherlocked/adlerjs",
+  "masterBuild": {
+    "travisId": 220,
+    ...
+  },
   "captures": [
+    "browserEnv": {
+        "name": "firefox",
+        "platform": "OS X 10.9",
+        "version": "40",
+    },
     "name": "homepageOnMobile",
     "sauceSessionId": "N239",
   ]
@@ -133,9 +138,12 @@ Example response:
 
 **POST /builds/:buildId/captures/**
 
-Attach a capture to a build.
+Attach a capture to a build. Returns 201 on success.
 
 Parameters | Description
 ---------- | -----------
+browserName | Browser that the capture was created in (e.g., ```firefox```)
+browserPlatform | Browser platform that the capture was created in (e.g., ```OS X 10.9```)
+browserVersion | Browser version that the capture was created in (e.g., ```40```)
 name | Name of the capture (e.g., ```homePageOnDesktop```)
 sauceSessionId | Sauce Labs session ID, each session generates one capture.
