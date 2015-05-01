@@ -26,6 +26,7 @@ var BrowserEnv = bookshelf.Model.extend({
 
 var Capture = bookshelf.Model.extend({
     tableName: 'capture',
+    hasTimestamps: ['created_at', 'updated_at'],
     browserEnv: function() {
         return this.belongsTo(BrowserEnv, 'browserEnvId');
     }
@@ -40,6 +41,7 @@ function deserializeCapture(capture) {
 
 var Build = bookshelf.Model.extend({
     tableName: 'build',
+    hasTimestamps: ['created_at', 'updated_at'],
     captures: function() {
         return this.hasMany(Capture, 'buildId');
     },
