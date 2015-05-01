@@ -8,8 +8,10 @@ var API_URL = require('./config').API_URL;
 
 var App = React.createClass({
     render: function() {
-        return <div>
-          <header></header>
+        return <div className="app">
+          <header>
+            <h1>Sherlocked</h1>
+          </header>
           <main>
             <Router.RouteHandler/>
           </main>
@@ -42,9 +44,12 @@ var Build = React.createClass({
     },
     render: function() {
         return <div className="build">
-          <h1>Travis Build #{this.state.travisId}</h1>
-          <h2>{this.state.travisRepoSlug}</h2>
-          <div>
+          <div className="build-header">
+            <h2>{this.state.travisRepoSlug}</h2>
+            &mdash;
+            <h2>Travis Build #{this.state.travisId}</h2>
+          </div>
+          <div className="build-content">
             {this.state.captures.map(this.renderBrowserEnv)}
           </div>
         </div>
@@ -65,12 +70,16 @@ var BrowserEnv = React.createClass({
                </Captures>
     },
     render: function() {
-        return <div className="browserEnv">
-          {this.state.browserEnv.name}
-          {this.state.browserEnv.platform}
-          {this.state.browserEnv.version}
+        return <div className="browser-env">
+          <div className="browser-env-header">
+            <h3>{this.state.browserEnv.name}</h3>
+            <h3>{this.state.browserEnv.version}</h3>
+            <h3>{this.state.browserEnv.platform}</h3>
+          </div>
 
-          {this.state.captureNames.map(this.renderCapture)}
+          <div className="browser-env-captures">
+            {this.state.captureNames.map(this.renderCapture)}
+          </div>
         </div>
     }
 });

@@ -1,3 +1,103 @@
-html, body {
+$dark-gray = #545D64;
+$medium-gray = #867F79;
+$light-gray = #A6A89C;
 
+$blue = #14405F;
+$brown = #4F4347;
+$dark-red = #462423;
+$gold = #907350;
+$green = #333E36;
+$red = #774743;
+$yellow = #AC8C58;
+
+html,
+body {
+    background: $medium-gray;
+    margin: 0;
+    padding: 0;
+}
+
+html,
+body,
+.app {
+    height: 100%;
+    width: 100%;
+}
+
+h1, h2, h3 {
+    font-weight: 300;
+}
+
+ul {
+    padding: 0;
+}
+
+li {
+    list-style: none;
+}
+
+a {
+    color: $red;
+
+    &:hover {
+        color: $dark-red;
+    }
+}
+
+header {
+    background: $brown;
+    color: $light-gray;
+    text-align: center;
+    padding: 1px 0;
+}
+
+main {
+    min-height: 100%;
+    max-width: 100%;
+}
+
+.build-header {
+    align-items: center;
+    background: $red;
+    color: $light-gray;
+    display: flex;
+    justify-content: center;
+    margin-bottom: 30px;
+    width: 100%;
+
+    h2 {
+        margin-left: 10px;
+        margin-right: 10px;
+    }
+}
+
+.build-content {
+    padding: 0 30px;
+}
+
+.browser-env-header {
+    background: $blue;
+    display: flex;
+    justify-content: center;
+    width: 100%;
+
+    h3 {
+        color: $light-gray;
+        margin-left: 5px;
+        margin-right: 5px;
+    }
+}
+
+.browser-env-captures {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.captures {
+    max-width: 100%;
+}
+
+.capture {
+    max-height: 420px;
 }
