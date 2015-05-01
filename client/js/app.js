@@ -94,6 +94,7 @@ var Captures = React.createClass({
     },
     render: function() {
         return <div className="captures">
+          <h4>{this.state.capture.name}</h4>
           <ul>
             <li>
               <img src={this.state.capture.src}
