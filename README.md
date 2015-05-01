@@ -169,3 +169,38 @@ browserPlatform | Browser platform that the capture was created in (e.g., ```OS 
 browserVersion | Browser version that the capture was created in (e.g., ```40```)
 name | Name of the capture (e.g., ```homePageOnDesktop```)
 sauceSessionId | Sauce Labs session ID, each session generates one capture.
+
+## Development
+
+Sherlocked consist of several moving parts: the backend API, the npm module,
+and the web frontend.
+
+### API
+
+The backend service consisting of the API and database. Powered by Express,
+with Bookshelf as the ORM.
+
+```
+npm install
+node db.js
+node app.js
+```
+
+### npm Module
+
+The npm module ran by consuming projects to hook Sauce Labs, Travis CI, and the
+Sherlocked API together. Follow the **Setup** section on how to use it.
+
+```
+npm install sherlocked --save
+```
+
+### Web Frontend
+
+The frontend client that consumes the Sherlocked API, displaying image
+comparisons and visual diffs. Powered by React, Gulp, and Browserify.
+
+```
+npm install
+gulp
+```
