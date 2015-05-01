@@ -35,7 +35,6 @@ knex.schema.createTable('capture', function(capture) {
     capture.integer('buildId').references('build.id');
     capture.string('name');
     capture.string('sauceSessionId');
-    capture.string('src').unique();
 }).then();
 
 knex.schema.createTable('browserEnv', function(browserEnv) {

@@ -1,6 +1,9 @@
 /*
     API for Sherlocked.
 */
+var fs = require('fs');
+var path = require('path');
+
 var bodyParser = require('body-parser');
 var cors = require('cors');
 var express = require('express');
@@ -12,7 +15,7 @@ var bookshelf = require('bookshelf')(knex);
 
 var app = express();
 app.set('bookshelf', bookshelf);
-app.use(bodyParser.json());
+app.use(bodyParser.json({limit: '2mb'}));
 app.use(cors());
 
 
@@ -25,8 +28,14 @@ var Capture = bookshelf.Model.extend({
     tableName: 'capture',
     browserEnv: function() {
         return this.belongsTo(BrowserEnv, 'browserEnvId');
-    },
+    }
 });
+
+
+function deserializeCapture(capture) {
+    capture.src = '/img/captures/' + capture.sauceSessionId + '.png';
+    return capture;
+}
 
 
 var Build = bookshelf.Model.extend({
@@ -67,7 +76,8 @@ var Build = bookshelf.Model.extend({
                         groupedCapture.browserEnv.id) {
                         return;
                     }
-                   groupedCapture.captures[capture.name] = capture;
+                   groupedCapture.captures[capture.name] =
+                        deserializeCapture(capture);
                 });
             });
 
@@ -83,7 +93,8 @@ var Build = bookshelf.Model.extend({
                         groupedCapture.browserEnv.id) {
                         return;
                     }
-                    groupedCapture.masterCaptures[mCapture.name] = mCapture;
+                    groupedCapture.masterCaptures[mCapture.name] =
+                        deserializeCapture(mCapture);
                 });
             });
 
@@ -178,6 +189,24 @@ app.post('/builds/:buildId/captures/', function(req, res) {
     delete data.browserPlatform;
     delete data.browserVersion;
 
+    function saveCapture() {
+        return new Promise(function(resolve, reject) {
+            var image = data.image.replace(/^data:image\/png;base64,/, '');
+            var imagePath = path.resolve('../client/img/captures/',
+                                         data.sauceSessionId + '.png');
+
+            fs.writeFile(imagePath, image, 'base64', function(err) {
+                delete data.image;
+
+                if (err) {
+                    console.log(err);
+                    return reject(err);
+                }
+                return resolve();
+            });
+        });
+    }
+
     function buildFound() {
         return Build.where({travisId: req.params.buildId}).fetch();
     }
@@ -208,21 +237,26 @@ app.post('/builds/:buildId/captures/', function(req, res) {
         return capture.set('buildId', build.id).save();
     }
 
-    buildFound().then(function(build) {
-        // Get the Build.
-        browserEnvGetOrCreate().then(function() {
-            // Get or create BrowserEnv.
-            captureCreated().then(function(capture) {
-                // Create Capture.
-                createBuildCapture(build, capture).then(function() {
-                    // Attach Capture to Build.
-                    buildFound().then(function(build) {
-                        // Return updated build.
-                        res.sendStatus(201);
+    saveCapture().then(function() {
+        // Upload capture first.
+        buildFound().then(function(build) {
+            // Get the Build.
+            browserEnvGetOrCreate().then(function() {
+                // Get or create BrowserEnv.
+                captureCreated().then(function(capture) {
+                    // Create Capture.
+                    createBuildCapture(build, capture).then(function() {
+                        // Attach Capture to Build.
+                        buildFound().then(function(build) {
+                            // Return updated build.
+                            res.sendStatus(201);
+                        });
                     });
                 });
             });
         });
+    }, function() {
+        res.sendStatus(400);
     });
 });
 

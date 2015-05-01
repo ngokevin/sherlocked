@@ -1,18 +1,16 @@
-$dark-gray = #545D64;
-$medium-gray = #867F79;
-$light-gray = #A6A89C;
+$black = #2D2D2D;
+$gray = #545D64;
+$white = #EFF0EB;
 
-$blue = #14405F;
-$brown = #4F4347;
-$dark-red = #462423;
-$gold = #907350;
-$green = #314039;
-$red = #774743;
-$yellow = #AC8C58;
+$blue = #728AA2;
+$light-blue = #B5C7DD;
+$brown = #68492A;
+$light-brown = #B88F71;
+
 
 html,
 body {
-    background: $medium-gray;
+    background: $white;
     margin: 0;
     padding: 0;
 }
@@ -37,16 +35,16 @@ li {
 }
 
 a {
-    color: $red;
+    color: $brown;
 
     &:hover {
-        color: $dark-red;
+        color: $dark-brown;
     }
 }
 
 header {
-    background: $brown;
-    color: $light-gray;
+    background: $black;
+    color: $white;
     text-align: center;
     padding: 1px 0;
 }
@@ -58,8 +56,8 @@ main {
 
 .build-header {
     align-items: center;
-    background: $red;
-    color: $light-gray;
+    background: $brown;
+    color: $white;
     display: flex;
     justify-content: center;
     margin-bottom: 30px;
@@ -82,7 +80,7 @@ main {
     width: 100%;
 
     h3 {
-        color: $light-gray;
+        color: $white;
         margin-left: 5px;
         margin-right: 5px;
         text-transform: capitalize;
@@ -90,20 +88,29 @@ main {
 }
 
 .browser-env-captures {
+    background: $gray;
     display: flex;
-    flex-wrap: wrap;
+    flex-direction: column;
     justify-content: center;
+    margin-bottom: 20px;
 }
 
 .captures {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
     max-width: 100%;
 
     h4 {
-        color: $green;
+        color: $white;
         text-align: center;
+        width: 100%;
+    }
+    ul {
+        max-width: 100%;
     }
 }
 
 .capture {
-    max-height: 420px;
+    max-width: 100%;
 }

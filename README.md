@@ -7,7 +7,8 @@ The world of Sherlocked:
 
 - Developer makes a pull request to GitHub.
 - Travis CI builds the project, invokes Sherlocked script.
-- Sherlocked script takes captures of project using Sauce Labs, pings API.
+- Sherlocked script takes captures of project using Sauce Labs and uploads
+  them to the API.
 - A GitHub Webhook will post the pull request summarizing the visual regression
   test build and link to a Sherlocked webpage.
 - The Sherlocked webpage will contain side-by-side capture comparisons of the
@@ -102,8 +103,8 @@ Lists builds. Note this will not fetch related fields such as ```captures```.
 
 Create a build. Returns 201 on success.
 
-Parameters | Description
----------- | -----------
+Parameter | Description
+--------- | -----------
 travisId | The Travis build ID, retrieved from the Travis CI environment.
 travisPullRequest | The pull request triggering the build, retrieved from the Travis CI environment.
 travisRepoSlug | The slug of the repository (```owner_name```/```repo_name```), retrieved from the TravisCI environment.
@@ -137,21 +138,25 @@ Example response:
       "captures": {
         "homepageOnMobile": {
           "name": "homepageOnMobile",
-          "sauceSessionId": "N239"
+          "sauceSessionId": "N239",
+          "src": "https://sherlocked.paas/N239.png"
         },
         "homepageOnDesktop": {
           "name": "homepageOnDesktop",
-          "sauceSessionId": "N221B"
+          "sauceSessionId": "N221B",
+          "src": "https://sherlocked.paas/N221B.png"
         }
       },
       "masterCaptures": {
         "homepageOnMobile": {
           "name": "homepageOnMobile",
-          "sauceSessionId": "N221"
+          "sauceSessionId": "N221",
+          "src": "https://sherlocked.paas/N221.png"
         },
         "homepageOnDesktop": {
           "name": "homepageOnDesktop",
-          "sauceSessionId": "B239"
+          "sauceSessionId": "B239",
+          "src": "https://sherlocked.paas/B239.png"
         }
       },
   ]
@@ -162,11 +167,12 @@ Example response:
 
 Attach a capture to a build. Returns 201 on success.
 
-Parameters | Description
----------- | -----------
+Parameter | Description
+--------- | -----------
 browserName | Browser that the capture was created in (e.g., ```firefox```)
 browserPlatform | Browser platform that the capture was created in (e.g., ```OS X 10.9```)
 browserVersion | Browser version that the capture was created in (e.g., ```40```)
+image | Base64 image
 name | Name of the capture (e.g., ```homePageOnDesktop```)
 sauceSessionId | Sauce Labs session ID, each session generates one capture.
 
@@ -178,7 +184,9 @@ and the web frontend.
 ### API
 
 The backend service consisting of the API and database. Powered by Express,
-with Bookshelf as the ORM.
+with Bookshelf as the ORM. Unfortunately, we have to upload and host images
+since Sauce Labs only takes captures containing the desktop and browser
+chrome whereas we want captures of the whole pages themselves.
 
 ```
 npm install
