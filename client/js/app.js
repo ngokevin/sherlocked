@@ -7,16 +7,27 @@ var API_URL = require('./config').API_URL;
 
 
 var App = React.createClass({
+    getInitialState: function() {
+        return {
+            build: {}
+        };
+    },
     render: function() {
         return <div className="app">
           <header>
             <h1>Sherlocked</h1>
+            <h1>{this.state.build.repoSlug}</h1>
           </header>
           <main>
-            <Router.RouteHandler/>
+            <Router.RouteHandler setCurrentBuild={this.setCurrentBuild}/>
           </main>
         </div>
     },
+    setCurrentBuild: function(build) {
+        this.setState({
+            build: build
+        });
+    }
 });
 
 
@@ -37,6 +48,7 @@ var Build = React.createClass({
             .get(url.resolve(API_URL, 'builds/' + this.state.buildId))
             .end(function(err, res) {
                 root.setState(res.body);
+                root.props.setCurrentBuild(res.body);
             });
     },
     renderBrowserEnv: function(browserEnv, i) {
@@ -118,6 +130,6 @@ var routes = <Route name="app" path="/" handler={App}>
 
 
 // Begin investigation.
-Router.run(routes, Router.HistoryLocation, function (Handler) {
+Router.run(routes, Router.HistoryLocation, function(Handler) {
   React.render(<Handler/>, document.body);
 });

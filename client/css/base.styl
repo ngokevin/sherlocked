@@ -8,6 +8,13 @@ $brown = #68492A;
 $light-brown = #B88F71;
 
 
+media--desktop() {
+    @media (min-width: 768px) {
+        {block}
+    }
+}
+
+
 html,
 body {
     background: $white;
@@ -70,7 +77,9 @@ main {
 }
 
 .build-content {
-    padding: 0 30px;
+    +media--desktop() {
+        padding: 0 30px;
+    }
 }
 
 .browser-env-header {
@@ -93,12 +102,19 @@ main {
     flex-direction: column;
     justify-content: center;
     margin-bottom: 20px;
+
+    +media--desktop() {
+        flex-direction: row;
+        flex-wrap: wrap;
+        max-width: 100%;
+    }
 }
 
 .captures {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
+    padding: 0 10px;
     max-width: 100%;
 
     h4 {
@@ -112,5 +128,6 @@ main {
 }
 
 .capture {
+    max-height: 480px;
     max-width: 100%;
 }
