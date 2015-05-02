@@ -1,11 +1,16 @@
-$black = #2D2D2D;
-$gray = #545D64;
+$black = #343838;
 $white = #EFF0EB;
 
-$blue = #728AA2;
-$light-blue = #B5C7DD;
-$brown = #68492A;
-$light-brown = #B88F71;
+$color-primary = #00DFFC;
+$color-secondary = #005F6B;
+$color-tertiary = #008C9E;
+$color-quarternary = #00B4CC;
+
+$color-header-bg = $black;
+$color-build-header-bg = $color-secondary;
+$color-browser-env-header-bg = $color-tertiary;
+$color-body-bg = $white;
+$color-text = $white;
 
 
 media--desktop() {
@@ -17,7 +22,7 @@ media--desktop() {
 
 html,
 body {
-    background: $white;
+    background: $color-body-bg;
     margin: 0;
     padding: 0;
 }
@@ -42,18 +47,36 @@ li {
 }
 
 a {
-    color: $brown;
+    color: $color-primary;
 
     &:hover {
-        color: $dark-brown;
+        color: $color-primary;
     }
 }
 
 header {
-    background: $black;
-    color: $white;
-    text-align: center;
-    padding: 1px 0;
+    background: $color-header-bg;
+    color: $color-text;
+    display: flex;
+    justify-content: center;
+    padding: 10px 30px;
+    position: relative;
+
+    +media--desktop() {
+        justify-content: space-between;
+        margin-bottom: 30px;
+    }
+    h1 {
+        margin: 0;
+    }
+}
+
+.header-title {
+    display: none;
+
+    +media--desktop() {
+        display: block;
+    }
 }
 
 main {
@@ -61,18 +84,20 @@ main {
     max-width: 100%;
 }
 
-.build-header {
+.build .build-header {
     align-items: center;
-    background: $brown;
-    color: $white;
+    background: $color-build-header-bg;
+    color: $color-text;
     display: flex;
     justify-content: center;
-    margin-bottom: 30px;
+    padding: 20px 0;
     width: 100%;
 
+    +media--desktop() {
+        display: none;
+    }
     h2 {
-        margin-left: 10px;
-        margin-right: 10px;
+        margin: 0 10px;
     }
 }
 
@@ -83,13 +108,13 @@ main {
 }
 
 .browser-env-header {
-    background: $blue;
+    background: $color-browser-env-header-bg;
     display: flex;
     justify-content: center;
     width: 100%;
 
     h3 {
-        color: $white;
+        color: $color-text;
         margin-left: 5px;
         margin-right: 5px;
         text-transform: capitalize;
@@ -97,15 +122,16 @@ main {
 }
 
 .browser-env-captures {
-    background: $gray;
+    background: $black;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    margin-bottom: 20px;
+    padding-bottom: 30px;
 
     +media--desktop() {
         flex-direction: row;
         flex-wrap: wrap;
+        margin-bottom: 20px;
         max-width: 100%;
     }
 }
@@ -118,7 +144,7 @@ main {
     max-width: 100%;
 
     h4 {
-        color: $white;
+        color: $color-text;
         text-align: center;
         width: 100%;
     }

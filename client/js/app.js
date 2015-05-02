@@ -9,23 +9,23 @@ var API_URL = require('./config').API_URL;
 var App = React.createClass({
     getInitialState: function() {
         return {
-            build: {}
+            title: ''
         };
     },
     render: function() {
         return <div className="app">
           <header>
-            <h1>Sherlocked</h1>
-            <h1>{this.state.build.repoSlug}</h1>
+            <h1 className="header-name">Sherlocked</h1>
+            <h1 className="header-title">{this.state.title}</h1>
           </header>
           <main>
-            <Router.RouteHandler setCurrentBuild={this.setCurrentBuild}/>
+            <Router.RouteHandler setTitle={this.setTitle}/>
           </main>
         </div>
     },
-    setCurrentBuild: function(build) {
+    setTitle: function(title) {
         this.setState({
-            build: build
+            title: title
         });
     }
 });
@@ -47,20 +47,25 @@ var Build = React.createClass({
         request
             .get(url.resolve(API_URL, 'builds/' + this.state.buildId))
             .end(function(err, res) {
-                root.setState(res.body);
-                root.props.setCurrentBuild(res.body);
+                var data = res.body;
+                root.setState(data, function() {
+                    root.props.setTitle(root.createHeader());
+                });
             });
+    },
+    createHeader: function() {
+        return <div className="build-header">
+          <a>{this.state.travisRepoSlug}</a>
+          <span>&mdash;</span>
+          <a>Travis #{this.state.travisId}</a>
+        </div>
     },
     renderBrowserEnv: function(browserEnv, i) {
         return <BrowserEnv browserEnv={browserEnv} key={i}/>;
     },
     render: function() {
         return <div className="build">
-          <div className="build-header">
-            <h2>{this.state.travisRepoSlug}</h2>
-            &mdash;
-            <h2>Travis Build #{this.state.travisId}</h2>
-          </div>
+          {this.createHeader()}
           <div className="build-content">
             {this.state.captures.map(this.renderBrowserEnv)}
           </div>
