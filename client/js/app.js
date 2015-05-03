@@ -38,7 +38,9 @@ var Build = React.createClass({
     getInitialState: function() {
         return {
             captures: [],
-            buildId: this.context.router.getCurrentParams().buildId
+            buildId: this.context.router.getCurrentParams().buildId,
+            travisId: 0,
+            travisRepoSlug: ''
         };
     },
     componentDidMount: function() {
@@ -53,11 +55,24 @@ var Build = React.createClass({
                 });
             });
     },
+    getGithubUrl: function(repoSlug) {
+        return url.resolve('https://github.com/', repoSlug);
+    },
+    getTravisUrl: function(repoSlug, travisId) {
+        var tUrl = url.resolve('https://travis.ci.org/', repoSlug + '/');
+        tUrl = url.resolve(tUrl, 'builds/');
+        return url.resolve(tUrl, travisId.toString());
+    },
     createHeader: function() {
         return <div className="build-header">
-          <a>{this.state.travisRepoSlug}</a>
-          <span>&mdash;</span>
-          <a>Travis #{this.state.travisId}</a>
+          <a className="build-header-repo-slug"
+             href={this.getGithubUrl(this.state.travisRepoSlug)}>
+            {this.state.travisRepoSlug}</a>
+          <span className="build-header-separator">&mdash;</span>
+          <a className="build-header-travis-id"
+             href={this.getTravisUrl(this.state.travisRepoSlug,
+                                     this.state.travisId)}>
+            Travis #{this.state.travisId}</a>
         </div>
     },
     renderBrowserEnv: function(browserEnv, i) {
