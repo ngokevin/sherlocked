@@ -4,6 +4,7 @@ var request = require('superagent');
 var url = require('url');
 
 var API_URL = require('./config').API_URL;
+var ImageComparator = require('./image-comparator');
 
 
 var App = React.createClass({
@@ -127,19 +128,16 @@ var Captures = React.createClass({
     render: function() {
         return <div className="captures">
           <h4>{this.state.capture.name}</h4>
-          <ul>
-            <li>
-              <img src={this.state.capture.src}
-                   className="capture capture--branch"/>
-            </li>
-            <li>
-              <img src={this.state.masterCapture.src}
-                   className="capture capture--master"/>
-            </li>
-          </ul>
+          <ImageComparator originalLabel="Master"
+                           originalSrc={this.state.capture.src}
+                           modifiedLabel="Branch"
+                           modifiedSrc={this.state.masterCapture.src}/>
         </div>
     }
 });
+
+
+
 
 
 // Routes with react-router.

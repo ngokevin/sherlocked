@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "dependencies": {
     "browserify": "9.0.8",
+    "classnames": "^2.0.0",
     "gulp": "3.8.x",
     "gulp-autoprefixer": "2.1.0",
     "gulp-concat": "2.5.2",
