@@ -172,9 +172,13 @@ app.post('/builds/', function(req, res) {
 app.get('/builds/:buildId', function(req, res) {
     // Get a Build.
     Build.where({travisId: req.params.buildId}).fetch().then(function(build) {
-        build.deserialize().then(function(build) {
-            res.send(build);
-        });
+        if (build) {
+            build.deserialize().then(function(build) {
+                res.send(build);
+            });
+        } else {
+            res.sendStatus(404);
+        }
     });
 });
 
