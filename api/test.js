@@ -81,17 +81,32 @@ describe('POST /builds/', function() {
             });
     });
 
-    it('attaches master build', function(done) {
-        var masterBuild = buildFactory({travisBranch: 'master'});
+    it('attaches latest master build', function(done) {
+        // Create some master builds.
+        var masterBuildCreated = new Promise(function(resolve) {
+            createBuilds([
+                buildFactory({travisBranch: 'master', travisId: 1}),
+                buildFactory({travisBranch: 'master', travisId: 2}),
+                buildFactory({travisBranch: 'master', travisId: 3}),
+            ]).then(function() {
+                var masterBuild = buildFactory({travisBranch: 'master',
+                                                travisId: 4});
+                setTimeout(function() {
+                    createBuilds([masterBuild]).then(function() {
+                        resolve(masterBuild);
+                    });
+                }, 10);
+            });
+        });
 
-        createBuilds([masterBuild]).then(function() {
+        masterBuildCreated.then(function(masterBuild) {
             request(app.app).post('/builds/')
                 .send(buildFactory({travisId: 222}))
                 .expect(201, function() {
                     getBuild(function(build) {
-                        assert.equal(build.masterBuild.travisId, 221);
+                        assert.equal(build.masterBuild.travisId, 4);
                         done();
-                    }, 222);
+                    }, 4);
                 });
         });
     });
@@ -132,7 +147,7 @@ describe('GET /builds/:buildId', function() {
             assert.equal(build.captures[0].captures.watsonsButt.sauceSessionId,
                          '221B');
             assert.equal(build.captures[0].captures.watsonsButt.src,
-                         '/img/221B.png');
+                         '/img/captures/221B.png');
             assert.equal(Object.keys(build.captures[0].masterCaptures).length,
                          0);
             done();

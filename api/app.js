@@ -142,8 +142,10 @@ app.post('/builds/', function(req, res) {
     }
 
     function masterBuildFound() {
-        return Build.where({travisBranch: 'master',
-                            travisRepoSlug: data.travisRepoSlug}).fetch();
+        return Build.where({
+            travisBranch: 'master',
+            travisRepoSlug: data.travisRepoSlug
+        }).query('orderBy', 'created_at', 'DESC').fetch();
     }
 
     buildFound().then(function(build) {
