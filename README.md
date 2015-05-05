@@ -191,7 +191,7 @@ chrome whereas we want captures of the whole pages themselves.
 ```
 npm install
 node db.js
-node app.js
+node index.js
 ```
 
 ### npm Module

@@ -121,7 +121,7 @@ app.get('/', function (req, res) {
 });
 
 
-app.get('/builds/', function(req, res) {
+app.get('/api/builds/', function(req, res) {
     // List builds.
     Build.fetchAll().then(function(builds) {
         res.send(builds);
@@ -129,7 +129,7 @@ app.get('/builds/', function(req, res) {
 });
 
 
-app.post('/builds/', function(req, res) {
+app.post('/api/builds/', function(req, res) {
     // Get or create a Build, add a Capture to that Build.
     var data = req.body;
 
@@ -171,7 +171,7 @@ app.post('/builds/', function(req, res) {
 });
 
 
-app.get('/builds/:buildId', function(req, res) {
+app.get('/api/builds/:buildId', function(req, res) {
     // Get a Build.
     Build.where({travisId: req.params.buildId}).fetch().then(function(build) {
         if (build) {
@@ -185,7 +185,7 @@ app.get('/builds/:buildId', function(req, res) {
 });
 
 
-app.post('/builds/:buildId/captures/', function(req, res) {
+app.post('/api/builds/:buildId/captures/', function(req, res) {
     // Attach a Capture to a Build.
     var data = req.body;
     var bData = {

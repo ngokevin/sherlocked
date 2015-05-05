@@ -1,5 +1,6 @@
 {
   "name": "sherlocked-api",
+  "description": "API for Sherlocked visual regression testing service.",
   "version": "0.0.0",
   "repository": {
     "url": "git://github.com/ngokevin/sherlocked.git",
