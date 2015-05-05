@@ -33,7 +33,7 @@ var ImageComparator = React.createClass({
         window.removeEventListener('resize', this.updateHandleVisibility);
         window.removeEventListener('scroll', this.animateIfVisible);
     },
-    dragEndHandler: function() {
+    dragEndHandler: function(e) {
         // Remove the drag handlers once done dragging.
         var el = React.findDOMNode(this);
         while (el) {
@@ -42,42 +42,52 @@ var ImageComparator = React.createClass({
             el = el.parentNode;
         }
     },
-    dragHandler: function() {
+    dragStartHandler: function(e) {
         // Add drag handler on element and all its ancestor elements.
-        var el = React.findDOMNode(this);
-        while (el) {
-            el.addEventListener('mousemove', this.drag);
-            el.addEventListener('vmousemove', this.drag);
-            el = el.parentNode;
-        }
-    },
-    drag: function(e) {
-        e.preventDefault();
         var root = this;
+        var el = React.findDOMNode(this);
 
         var handle = React.findDOMNode(root.refs.handle);
         var handleLeft = handle.getBoundingClientRect().left +
                          document.body.scrollLeft;
-        var dragWidth = handle.offsetWidth;
-        var xPosition = handleLeft + dragWidth - e.pageX;
+        var handleWidth = handle.offsetWidth;
 
-        var container = React.findDOMNode(root);
-        var containerLeft = container.getBoundingClientRect().left +
-                            document.body.scrollLeft;
-        var containerWidth = container.offsetWidth;
-        var minLeft = containerLeft + 10;
-        var maxLeft = containerLeft + containerWidth - dragWidth - 10;
+        var comparator = React.findDOMNode(root);
+        var comparatorLeft = comparator.getBoundingClientRect().left +
+                             document.body.scrollLeft;
+        var comparatorWidth = comparator.offsetWidth;
+
+        this.setState({
+            comparatorLeft: comparatorLeft,
+            comparatorWidth: comparatorWidth,
+            handleXPos: handleLeft + handleWidth - e.pageX,
+            handleXPosMin: comparatorLeft + 10,
+            handleXPosMax: comparatorLeft + comparatorWidth - handleWidth - 10,
+            handleWidth: handleWidth
+        });
+
+        while (el) {
+            el.addEventListener('mousemove', root.dragMoveHandler);
+            el.addEventListener('vmousemove', root.dragMoveHandler);
+            el = el.parentNode;
+        }
+    },
+    dragMoveHandler: function(e) {
+        e.preventDefault();
+        var root = this;
 
         // Constrain draggable element to within container.
-        leftValue = e.pageX + xPosition - dragWidth;
-        if (leftValue < minLeft) {
-            leftValue = minLeft;
-        } else if (leftValue > maxLeft) {
-            leftValue = maxLeft;
+        leftValue = e.pageX + root.state.handleXPos - root.state.handleWidth;
+        if (leftValue < root.state.handleXPosMin) {
+            leftValue = root.state.handleXPosMin;
+        } else if (leftValue > root.state.handleXPosMax) {
+            leftValue = root.state.handleXPosMax;
         }
 
-        var resizePercentage = (leftValue + dragWidth / 2 - containerLeft);
-        resizePercentage = resizePercentage * 100 / containerWidth + '%';
+        var resizePercentage = (leftValue + root.state.handleWidth / 2 -
+                                root.state.comparatorLeft);
+        resizePercentage = resizePercentage * 100 /
+                           root.state.comparatorWidth + '%';
         root.setState({resizePercentage: resizePercentage});
 
         root.updateLabelVisibility();
@@ -133,9 +143,9 @@ var ImageComparator = React.createClass({
                                   ref="resizeLabel"/>
           </div>
 
-          <ImageComparatorHandle dragStart={this.dragHandler}
+          <ImageComparatorHandle dragStart={this.dragStartHandler}
                                  dragEnd={this.dragEndHandler}
-                                 left={this.state.resizePercentage}
+                                 resizePercentage={this.state.resizePercentage}
                                  ref="handle"/>
         </div>
     }
@@ -145,26 +155,31 @@ var ImageComparator = React.createClass({
 var ImageComparatorHandle = React.createClass({
     getInitialState: function() {
         return {
-            draggable: false
+            draggable: false,
+            resizePercentage: '100%'
         };
     },
     componentDidMount: function() {
         var handle = React.findDOMNode(this);
         handle.addEventListener('mousedown', this.dragStart);
         handle.addEventListener('vmousedown', this.dragStart);
-        handle.addEventListener('mouseup', this.dragEnd);
-        handle.addEventListener('vmouseup', this.dragEnd);
+        window.addEventListener('mouseup', this.dragEnd);
+        window.addEventListener('vmouseup', this.dragEnd);
     },
-    dragEnd: function() {
-        console.log("STOP");
-        this.setState({draggable: false});
-        this.props.dragEnd();
+    componentWillUnmount: function() {
+        window.removeEventListener('mouseup', this.dragEnd);
+        window.removeEventListener('vmouseup', this.dragEnd);
+    },
+    dragEnd: function(e) {
+        if (this.state.draggable) {
+            this.setState({draggable: false});
+            this.props.dragEnd(e);
+        }
     },
     dragStart: function(e) {
-        console.log("START");
         e.preventDefault();
         this.setState({draggable: true});
-        this.props.dragStart();
+        this.props.dragStart(e);
     },
     render: function() {
         var handleClasses = classnames({
