@@ -9,8 +9,16 @@ $color-quarternary = #00B4CC;
 $color-header-bg = $black;
 $color-build-header-bg = $color-secondary;
 $color-browser-env-header-bg = $color-tertiary;
+$color-browser-env-header-hover-bg = $color-secondary;
 $color-body-bg = $white;
 $color-text = $white;
+
+
+browser-env--hidden() {
+    .browser-env--hidden & {
+        {block}
+    }
+}
 
 
 media--desktop() {
@@ -48,9 +56,11 @@ li {
 
 a {
     color: $color-primary;
+    text-decoration: none;
+    transition: color .1s;
 
     &:hover {
-        color: $color-primary;
+        color: $color-quarternary;
     }
 }
 
@@ -124,9 +134,6 @@ main {
         text-align: center;
         width: 50%;
     }
-    a:first-child {
-        border-right: 1px solid $color-primary;
-    }
 }
 
 .build-content {
@@ -137,10 +144,15 @@ main {
 
 .browser-env-header {
     background: $color-browser-env-header-bg;
+    cursor: pointer;
     display: flex;
     justify-content: center;
+    transition: background .1s;
     width: 100%;
 
+    &:hover {
+        background: $color-browser-env-header-hover-bg;
+    }
     h3 {
         color: $color-text;
         margin-left: 5px;
@@ -154,13 +166,19 @@ main {
     display: flex;
     flex-direction: column;
     justify-content: center;
+    overflow: hidden;
     padding-bottom: 30px;
+    transition: max-height .5s;
 
     +media--desktop() {
         flex-direction: row;
         flex-wrap: wrap;
         margin-bottom: 20px;
         max-width: 100%;
+    }
+    +browser-env--hidden() {
+        max-height: 0 !important;
+        padding: 0;
     }
 }
 
@@ -169,6 +187,7 @@ main {
     flex-wrap: wrap;
     justify-content: center;
     padding: 0 10px;
+    position: relative;
     max-width: 100%;
 
     h4 {
@@ -181,7 +200,12 @@ main {
     }
 }
 
-.capture {
+.image-comparator,
+.image-comparator > .image-comparator-img {
     max-height: 480px;
-    max-width: 100%;
+}
+
+.image-comparator-resize {
+    height: 100%;
+    max-height: 100%;
 }

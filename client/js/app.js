@@ -1,3 +1,4 @@
+var classnames = require('classnames');
 var React = require('react');
 var Router = require('react-router');
 var request = require('superagent');
@@ -94,23 +95,42 @@ var BrowserEnv = React.createClass({
     getInitialState: function() {
         var state = this.props.browserEnv;
         state.captureNames = Object.keys(state.captures);
+        state.hidden = false;
+        state.maxHeight = '9999px';
         return state;
+    },
+    componentDidMount: function() {
+        this.setState({
+            maxHeight: React.findDOMNode(this.refs.browserEnvCaptures)
+                            .offsetHeight
+        });
+    },
+    toggleHidden: function() {
+        this.setState({hidden: !this.state.hidden});
     },
     renderCapture: function(captureName, i) {
         return <Captures capture={this.state.captures[captureName]}
-                        masterCapture={this.state.masterCaptures[captureName]}
-                        key={i}>
+                         masterCapture={this.state.masterCaptures[captureName]}
+                         key={i}>
                </Captures>
     },
     render: function() {
-        return <div className="browser-env">
-          <div className="browser-env-header">
+        var browserEnvClasses = classnames({
+            'browser-env': true,
+            'browser-env--hidden': this.state.hidden,
+        });
+        var capturesStyle = {
+            maxHeight: this.state.maxHeight
+        };
+        return <div className={browserEnvClasses}>
+          <div className="browser-env-header" onClick={this.toggleHidden}>
             <h3>{this.state.browserEnv.name}</h3>
             <h3>{this.state.browserEnv.version}</h3>
             <h3>{this.state.browserEnv.platform}</h3>
           </div>
 
-          <div className="browser-env-captures">
+          <div className="browser-env-captures" style={capturesStyle}
+               ref="browserEnvCaptures">
             {this.state.captureNames.map(this.renderCapture)}
           </div>
         </div>

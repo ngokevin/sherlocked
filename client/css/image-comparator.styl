@@ -19,17 +19,18 @@ image-comparator--animated() {
 
 .image-comparator-img {
     display: block;
+    user-select: none;
 }
 
 .image-comparator-label {
-    -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    position: absolute;
+    -webkit-font-smoothing: antialiased;
     bottom: 0;
-    right: 0;
     color: $white;
-    padding: 1em;
     opacity: 0;
+    padding: 1em;
+    position: absolute;
+    right: 0;
     transform: translateY(20px);
     transition: transform 0.3s 0.7s, opacity 0.3s 0.7s;
     visibility: hidden;
@@ -50,8 +51,8 @@ image-comparator--animated() {
     background-repeat: no-repeat;
     background-size: auto 100%;
     height: 100%;
-    max-width: 100%;
     left: 0;
+    max-width: 100%;
     overflow: hidden;
     position: absolute;
     top: 0;
@@ -70,22 +71,22 @@ image-comparator--animated() {
 }
 
 .image-comparator-handle {
+    // Center element.
     background: $color-tertiary url("../img/image-comparator/arrows.svg") \
                 no-repeat center center;
+    border-radius: 50%;
     box-shadow: 0 0 0 6px rgba(0, 0, 0, 0.2), 0 0 10px rgba(0, 0, 0, 0.6), \
                 inset 0 1px 0 rgba(255, 255, 255, 0.3);
     cursor: move;
-    position: absolute;
     height: 44px;
-    width: 44px;
-    // Center element.
     left: 50%;
-    top: 50%;
     margin-left: -22px;
     margin-top: -22px;
-    border-radius: 50%;
     opacity: 0;
+    position: absolute;
+    top: 50%;
     transform: translate3d(0, 0, 0) scale(0);
+    width: 44px;
 
     +image-comparator--animated() {
         opacity: 1;
