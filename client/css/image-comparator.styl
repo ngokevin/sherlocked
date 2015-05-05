@@ -9,7 +9,12 @@ image-comparator--animated() {
 .image-comparator {
     display: flex;
     max-width: 100%;
+    overflow: hidden;
     position: relative;
+
+    > .image-comparator-img {
+        width: 100%;
+    }
 }
 
 .image-comparator-img {
@@ -41,9 +46,11 @@ image-comparator--animated() {
 
 .image-comparator-resize {
     backface-visibility: hidden;
-    background: url(../img/img-modified.jpg) no-repeat left top;
+    background-position: left top;
+    background-repeat: no-repeat;
     background-size: auto 100%;
     height: 100%;
+    max-width: 100%;
     left: 0;
     overflow: hidden;
     position: absolute;
@@ -53,7 +60,7 @@ image-comparator--animated() {
 
     +image-comparator--animated() {
         animation: image-comparator-bounce-in 0.7s;
-        width: 50%;
+        width: 92%;
     }
 }
 
@@ -63,7 +70,7 @@ image-comparator--animated() {
 }
 
 .image-comparator-handle {
-    background: $color-primary url("../img/image-comparator/arrows.svg") \
+    background: $color-tertiary url("../img/image-comparator/arrows.svg") \
                 no-repeat center center;
     box-shadow: 0 0 0 6px rgba(0, 0, 0, 0.2), 0 0 10px rgba(0, 0, 0, 0.6), \
                 inset 0 1px 0 rgba(255, 255, 255, 0.3);
@@ -83,7 +90,7 @@ image-comparator--animated() {
     +image-comparator--animated() {
         opacity: 1;
         transform: translate3d(0, 0, 0) scale(1);
-        transition: transform 0.3s 0.5s, opacity 0s 0.5s;
+        transition: transform 0.3s 0.7s, opacity 0s 0.7s;
     }
 }
 
@@ -92,38 +99,14 @@ image-comparator--animated() {
     background-color: $color-secondary;
 }
 
-@-webkit-keyframes image-comparator-bounce-in {
-    0% {
-      width: 0;
-    }
-    60% {
-      width: 55%;
-    }
-    100% {
-      width: 50%;
-    }
-}
-
-@-moz-keyframes image-comparator-bounce-in {
-    0% {
-      width: 0;
-    }
-    60% {
-      width: 55%;
-    }
-    100% {
-      width: 50%;
-    }
-}
-
 @keyframes image-comparator-bounce-in {
     0% {
       width: 0;
     }
     60% {
-      width: 55%;
+      width: 100%;
     }
     100% {
-      width: 50%;
+      width: 92%;
     }
 }
