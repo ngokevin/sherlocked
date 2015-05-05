@@ -1,5 +1,6 @@
 {
   "name": "sherlocked-client",
+  "description": "Client for Sherlocked visual regression testing service.",
   "version": "0.0.0",
   "dependencies": {
     "browserify": "9.0.8",
@@ -14,6 +15,7 @@
     "react": "0.13.2",
     "react-router": "^0.13.2",
     "reactify": "^1.1.0",
+    "resemblejs": "^1.2.1",
     "stylus": "^0.50.0",
     "superagent": "^1.2.0",
     "url": "^0.10.3",

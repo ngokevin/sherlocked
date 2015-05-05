@@ -2,6 +2,7 @@ var classnames = require('classnames');
 var React = require('react');
 var Router = require('react-router');
 var request = require('superagent');
+var resemble = require('resemblejs').resemble;
 var url = require('url');
 
 var API_URL = require('./config').API_URL;
@@ -142,21 +143,73 @@ var Captures = React.createClass({
     getInitialState: function() {
         return {
             capture: this.props.capture,
-            masterCapture: this.props.masterCapture || {}
+            imageDifferVisible: false,
+            masterCapture: this.props.masterCapture || {},
         };
+    },
+    toggleImageDiffer: function() {
+        this.setState({
+            imageDifferVisible: !this.state.imageDifferVisible
+        })
     },
     render: function() {
         return <div className="captures">
-          <h4>{this.state.capture.name}</h4>
+          <h4>
+            {this.state.capture.name}
+            <button onClick={this.toggleImageDiffer}>Toggle Diff</button>
+          </h4>
           <ImageComparator originalLabel="Master"
                            originalSrc={this.state.capture.src}
                            modifiedLabel="Branch"
                            modifiedSrc={this.state.masterCapture.src}/>
+          <ImageDiffer originalSrc={this.state.capture.src}
+                       modifiedSrc={this.state.masterCapture.src}
+                       visible={this.state.imageDifferVisible}/>
         </div>
     }
 });
 
 
+var ImageDiffer = React.createClass({
+    getInitialState: function() {
+        return {
+            imageDataUrl: ''
+        };
+    },
+    componentWillReceiveProps: function(nextProps) {
+        // Run image analysis only once.
+        if (nextProps.visible && !this.state.imageDataUrl) {
+            this.imageAnalysis();
+        }
+        this.props.visible = nextProps.visible;
+    },
+    imageAnalysis: function() {
+        var root = this;
+        if (root.state.imageDataUrl) {
+            return;
+        }
+
+        var compare = resemble(root.props.originalSrc).compareTo(
+            root.props.modifiedSrc);
+        compare.ignoreAntialiasing();
+        compare.onComplete(function(imageDiffData) {
+            console.log(imageDiffData.getImageDataUrl());
+            root.setState({
+                imageDataUrl: imageDiffData.getImageDataUrl(),
+                misMatchPercentage: imageDiffData.misMatchPercentage
+            });
+        });
+    },
+    render: function() {
+        var differClasses = classnames({
+            'image-differ': true,
+            'image-differ--visible': this.props.visible
+        });
+        return <div className={differClasses}>
+          <img src={this.state.imageDataUrl}/>
+        </div>
+    }
+});
 
 
 
