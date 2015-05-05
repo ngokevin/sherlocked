@@ -1,16 +1,15 @@
 @import 'base.styl';
 
-image-comparator--animate() {
-    .image-comparator--animate {
+image-comparator--animated() {
+    .image-comparator--animated & {
         {block}
     }
 }
 
 .image-comparator {
+    display: flex;
+    max-width: 100%;
     position: relative;
-    margin: 0em auto;
-    max-width: 768px;
-    width: 90%;
 }
 
 .image-comparator-img {
@@ -40,7 +39,7 @@ image-comparator--animate() {
     transform: translateY(0);
 }
 
-.image-comparator-modified {
+.image-comparator-resize {
     backface-visibility: hidden;
     background: url(../img/img-modified.jpg) no-repeat left top;
     background-size: auto 100%;
@@ -52,20 +51,22 @@ image-comparator--animate() {
     transform: translateZ(0);
     width: 0;
 
-    +image-comparator--animate() {
+    +image-comparator--animated() {
         animation: image-comparator-bounce-in 0.7s;
         width: 50%;
     }
 }
 
-.image-comparator-modified .image-comparator-image-label {
+.image-comparator-resize .image-comparator-label {
     left: 0;
     right: auto;
 }
 
 .image-comparator-handle {
-    background: #dc717d url("../img/image-comparator/arrows.svg") no-repeat center center;
-    box-shadow: 0 0 0 6px rgba(0, 0, 0, 0.2), 0 0 10px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    background: $color-primary url("../img/image-comparator/arrows.svg") \
+                no-repeat center center;
+    box-shadow: 0 0 0 6px rgba(0, 0, 0, 0.2), 0 0 10px rgba(0, 0, 0, 0.6), \
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
     cursor: move;
     position: absolute;
     height: 44px;
@@ -79,16 +80,16 @@ image-comparator--animate() {
     opacity: 0;
     transform: translate3d(0, 0, 0) scale(0);
 
-    +image-comparator--animate() {
+    +image-comparator--animated() {
         opacity: 1;
         transform: translate3d(0, 0, 0) scale(1);
-        transition: transform 0.3s 0.7s, opacity 0s 0.7s;
+        transition: transform 0.3s 0.5s, opacity 0s 0.5s;
     }
 }
 
 .image-comparator-handle--draggable {
     // Change background color when active.
-    background-color: #445b7c;
+    background-color: $color-secondary;
 }
 
 @-webkit-keyframes image-comparator-bounce-in {

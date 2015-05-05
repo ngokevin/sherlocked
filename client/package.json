@@ -13,6 +13,7 @@
     "react": "0.13.2",
     "react-router": "^0.13.2",
     "reactify": "^1.1.0",
+    "stylus": "^0.50.0",
     "superagent": "^1.2.0",
     "url": "^0.10.3",
     "vinyl-source-stream": "1.1.0",
