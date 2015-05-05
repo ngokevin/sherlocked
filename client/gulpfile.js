@@ -4,6 +4,8 @@ var concat = require('gulp-concat');
 var gulp = require('gulp');
 var reactify = require('reactify');
 var stylus = require('gulp-stylus');
+var uglify = require('gulp-uglify');
+var vinylBuffer = require('vinyl-buffer');
 var vinylSource = require('vinyl-source-stream');
 var watchify = require('watchify');
 var webserver = require('gulp-webserver');
@@ -17,7 +19,7 @@ var bundler = watchify(
 
 gulp.task('css', function() {
     gulp.src(['css/*.styl'])
-        .pipe(stylus())
+        .pipe(stylus({compress: true}))
         .pipe(autoprefixer())
         .pipe(concat('bundle.css'))
         .pipe(gulp.dest('build'));
@@ -25,10 +27,17 @@ gulp.task('css', function() {
 
 
 function jsBundle() {
-    return bundler
+    var bundle = bundler
         .bundle()
-        .pipe(vinylSource('bundle.js'))
-        .pipe(gulp.dest('build'));
+        .pipe(vinylSource('bundle.js'));
+
+    if (process.env.NODE_ENV == 'production') {
+        bundle = bundle
+            .pipe(vinylBuffer())
+            .pipe(uglify());
+    }
+
+    return bundle.pipe(gulp.dest('build'));
 }
 
 
