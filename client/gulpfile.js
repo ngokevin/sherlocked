@@ -11,10 +11,8 @@ var watchify = require('watchify');
 var webserver = require('gulp-webserver');
 
 
-var bundler = watchify(
-    browserify('./js/app.js', watchify.args)
-        .transform(reactify)
-);
+var bundler = browserify('./js/app.js', watchify.args)
+    .transform(reactify);
 
 
 gulp.task('css', function() {
@@ -26,7 +24,7 @@ gulp.task('css', function() {
 });
 
 
-function jsBundle() {
+function jsBundle(bundler) {
     var bundle = bundler
         .bundle()
         .pipe(vinylSource('bundle.js'));
@@ -42,7 +40,7 @@ function jsBundle() {
 
 
 gulp.task('js', function() {
-    return jsBundle();
+    return jsBundle(bundler);
 });
 
 
@@ -55,7 +53,9 @@ gulp.task('serve', function() {
 });
 
 gulp.task('watch', function() {
-    bundler.on('update', jsBundle);
+    bundler.on('update', function() {
+        jsBundle(watchify(bundler))
+    });
     bundler.on('log', console.log);
 
     gulp.watch('css/**/*.styl', ['css']);
