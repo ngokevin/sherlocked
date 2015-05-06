@@ -9,12 +9,13 @@ RUN     apt-get update && apt-get install -y \
     git-core
 
 # Bundle.
-VOLUME  ["/var/www/"]
-COPY    . /var/www/
+COPY    . /var/www
 
 # Install dependencies.
-RUN     cd /var/www/; npm install
+RUN     cd /var/www; npm install
 RUN     ln -s /usr/bin/nodejs /usr/bin/node
 
 # Build.
-RUN     cd /var/www/; NODE_ENV=production ./node_modules/.bin/gulp build
+RUN     cd /var/www; NODE_ENV=production ./node_modules/.bin/gulp build
+
+VOLUME  /var/www

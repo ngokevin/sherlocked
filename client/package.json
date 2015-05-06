@@ -2,6 +2,7 @@
   "name": "sherlocked-client",
   "description": "Client for Sherlocked visual regression testing service.",
   "version": "0.0.0",
+  "repository": "https://github.com/ngokevin/sherlocked",
   "dependencies": {
     "browserify": "9.0.8",
     "classnames": "^2.0.0",

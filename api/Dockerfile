@@ -13,7 +13,9 @@ RUN     apt-get update && apt-get install -y nodejs-legacy \
 COPY    . /src
 
 # Install dependencies.
-RUN     cd /src; npm install
+ADD     package.json /tmp/package.json
+RUN     cd /tmp && npm install
+RUN     cp -a /tmp/node_modules /src
 RUN     cd /src; nodejs db.js
 
 EXPOSE  1077

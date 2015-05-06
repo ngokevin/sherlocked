@@ -116,7 +116,7 @@ var Build = bookshelf.Model.extend({
 });
 
 
-app.get('/', function (req, res) {
+app.get('/api/', function (req, res) {
     res.send('<img src="http://imgur.com/b5jQjd7.png">');
 });
 
@@ -179,6 +179,7 @@ app.get('/api/builds/:buildId', function(req, res) {
                 res.send(build);
             });
         } else {
+            console.log('No trace at the scene of the crime for Build', req.params.buildId);
             res.sendStatus(404);
         }
     });

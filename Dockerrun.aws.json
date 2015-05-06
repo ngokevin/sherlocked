@@ -1,0 +1,60 @@
+{
+  "AWSEBDockerrunVersion": 2,
+  "volumes": [
+    {
+      "name": "web",
+      "host": {
+        "sourcePath": "/var/www"
+      }
+    }
+  ],
+  "containerDefinitions": [
+    {
+      "name": "sherlockedapi",
+      "image": "ngokevin/sherlocked-api",
+      "essential": true,
+      "portMappings": [
+        {
+          "hostPort": 1077,
+          "containerPort": 1077
+        }
+      ],
+    },
+    {
+      "name": "sherlockedclient",
+      "image": "ngokevin/sherlocked-client",
+      "mountPoints": [
+        {
+          "sourceVolume": "web",
+          "containerPath": "/var/www",
+          "readOnly": false
+        }
+      ]
+    } ,
+    {
+      "name": "sherlocked-nginx",
+      "image": "ngokevin/sherlocked-nginx",
+      "essential": true,
+      "portMappings": [
+        {
+          "hostPort": 80,
+          "containerPort": 80
+        },
+        {
+          "hostPort": 443,
+          "containerPort": 443
+        },
+      ],
+      "links": [
+        "sherlockedapi:sherlockedapi"
+      ],
+      "mountPoints": [
+        {
+          "sourceVolume": "web",
+          "containerPath": "/var/www",
+          "readOnly": true
+        }
+      ]
+    }
+  ]
+}
