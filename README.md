@@ -194,6 +194,9 @@ node db.js
 node index.js
 ```
 
+This will start a server on port 1077 by default. Set SHERLOCKED_PORT
+environment variable to configure it.
+
 ### npm Module
 
 The npm module ran by consuming projects to hook Sauce Labs, Travis CI, and the
@@ -212,3 +215,7 @@ comparisons and visual diffs. Powered by React, Gulp, and Browserify.
 npm install
 gulp
 ```
+
+This will start a server on port 2118 by default. Set SHERLOCKED_CLIENT_PORT
+environment variable to configure it. Set ```NODE_ENV=production``` to build
+the project for production.

@@ -50,7 +50,7 @@ gulp.task('serve', function() {
     return gulp.src(['./'])
         .pipe(webserver({
             fallback: 'index.html',
-            port: process.env.SHERLOCKED_PORT || '2118'
+            port: process.env.SHERLOCKED_CLIENT_PORT || '2118'
         }));
 });
 

@@ -1,14 +1,15 @@
-FROM    centos:centos6
+FROM    ubuntu:15.04
+MAINTAINER    ngokevin
 
-# Enable EPEL for Node.js.
-RUN     rpm -Uvh http://download.fedoraproject.org/pub/epel/6/i386/epel-release-6-8.noarch.rpm
 # Install Node.js and npm.
-RUN     yum install -y npm
+RUN     apt-get update && apt-get install -y nodejs-legacy npm git git-core sqlite3 libsqlite3-dev
 
-# Bundle app source.
+# Bundle.
 COPY    . /src
-# Install app dependencies.
+
+# Install dependencies.
 RUN     cd /src; npm install
+RUN     cd /src; nodejs db.js
 
 EXPOSE  1077
-CMD     ['node', '/src/index.js']
+CMD     ["nodejs", "/src/index.js"]
