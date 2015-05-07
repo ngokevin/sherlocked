@@ -53,8 +53,10 @@ gulp.task('serve', function() {
 });
 
 gulp.task('watch', function() {
+    bundler = watchify(bundler);
+
     bundler.on('update', function() {
-        jsBundle(watchify(bundler))
+        jsBundle(bundler);
     });
     bundler.on('log', console.log);
 

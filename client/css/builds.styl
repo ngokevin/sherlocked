@@ -1,0 +1,45 @@
+@import 'base.styl';
+
+.builds {
+    display: flex;
+    justify-content: center;
+    padding: 0 10px;
+    flex-wrap: wrap;
+}
+
+.builds-build {
+    align-items: center;
+    background: $color-secondary;
+    display: flex;
+    height: 50px;
+    justify-content: center;
+    margin: 5px;
+    transition: background .1s;
+    width: 100%;
+
+    &:hover {
+        background: $color-tertiary;
+        cursor: pointer;
+
+        a {
+            color: $white;
+        }
+    }
+    +media--desktop() {
+        padding: 50px;
+        width: 50px;
+    }
+}
+
+.builds-link {
+    color: $white;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    padding: 20px;
+    width: 100%;
+
+    +media--desktop() {
+        padding: 50px;
+    }
+}

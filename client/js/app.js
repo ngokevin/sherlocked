@@ -34,6 +34,43 @@ var App = React.createClass({
 });
 
 
+var Builds = React.createClass({
+    getInitialState: function() {
+        return {
+            builds: []
+        };
+    },
+    componentDidMount: function() {
+        // Fetch Build listing.
+        var root = this;
+        request
+            .get(url.resolve(API_URL, 'builds/'))
+            .end(function(err, res) {
+                var data = res.body;
+                root.setState({builds: data}, function() {
+                    root.props.setTitle(<p>Builds</p>);
+                });
+            });
+    },
+    getBuildUrl: function(build) {
+        return '/builds/' + build.travisId;
+    },
+    renderBuildLink: function(build, i) {
+        return <li className="builds-build" key={i}>
+          <a className="builds-link" href={this.getBuildUrl(build)}>
+            <p>{build.travisRepoSlug}</p>
+            <p>{build.travisId}</p>
+          </a>
+        </li>
+    },
+    render: function() {
+        return <ul className="builds">
+          {this.state.builds.map(this.renderBuildLink)}
+        </ul>
+    }
+});
+
+
 var Build = React.createClass({
     contextTypes: {
         router: React.PropTypes.func
@@ -54,7 +91,7 @@ var Build = React.createClass({
             .end(function(err, res) {
                 var data = res.body;
                 root.setState(data, function() {
-                    root.props.setTitle(root.createHeader());
+                    root.props.setTitle(root.renderHeader());
                 });
             });
     },
@@ -66,7 +103,7 @@ var Build = React.createClass({
         tUrl = url.resolve(tUrl, 'builds/');
         return url.resolve(tUrl, travisId.toString());
     },
-    createHeader: function() {
+    renderHeader: function() {
         return <div className="build-header">
           <a className="build-header-repo-slug"
              href={this.getGithubUrl(this.state.travisRepoSlug)}>
@@ -83,7 +120,7 @@ var Build = React.createClass({
     },
     render: function() {
         return <div className="build">
-          {this.createHeader()}
+          {this.renderHeader()}
           <div className="build-content">
             {this.state.captures.map(this.renderBrowserEnv)}
           </div>
@@ -216,6 +253,7 @@ var ImageDiffer = React.createClass({
 // Routes with react-router.
 var Route = Router.Route;
 var routes = <Route name="app" path="/" handler={App}>
+  <Route name="builds" path="/builds/" handler={Builds}/>
   <Route name="build" path="/builds/:buildId" handler={Build}/>
 </Route>;
 
