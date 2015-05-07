@@ -34,6 +34,19 @@ var App = React.createClass({
 });
 
 
+var Landing = React.createClass({
+    render: function() {
+        return <div className="landing">
+          <img className="landing-img" src="http://imgur.com/b5jQjd7.png"/>
+          <div className="landing-info">
+            <h2>I am Sherlocked, the world's greatest visual regression testing service.</h2>
+            <h3>And it is my business to know what other people don't know.</h3>
+          </div>
+        </div>
+    },
+});
+
+
 var Builds = React.createClass({
     getInitialState: function() {
         return {
@@ -252,7 +265,8 @@ var ImageDiffer = React.createClass({
 
 // Routes with react-router.
 var Route = Router.Route;
-var routes = <Route name="app" path="/" handler={App}>
+var routes = <Route name="app" handler={App}>
+  <Route name="landing" path="/" handler={Landing}/>
   <Route name="builds" path="/builds/" handler={Builds}/>
   <Route name="build" path="/builds/:buildId" handler={Build}/>
 </Route>;
