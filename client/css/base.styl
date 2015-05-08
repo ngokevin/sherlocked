@@ -1,28 +1,8 @@
-$black = #343838;
-$white = #EFF0EB;
-
-$color-primary = #00DFFC;
-$color-secondary = #005F6B;
-$color-tertiary = #008C9E;
-$color-quarternary = #00B4CC;
-
-$color-header-bg = $black;
-$color-build-header-bg = $color-secondary;
-$color-browser-env-header-bg = $color-tertiary;
-$color-browser-env-header-hover-bg = $color-secondary;
-$color-body-bg = $white;
-$color-text = $white;
+@import 'lib';
 
 
 browser-env--hidden() {
     .browser-env--hidden & {
-        {block}
-    }
-}
-
-
-media--desktop() {
-    @media (min-width: 768px) {
         {block}
     }
 }
