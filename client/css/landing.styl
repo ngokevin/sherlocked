@@ -57,6 +57,7 @@
 .landing-info {
     display: flex;
     flex-wrap: wrap;
+    max-width: 910px;
     padding: 30px;
     text-align: center;
     width: 100%;
@@ -64,5 +65,38 @@
     h2,
     h3 {
         width: 100%;
+    }
+}
+
+.landing-brief-desc {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin-bottom: 30px;
+
+    +media--desktop() {
+        flex-direction: row;
+    }
+    li {
+        padding: 0 10px;
+    }
+}
+
+.landing-usage {
+    display: flex;
+    flex-wrap: wrap;
+    width: 100%;
+
+    ul {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+
+        +media--desktop() {
+            flex-direction: row;
+        }
+    }
+    li {
+        padding: 0 10px;
     }
 }
