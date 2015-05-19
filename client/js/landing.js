@@ -130,12 +130,13 @@ var LandingTestExample = React.createClass({
             "        {browserName: 'firefox'},",
             "        {browserName: 'chrome', version: '40'}",
             "    ],",
-            "    captures: {",
-            "        homePage: function(client) {",
+            "    captures: [{",
+            "        name: 'Home Page',",
+            "        capture: function(client) {",
             "            return client.url('http://localhost:8000')",
             "                .waitForExist('main');",
             "        }",
-            "    }",
+            "    }]",
             "});"
         ].join('\n');
     },
@@ -189,6 +190,7 @@ var LandingTravisExample = React.createClass({
             "    - secure: <ENCRYPTED SAUCE_ACCESS_KEY>",
             "    - secure: <ENCRYPTED SAUCE_USERNAME>",
             "script:",
+            "  python -m SimpleHTTPServer",
             "  node sherlocked-test.js",
         ].join('\n');
     },
