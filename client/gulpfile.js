@@ -16,7 +16,7 @@ var bundler = browserify('./js/app.js', watchify.args)
 
 
 gulp.task('css', function() {
-    gulp.src(['css/*.styl'])
+    gulp.src(['css/*.styl', 'css/lib/*.css'])
         .pipe(stylus({compress: true}))
         .pipe(autoprefixer())
         .pipe(concat('bundle.css'))
@@ -65,4 +65,4 @@ gulp.task('watch', function() {
 
 
 gulp.task('build', ['css', 'js']);
-gulp.task('default', ['js', 'serve', 'watch']);
+gulp.task('default', ['css', 'js', 'serve', 'watch']);

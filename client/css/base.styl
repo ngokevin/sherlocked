@@ -13,6 +13,7 @@ body {
     background: $color-body-bg;
     font-family: $font-body;
     margin: 0;
+    overflow-x: hidden;
     padding: 0;
 }
 
@@ -35,6 +36,10 @@ ul li {
     list-style: none;
 }
 
+pre code {
+    font-size: 13px;
+}
+
 button {
     background: $color-secondary;
     border: 0;
@@ -51,12 +56,12 @@ button {
 }
 
 a {
-    color: $color-primary;
+    color: $color-quarternary;
     text-decoration: none;
     transition: color .1s;
 
     &:hover {
-        color: $color-quarternary;
+        color: $color-primary;
     }
 }
 

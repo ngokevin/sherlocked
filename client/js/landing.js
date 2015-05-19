@@ -1,3 +1,4 @@
+require('./lib/prism');
 var classnames = require('classnames');
 var React = require('react');
 
@@ -58,8 +59,9 @@ var Landing = React.createClass({
                 <h2>Continuous Integration</h2>
                 <p>
                   A full-fledged investigation run on every Github pull
-                  request. TravisCI, your trust-worthy sidekick will handle
-                  the mundane portions of the case.
+                  request. <a href="http://travis-ci.org"> TravisCI</a>, your
+                  trust-worthy sidekick will handle the mundane portions of the
+                  case.
                 </p>
               </li>
               <li>
@@ -94,7 +96,7 @@ var Landing = React.createClass({
                     want tested. Don't worry though, writing a test script for
                     Sherlocked is easy. Install sherlocked from npm, and pass
                     it a list of browser environments and an object defining
-                    <a href="http://webdriver.io/">WebdriverIO</a> captures.
+                    <a href="http://webdriver.io/"> WebdriverIO</a> captures.
                     Sherlocked will supply the WebdriverIO clients and handle
                     the case.
                   </p>
@@ -111,9 +113,114 @@ var Landing = React.createClass({
                 </li>
               </ul>
             </div>
+
+            <LandingTestExample/>
+            <LandingTravisExample/>
           </div>
         </div>
     },
 });
+
+
+var LandingTestExample = React.createClass({
+    getTestExample: function() {
+        return [
+            "require('sherlocked').run({",
+            "    environments: [",
+            "        {browserName: 'firefox'},",
+            "        {browserName: 'chrome', version: '40'}",
+            "    ],",
+            "    captures: {",
+            "        homePage: function(client) {",
+            "            return client.url('http://localhost:8000')",
+            "                .waitForExist('main');",
+            "        }",
+            "    }",
+            "});"
+        ].join('\n');
+    },
+    render: function() {
+        return <div className="landing-test-example">
+          <h2>Writing a Test Script</h2>
+
+          <p>
+            Install the Sherlocked Node module which abstracts communication
+            with the Sherlocked service and Sauce Labs away.
+          </p>
+
+          <pre><code className="language-bash">
+            npm install sherlocked --save
+          </code></pre>
+
+          <p>
+            Then simply pass in the browser environments you want to test
+            (in the form of Selenium's
+            <code> desiredCapabilities</code>) and an object
+            describing which parts of your app to test (in the form of
+            functions that take/operate/return a
+            <a href="http://webdriver.io"> WebdriverIO</a> client) into
+            <code> sherlocked.run</code>.
+          </p>
+
+          <pre><code className="language-javascript">
+            {this.getTestExample()}
+          </code></pre>
+        </div>
+    }
+});
+
+
+var LandingTravisExample = React.createClass({
+    getEncryptExample: function() {
+        return [
+            "gem install travis",
+            "travis encrypt SAUCE_ACCESS_KEY=my-sauce-key --add",
+            "travis encrypt SAUCE_USERNAME=my-sauce-username --add"
+        ].join('\n');
+    },
+    getTravisExample: function() {
+        return [
+            "node_js:",
+            "  - '0.1.0'",
+            "addons:",
+            "  sauce_connect: true",
+            "env:",
+            "  global",
+            "    - secure: <ENCRYPTED SAUCE_ACCESS_KEY>",
+            "    - secure: <ENCRYPTED SAUCE_USERNAME>",
+            "script:",
+            "  node sherlocked-test.js",
+        ].join('\n');
+    },
+    render: function() {
+        return <div className="landing-travis-example">
+          <h2>Hooking into Travis CI</h2>
+
+          <p>
+            In your .travis.yml, we first need to set up Sauce Connect. This
+            allows Sauce Labs to tunnel requests into the Travis CI
+            environment. Sauce Connect (as well Sherlocked) requires
+            SAUCE_USERNAME and SAUCE_ACCESS_KEY exported as environment
+            variables. We can securely encrypt and add those variables to our
+            .travis.yml.
+          </p>
+
+          <pre><code className="language-bash">
+            {this.getEncryptExample()}
+          </code></pre>
+
+          <p>
+            Then we simply add use the Sauce Connect addon provided by Travis
+            CI, and invoke the test script we wrote earlier. Your .travis.yml
+            should look something like below:
+          </p>
+
+          <pre><code className="language-yaml">
+            {this.getTravisExample()}
+          </code></pre>
+        </div>
+    }
+});
+
 
 module.exports = Landing;
