@@ -1,5 +1,5 @@
 var moment = require('moment');
-var React = require('React');
+var React = require('react');
 var request = require('superagent');
 var url = require('url');
 
