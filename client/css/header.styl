@@ -6,6 +6,7 @@ header {
     background: url(../img/header/bg.png);
     color: $color-text;
     display: flex;
+    font-weight: 300;
     height: 60px;
     justify-content: center;
     padding: 0 30px;
@@ -14,6 +15,10 @@ header {
     +media--desktop() {
         justify-content: space-between;
         margin-bottom: 30px;
+
+        +page-type--landing() {
+            justify-content: flex-start;
+        }
     }
     h1 {
         font-family: $font-header;

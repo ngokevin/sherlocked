@@ -29,7 +29,9 @@ var Build = React.createClass({
             .end(function(err, res) {
                 var data = res.body;
                 root.setState(data, function() {
-                    root.props.setTitle(root.renderHeader());
+                    if (root.props.setPageTitle) {
+                        root.props.setPageTitle(root.renderHeader());
+                    }
                 });
             });
     },

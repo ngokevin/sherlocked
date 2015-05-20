@@ -108,3 +108,37 @@
         font-size: 15px;
     }
 }
+
+.landing-nav {
+    display: none;
+    align-items: center;
+    padding-left: 30px;
+
+    &,
+    ul,
+    li,
+    a {
+        height: 100%;
+        margin: 0;
+    }
+    a {
+        border-left: 1px solid $gray;
+        border-right: 1px solid $gray;
+        color: $white;
+        font-weight: 300;
+        display: inline-block;
+        line-height: 60px;
+        padding: 0 30px;
+        transition: background .1s, border-color .1s;
+
+        &:hover {
+            background: $color-secondary;
+            border-color: $color-secondary;
+        }
+    }
+    +media--desktop() {
+        +page-type--landing() {
+            display: flex;
+        }
+    }
+}

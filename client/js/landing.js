@@ -13,6 +13,11 @@ var Landing = React.createClass({
             ]
         };
     },
+    componentDidMount: function() {
+        if (this.props.setPageTypes) {
+            this.props.setPageTypes(['landing']);
+        }
+    },
     renderGraphicLetter: function(letter, i) {
         var graphicLetterClasses = classnames({
             'landing-graphic-letter': true,
@@ -225,4 +230,22 @@ var LandingTravisExample = React.createClass({
 });
 
 
-module.exports = Landing;
+var LandingNav = React.createClass({
+    contextTypes: {
+        router: React.PropTypes.func
+    },
+    render: function() {
+        return <nav className="landing-nav">
+          <ul>
+            <li><a href={this.context.router.namedRoutes.builds.path}>
+              Builds</a></li>
+          </ul>
+        </nav>;
+    }
+});
+
+
+module.exports = {
+    Landing: Landing,
+    LandingNav: LandingNav,
+};
