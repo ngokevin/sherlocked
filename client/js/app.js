@@ -5,6 +5,7 @@ var url = require('url');
 
 var API_URL = require('./config').API_URL;
 var Build = require('./build');
+var Builds = require('./builds');
 var Landing = require('./landing');
 
 
@@ -45,46 +46,6 @@ var App = React.createClass({
         this.setState({
             title: title
         });
-    }
-});
-
-
-var Builds = React.createClass({
-    getInitialState: function() {
-        return {
-            builds: []
-        };
-    },
-    componentDidMount: function() {
-        // Fetch Build listing.
-        var root = this;
-
-        if (root.props.setPageTitle) {
-            root.props.setPageTitle(<p>Builds</p>);
-        }
-
-        request
-            .get(url.resolve(API_URL, 'builds/'))
-            .end(function(err, res) {
-                var data = res.body;
-                root.setState({builds: data});
-            });
-    },
-    getBuildUrl: function(build) {
-        return '/builds/' + build.travisId;
-    },
-    renderBuildLink: function(build, i) {
-        return <li className="builds-build" key={i}>
-          <a className="builds-link" href={this.getBuildUrl(build)}>
-            <p>{build.travisRepoSlug}</p>
-            <p>{build.travisId}</p>
-          </a>
-        </li>
-    },
-    render: function() {
-        return <ul className="builds">
-          {this.state.builds.map(this.renderBuildLink)}
-        </ul>
     }
 });
 

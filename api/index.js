@@ -123,7 +123,9 @@ app.get('/api/', function (req, res) {
 
 app.get('/api/builds/', function(req, res) {
     // List builds.
-    Build.query('limit', 25).fetchAll().then(function(builds) {
+    Build.query('limit', 25)
+         .query('orderBy', 'created_at', 'DESC')
+         .fetchAll().then(function(builds) {
         res.send(builds);
     });
 });

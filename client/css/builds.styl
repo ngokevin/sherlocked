@@ -9,38 +9,47 @@
 }
 
 .builds-build {
-    align-items: center;
-    background: $color-secondary;
+    align-items: flex-start;
+    border: 1px solid $gray;
+    border-radius: 2px;
     display: flex;
-    height: 50px;
+    height: 100px;
     justify-content: center;
     margin: 5px;
     transition: background .1s;
-    width: 100%;
+    width: 300px;
 
     &:hover {
         background: $color-tertiary;
+        border-color: $color-tertiary;
         cursor: pointer;
 
         a {
             color: $white;
         }
     }
-    +media--desktop() {
-        padding: 50px;
-        width: 50px;
-    }
 }
 
 .builds-link {
-    color: $white;
+    color: $black;
     display: flex;
-    justify-content: center;
     flex-wrap: wrap;
-    padding: 20px;
+    justify-content: center;
+    padding: 10px 20px;
     width: 100%;
 
-    +media--desktop() {
-        padding: 50px;
+    p {
+        margin: 5px 0;
     }
+}
+
+.builds-link-meta {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 30px;
+    width: 100%;
+}
+
+.builds-created {
+    width: 100%;
 }
