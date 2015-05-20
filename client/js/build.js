@@ -77,12 +77,6 @@ var BrowserEnv = React.createClass({
         state.maxHeight = '9999px';
         return state;
     },
-    componentDidMount: function() {
-        this.setState({
-            maxHeight: React.findDOMNode(this.refs.browserEnvCaptures)
-                            .offsetHeight
-        });
-    },
     toggleHidden: function() {
         this.setState({hidden: !this.state.hidden});
     },
@@ -176,7 +170,6 @@ var ImageDiffer = React.createClass({
             root.props.modifiedSrc);
         compare.ignoreAntialiasing();
         compare.onComplete(function(imageDiffData) {
-            console.log(imageDiffData.getImageDataUrl());
             root.setState({
                 imageDataUrl: imageDiffData.getImageDataUrl(),
                 misMatchPercentage: imageDiffData.misMatchPercentage
