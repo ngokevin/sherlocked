@@ -110,9 +110,10 @@ describe('POST /builds/', function() {
                 .send(buildFactory({travisId: 222}))
                 .expect(201, function() {
                     getBuild(function(build) {
-                        assert.equal(build.masterBuild.travisId, 4);
+                        assert.equal(build.masterBuild.travisId,
+                                     masterBuild.travisId);
                         done();
-                    }, 4);
+                    }, 222);
                 });
         });
     });
@@ -202,7 +203,8 @@ describe('GET /builds/:buildId', function() {
 
         var masterBuild = buildFactory({travisBranch: 'master',
                                         travisId: 123});
-        createBuilds([buildFactory(), masterBuild]).then(function() {
+        createBuilds([masterBuild]).then(function() {
+        createBuilds([buildFactory()]).then(function() {
             request(app.app).post(prefix('/builds/123/captures/'))
                 .send(captureFactory())
                 .end(function(err, res) {
@@ -215,6 +217,7 @@ describe('GET /builds/:buildId', function() {
                                 });
                         });
                 });
+        });
         });
     });
 });

@@ -161,9 +161,9 @@ app.post('/api/builds/', function(req, res) {
             // Check if a Build exists.
             return res.sendStatus(409);
         }
-        buildCreated().then(function(build) {
+        masterBuildFound().then(function(masterBuild) {
             // Create a Build if it doesn't.
-            masterBuildFound().then(function(masterBuild) {
+            buildCreated().then(function(build) {
                 // Attach the current master Build.
                 if (masterBuild) {
                     build.set('masterBuildId', masterBuild.id);
