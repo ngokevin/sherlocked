@@ -1,7 +1,7 @@
 {
   "name": "sherlocked",
   "description": "CI runner for Sherlocked visual regression testing service.",
-  "version": "0.5.2",
+  "version": "0.6.0",
   "repository": {
     "url": "git://github.com/ngokevin/sherlocked.git",
     "type": "git"
@@ -10,6 +10,10 @@
     "es6-promise": "^2.0.0",
     "promise-series": "^0.1.1",
     "superagent": "^1.2.0",
+    "underscore": "^1.8.3",
     "webdriverio-master": "2.5.0-beta"
+  },
+  "devDependencies": {
+    "mocha": "^2.2.5"
   }
 }
