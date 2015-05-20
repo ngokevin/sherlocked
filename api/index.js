@@ -3,6 +3,7 @@
 */
 var fs = require('fs');
 var path = require('path');
+var url = require('url');
 
 var bodyParser = require('body-parser');
 var cors = require('cors');
@@ -33,8 +34,13 @@ var Capture = bookshelf.Model.extend({
 });
 
 
+function getCapturePath(sauceSessionId) {
+    return path.resolve('./captures/', sauceSessionId + '.png');
+}
+
+
 function deserializeCapture(capture) {
-    capture.src = '/img/captures/' + capture.sauceSessionId + '.png';
+    capture.src = url.resolve('/api/captures/', capture.sauceSessionId);
     return capture;
 }
 
@@ -181,7 +187,8 @@ app.get('/api/builds/:buildId', function(req, res) {
                 res.send(build);
             });
         } else {
-            console.log('No trace at the scene of the crime for Build', req.params.buildId);
+            console.log('No trace at the scene of the crime for Build',
+                        req.params.buildId);
             res.sendStatus(404);
         }
     });
@@ -203,8 +210,7 @@ app.post('/api/builds/:buildId/captures/', function(req, res) {
     function saveCapture() {
         return new Promise(function(resolve, reject) {
             var image = data.image.replace(/^data:image\/png;base64,/, '');
-            var imagePath = path.resolve('../client/img/captures/',
-                                         data.sauceSessionId + '.png');
+            var imagePath = getCapturePath(data.sauceSessionId);
 
             fs.writeFile(imagePath, image, 'base64', function(err) {
                 delete data.image;
@@ -224,9 +230,7 @@ app.post('/api/builds/:buildId/captures/', function(req, res) {
 
     function browserEnvGetOrCreate() {
         return new Promise(function(resolve) {
-            // console.log(bData);
             BrowserEnv.where(bData).fetch().then(function(browserEnv) {
-                // console.log(browserEnv);
                 if (!browserEnv) {
                     BrowserEnv.forge(bData).save().then(function(browserEnv) {
                         data.browserEnvId = browserEnv.id;
@@ -248,26 +252,32 @@ app.post('/api/builds/:buildId/captures/', function(req, res) {
         return capture.set('buildId', build.id).save();
     }
 
-    saveCapture().then(function() {
-        // Upload capture first.
-        buildFound().then(function(build) {
-            // Get the Build.
-            browserEnvGetOrCreate().then(function() {
-                // Get or create BrowserEnv.
-                captureCreated().then(function(capture) {
-                    // Create Capture.
-                    createBuildCapture(build, capture).then(function() {
-                        // Attach Capture to Build.
-                        buildFound().then(function(build) {
+    function error() {
+        return res.sendStatus(400);
+    }
+
+    // Upload capture, get build.
+    saveCapture().then(buildFound, error)
+        .then(function(build) {
+            // Get or create BrowserEnv, create capture.
+            browserEnvGetOrCreate().then(captureCreated)
+                .then(function(capture) {
+                    // Attach Capture to Build.
+                    createBuildCapture(build, capture).then(buildFound)
+                        .then(function(build) {
                             // Return updated build.
                             res.sendStatus(201);
                         });
-                    });
                 });
-            });
         });
-    }, function() {
-        res.sendStatus(400);
+});
+
+
+app.get('/api/captures/:sauceSessionId', function(req, res) {
+    res.sendFile(getCapturePath(req.params.sauceSessionId), function(err) {
+        if (err) {
+            res.sendStatus(err.status);
+        }
     });
 });
 

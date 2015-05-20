@@ -65,8 +65,9 @@ describe('GET /builds/', function() {
         createBuilds([build1, build2]).then(function() {
             request(app.app).get(prefix('/builds/'))
                 .end(function(err, res) {
-                    assert.equal(res.body[0].travisId, 221);
-                    assert.equal(res.body[1].travisId, 239);
+                    // Order by created_by DESC.
+                    assert.equal(res.body[0].travisId, 239);
+                    assert.equal(res.body[1].travisId, 221);
                     done();
                 });
         });
@@ -115,6 +116,16 @@ describe('POST /builds/', function() {
                 });
         });
     });
+
+    it('does not create dupe builds', function(done) {
+        request(app.app).post(prefix('/builds/'))
+            .send(buildFactory())
+            .expect(201, function() {
+                request(app.app).post(prefix('/builds/'))
+                    .send(buildFactory())
+                    .expect(409, done);
+            });
+    });
 });
 
 
@@ -152,7 +163,7 @@ describe('GET /builds/:buildId', function() {
             assert.equal(build.captures[0].captures.watsonsButt.sauceSessionId,
                          '221B');
             assert.equal(build.captures[0].captures.watsonsButt.src,
-                         '/img/captures/221B.png');
+                         '/api/captures/221B');
             assert.equal(Object.keys(build.captures[0].masterCaptures).length,
                          0);
             done();
@@ -274,6 +285,21 @@ describe('POST /builds/:id/captures/', function() {
                         });
                 });
         });
+    });
+});
+
+
+
+describe('GET /captures/:sauceSessionId', function(done) {
+    it('gets a capture', function(done) {
+        request(app.app).get(prefix('/captures/test'))
+            .expect(200)
+            .expect('Content-Type', 'image/png', done);
+    });
+
+    it('404s if capture does not exist', function(done) {
+        request(app.app).get(prefix('/captures/doesnotexist'))
+            .expect(404, done);
     });
 });
 
