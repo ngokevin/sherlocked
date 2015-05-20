@@ -5,8 +5,13 @@ var extend = require('extend');
 var Promise = require('es6-promise').Promise;
 var request = require('supertest');
 
-var app = require('./app');
+var app = require('./index');
 var knex = require('knex')(require('./config'));
+
+
+function prefix(url) {
+    return '/api' + url;
+}
 
 
 if (!fs.existsSync(process.env.SHERLOCKED_TEST_DB)) {
@@ -29,7 +34,7 @@ beforeEach(function(done) {
 describe('GET /', function() {
     it('is OK', function(done) {
         request(app.app)
-            .get('/')
+            .get(prefix('/'))
             .expect(200, done);
     });
 });
@@ -37,7 +42,7 @@ describe('GET /', function() {
 
 describe('GET /builds/', function() {
     it('returns 0 builds', function(done) {
-        request(app.app).get('/builds/')
+        request(app.app).get(prefix('/builds/'))
         .end(function(err, res) {
             assert.equal(res.body.length, 0);
             done();
@@ -46,7 +51,7 @@ describe('GET /builds/', function() {
 
     it('returns 1 build', function(done) {
         createBuilds([buildFactory()]).then(function() {
-            request(app.app).get('/builds/')
+            request(app.app).get(prefix('/builds/'))
                 .end(function(err, res) {
                     assert.equal(res.body[0].travisId, 221);
                     done();
@@ -58,7 +63,7 @@ describe('GET /builds/', function() {
         var build1 = buildFactory();
         var build2 = buildFactory({travisId: 239});
         createBuilds([build1, build2]).then(function() {
-            request(app.app).get('/builds/')
+            request(app.app).get(prefix('/builds/'))
                 .end(function(err, res) {
                     assert.equal(res.body[0].travisId, 221);
                     assert.equal(res.body[1].travisId, 239);
@@ -71,7 +76,7 @@ describe('GET /builds/', function() {
 
 describe('POST /builds/', function() {
     it('creates a builds', function(done) {
-        request(app.app).post('/builds/')
+        request(app.app).post(prefix('/builds/'))
             .send(buildFactory())
             .expect(201, function() {
                 getBuild(function(build) {
@@ -100,7 +105,7 @@ describe('POST /builds/', function() {
         });
 
         masterBuildCreated.then(function(masterBuild) {
-            request(app.app).post('/builds/')
+            request(app.app).post(prefix('/builds/'))
                 .send(buildFactory({travisId: 222}))
                 .expect(201, function() {
                     getBuild(function(build) {
@@ -129,7 +134,7 @@ describe('GET /builds/:buildId', function() {
         }
 
         createBuilds([buildFactory()]).then(function() {
-            request(app.app).get('/builds/221')
+            request(app.app).get(prefix('/builds/221'))
                 .end(function(err, res) {
                     assertBuild(res.body);
                 });
@@ -154,10 +159,10 @@ describe('GET /builds/:buildId', function() {
         }
 
         createBuilds([buildFactory()]).then(function() {
-            request(app.app).post('/builds/221/captures/')
+            request(app.app).post(prefix('/builds/221/captures/'))
                 .send(captureFactory())
                 .end(function(err, res) {
-                    request(app.app).get('/builds/221')
+                    request(app.app).get(prefix('/builds/221'))
                         .end(function(err, res) {
                             assertBuild(res.body);
                         });
@@ -187,13 +192,13 @@ describe('GET /builds/:buildId', function() {
         var masterBuild = buildFactory({travisBranch: 'master',
                                         travisId: 123});
         createBuilds([buildFactory(), masterBuild]).then(function() {
-            request(app.app).post('/builds/123/captures/')
+            request(app.app).post(prefix('/builds/123/captures/'))
                 .send(captureFactory())
                 .end(function(err, res) {
-                    request(app.app).post('/builds/221/captures/')
+                    request(app.app).post(prefix('/builds/221/captures/'))
                         .send(captureFactory({sauceSessionId: 'abc'}))
                         .end(function(err, res) {
-                            request(app.app).get('/builds/221')
+                            request(app.app).get(prefix('/builds/221'))
                                 .end(function(err, res) {
                                     assertBuild(res.body);
                                 });
@@ -207,7 +212,7 @@ describe('GET /builds/:buildId', function() {
 describe('POST /builds/:id/captures/', function() {
     it('creates capture on build', function(done) {
         createBuilds([buildFactory()]).then(function() {
-            request(app.app).post('/builds/221/captures/')
+            request(app.app).post(prefix('/builds/221/captures/'))
                 .send(captureFactory())
                 .expect(201, function() {
                     getBuild(function(build) {
@@ -230,10 +235,10 @@ describe('POST /builds/:id/captures/', function() {
         }
 
         createBuilds([buildFactory()]).then(function() {
-            request(app.app).post('/builds/221/captures/')
+            request(app.app).post(prefix('/builds/221/captures/'))
                 .send(captureFactory({browserVersion: undefined}))
                 .end(function(err, res) {
-                    request(app.app).post('/builds/221/captures/')
+                    request(app.app).post(prefix('/builds/221/captures/'))
                         .send(captureFactory({browserVersion: undefined,
                                               name: 'watsonsFace',
                                               sauceSessionId: '221C'}))
@@ -255,10 +260,10 @@ describe('POST /builds/:id/captures/', function() {
         }
 
         createBuilds([buildFactory()]).then(function() {
-            request(app.app).post('/builds/221/captures/')
+            request(app.app).post(prefix('/builds/221/captures/'))
                 .send(captureFactory())
                 .end(function(err, res) {
-                    request(app.app).post('/builds/221/captures/')
+                    request(app.app).post(prefix('/builds/221/captures/'))
                         .send(captureFactory({
                             browserName: 'chrome',
                             name: 'watsonsFace',
@@ -274,7 +279,7 @@ describe('POST /builds/:id/captures/', function() {
 
 
 function getBuild(cb, id) {
-    request(app.app).get('/builds/' + (id || 221))
+    request(app.app).get(prefix('/builds/') + (id || 221))
         .end(function(err, res) {
             cb(res.body);
         });
@@ -285,7 +290,7 @@ function createBuilds(builds) {
     // Create Builds via POST requests to the API.
     return Promise.all(builds.map(function(build) {
         return new Promise(function(resolve) {
-            request(app.app).post('/builds/')
+            request(app.app).post(prefix('/builds/'))
                 .send(build)
                 .end(function(err, res) {
                     resolve(res.body);
