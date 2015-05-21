@@ -1,18 +1,17 @@
 var _ = require('lodash');
 var classnames = require('classnames');
-var React = require('react/addons');
+var React = require('react');
 var request = require('superagent');
 var resemble = require('resemblejs').resemble;
-var Select = require('react-select');
 var url = require('url');
 
 var API_URL = require('./config').API_URL;
 var MEDIA_URL = require('./config').MEDIA_URL;
 var ImageComparator = require('./image-comparator');
+var buildFilters = require('./build-filters');
 
 
 var Build = React.createClass({
-    mixins: [React.addons.LinkedStateMixin],
     contextTypes: {
         router: React.PropTypes.func
     },
@@ -21,6 +20,7 @@ var Build = React.createClass({
             captures: [],
             buildId: this.context.router.getCurrentParams().buildId,
             filteredBrowserEnvs: [],
+            filteredCaptures: [],
             travisId: 0,
             travisRepoSlug: ''
         };
@@ -50,6 +50,11 @@ var Build = React.createClass({
             })
         });
     },
+    filterCaptures: function(captures) {
+        this.setState({
+            filteredCaptures: captures ? _.unique(captures.split(',')) : []
+        });
+    },
     getGithubUrl: function(repoSlug) {
         return url.resolve('https://github.com/', repoSlug);
     },
@@ -72,16 +77,21 @@ var Build = React.createClass({
     },
     renderBrowserEnv: function(browserEnv, i) {
         var filteredBrowserEnvs = this.state.filteredBrowserEnvs;
-        var hidden =
-            filteredBrowserEnvs.length &&
+        var hidden = filteredBrowserEnvs.length &&
             filteredBrowserEnvs.indexOf(browserEnv.browserEnv.id) === -1;
-        return <BrowserEnv browserEnv={browserEnv} key={i} hidden={hidden}/>;
+        return <BrowserEnv browserEnv={browserEnv.browserEnv}
+                           captures={browserEnv.captures}
+                           masterCaptures={browserEnv.masterCaptures}
+                           key={i} hidden={hidden}
+                           filteredCaptures={this.state.filteredCaptures}/>;
     },
     render: function() {
         return <div className="build">
           {this.renderHeader()}
-          <BrowserEnvSelect captures={this.state.captures}
-                            filterBrowserEnvs={this.filterBrowserEnvs}/>
+          <buildFilters.BrowserEnvFilter captures={this.state.captures}
+              filterBrowserEnvs={this.filterBrowserEnvs}/>
+          <buildFilters.CaptureFilter captures={this.state.captures}
+              filterCaptures={this.filterCaptures}/>
           <div className="build-content">
             {this.state.captures.map(this.renderBrowserEnv)}
           </div>
@@ -90,58 +100,19 @@ var Build = React.createClass({
 });
 
 
-var BrowserEnvSelect = React.createClass({
-    slugifyBrowserEnv: function(browserEnv) {
-        var slug = browserEnv.name;
-        if (browserEnv.version) {
-            slug += ' | Version ' + browserEnv.version;
-        }
-        if (browserEnv.platform) {
-            slug += ' | ' + browserEnv.platform;
-        }
-        return slug;
-    },
-    shouldComponentUpdate: function(nextProps, nextState) {
-        // Don't update to prevent value reset, options will never change.
-        if (this.props.captures.length === 0) {
-            return true;
-        }
-        return false;
-    },
-    render: function() {
-        var root = this;
-        var browserEnvs = this.props.captures.map(function(capture) {
-            var browserEnv = capture.browserEnv;
-            return {
-                value: browserEnv.id,
-                label: root.slugifyBrowserEnv(browserEnv)
-            };
-        });
-
-        return <Select ref="browserEnvSelector"
-                       className="browser-env-selector"
-                       placeholder="Filter browser environments..."
-                       searchable={false} multi={true}
-                       onChange={this.props.filterBrowserEnvs}
-                       name="browser-env-selector" options={browserEnvs}/>;
-    }
-});
-
-
 var BrowserEnv = React.createClass({
     getInitialState: function() {
-        var state = this.props.browserEnv;
-        state.captureNames = Object.keys(state.captures);
-        state.toggledOff = false;
-        state.maxHeight = '9999px';
-        return state;
+        return {
+            toggledOff: false
+        };
     },
     toggle: function() {
         this.setState({toggledOff: !this.state.toggledOff});
     },
     renderCapture: function(captureName, i) {
-        return <Captures capture={this.state.captures[captureName]}
-                         masterCapture={this.state.masterCaptures[captureName]}
+        return <Captures capture={this.props.captures[captureName]}
+                         masterCapture={this.props.masterCaptures[captureName]
+                                        || {}}
                          key={i}>
                </Captures>
     },
@@ -151,19 +122,23 @@ var BrowserEnv = React.createClass({
             'browser-env--toggled-off': this.state.toggledOff,
             'browser-env--hidden': this.props.hidden,
         });
-        var capturesStyle = {
-            maxHeight: this.state.maxHeight
-        };
+
+        // If filtering captures, hide rest of captures.
+        var captureNames = Object.keys(this.props.captures);
+        if (this.props.filteredCaptures.length) {
+            captureNames = _.intersection(captureNames,
+                                          this.props.filteredCaptures);
+        }
+
         return <div className={browserEnvClasses}>
           <div className="browser-env-header" onClick={this.toggle}>
-            <h3>{this.state.browserEnv.name}</h3>
-            <h3>{this.state.browserEnv.version}</h3>
-            <h3>{this.state.browserEnv.platform}</h3>
+            <h3>{this.props.browserEnv.name}</h3>
+            <h3>{this.props.browserEnv.version}</h3>
+            <h3>{this.props.browserEnv.platform}</h3>
           </div>
 
-          <div className="browser-env-captures" style={capturesStyle}
-               ref="browserEnvCaptures">
-            {this.state.captureNames.map(this.renderCapture)}
+          <div className="browser-env-captures">
+            {captureNames.map(this.renderCapture)}
           </div>
         </div>
     }
@@ -173,16 +148,14 @@ var BrowserEnv = React.createClass({
 var Captures = React.createClass({
     getInitialState: function() {
         return {
-            capture: this.props.capture,
-            imageDifferVisible: false,
-            masterCapture: this.props.masterCapture || {},
+            imageDifferVisible: false
         };
     },
     getCaptureSrc: function() {
-        return url.resolve(MEDIA_URL, this.state.capture.src);
+        return url.resolve(MEDIA_URL, this.props.capture.src);
     },
     getMasterCaptureSrc: function() {
-        return url.resolve(MEDIA_URL, this.state.masterCapture.src);
+        return url.resolve(MEDIA_URL, this.props.masterCapture.src);
     },
     toggleImageDiffer: function() {
         this.setState({
@@ -192,7 +165,7 @@ var Captures = React.createClass({
     render: function() {
         return <div className="captures">
           <h4>
-            {this.state.capture.name}
+            {this.props.capture.name}
             <button onClick={this.toggleImageDiffer}>Toggle Diff</button>
           </h4>
           <ImageComparator originalLabel="Master"
