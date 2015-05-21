@@ -1,7 +1,9 @@
+var _ = require('lodash');
 var classnames = require('classnames');
-var React = require('react');
+var React = require('react/addons');
 var request = require('superagent');
 var resemble = require('resemblejs').resemble;
+var Select = require('react-select');
 var url = require('url');
 
 var API_URL = require('./config').API_URL;
@@ -10,6 +12,7 @@ var ImageComparator = require('./image-comparator');
 
 
 var Build = React.createClass({
+    mixins: [React.addons.LinkedStateMixin],
     contextTypes: {
         router: React.PropTypes.func
     },
@@ -17,6 +20,7 @@ var Build = React.createClass({
         return {
             captures: [],
             buildId: this.context.router.getCurrentParams().buildId,
+            filteredBrowserEnvs: [],
             travisId: 0,
             travisRepoSlug: ''
         };
@@ -34,6 +38,17 @@ var Build = React.createClass({
                     }
                 });
             });
+
+        root.props.setPageTypes(['build']);
+    },
+    filterBrowserEnvs: function(browserEnvs) {
+        var filteredBrowserEnvs = browserEnvs ?
+            _.unique(browserEnvs.split(',')) : [];
+        this.setState({
+            filteredBrowserEnvs: filteredBrowserEnvs.map(function(id) {
+                return parseInt(id, 10);
+            })
+        });
     },
     getGithubUrl: function(repoSlug) {
         return url.resolve('https://github.com/', repoSlug);
@@ -56,11 +71,17 @@ var Build = React.createClass({
         </div>
     },
     renderBrowserEnv: function(browserEnv, i) {
-        return <BrowserEnv browserEnv={browserEnv} key={i}/>;
+        var filteredBrowserEnvs = this.state.filteredBrowserEnvs;
+        var hidden =
+            filteredBrowserEnvs.length &&
+            filteredBrowserEnvs.indexOf(browserEnv.browserEnv.id) === -1;
+        return <BrowserEnv browserEnv={browserEnv} key={i} hidden={hidden}/>;
     },
     render: function() {
         return <div className="build">
           {this.renderHeader()}
+          <BrowserEnvSelect captures={this.state.captures}
+                            filterBrowserEnvs={this.filterBrowserEnvs}/>
           <div className="build-content">
             {this.state.captures.map(this.renderBrowserEnv)}
           </div>
@@ -69,16 +90,54 @@ var Build = React.createClass({
 });
 
 
+var BrowserEnvSelect = React.createClass({
+    slugifyBrowserEnv: function(browserEnv) {
+        var slug = browserEnv.name;
+        if (browserEnv.version) {
+            slug += ' | Version ' + browserEnv.version;
+        }
+        if (browserEnv.platform) {
+            slug += ' | ' + browserEnv.platform;
+        }
+        return slug;
+    },
+    shouldComponentUpdate: function(nextProps, nextState) {
+        // Don't update to prevent value reset, options will never change.
+        if (this.props.captures.length === 0) {
+            return true;
+        }
+        return false;
+    },
+    render: function() {
+        var root = this;
+        var browserEnvs = this.props.captures.map(function(capture) {
+            var browserEnv = capture.browserEnv;
+            return {
+                value: browserEnv.id,
+                label: root.slugifyBrowserEnv(browserEnv)
+            };
+        });
+
+        return <Select ref="browserEnvSelector"
+                       className="browser-env-selector"
+                       placeholder="Filter browser environments..."
+                       searchable={false} multi={true}
+                       onChange={this.props.filterBrowserEnvs}
+                       name="browser-env-selector" options={browserEnvs}/>;
+    }
+});
+
+
 var BrowserEnv = React.createClass({
     getInitialState: function() {
         var state = this.props.browserEnv;
         state.captureNames = Object.keys(state.captures);
-        state.hidden = false;
+        state.toggledOff = false;
         state.maxHeight = '9999px';
         return state;
     },
-    toggleHidden: function() {
-        this.setState({hidden: !this.state.hidden});
+    toggle: function() {
+        this.setState({toggledOff: !this.state.toggledOff});
     },
     renderCapture: function(captureName, i) {
         return <Captures capture={this.state.captures[captureName]}
@@ -89,13 +148,14 @@ var BrowserEnv = React.createClass({
     render: function() {
         var browserEnvClasses = classnames({
             'browser-env': true,
-            'browser-env--hidden': this.state.hidden,
+            'browser-env--toggled-off': this.state.toggledOff,
+            'browser-env--hidden': this.props.hidden,
         });
         var capturesStyle = {
             maxHeight: this.state.maxHeight
         };
         return <div className={browserEnvClasses}>
-          <div className="browser-env-header" onClick={this.toggleHidden}>
+          <div className="browser-env-header" onClick={this.toggle}>
             <h3>{this.state.browserEnv.name}</h3>
             <h3>{this.state.browserEnv.version}</h3>
             <h3>{this.state.browserEnv.platform}</h3>
