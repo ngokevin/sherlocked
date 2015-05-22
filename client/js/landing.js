@@ -130,19 +130,16 @@ var Landing = React.createClass({
 var LandingTestExample = React.createClass({
     getTestExample: function() {
         return [
-            "require('sherlocked').run({",
-            "    environments: [",
-            "        {browserName: 'firefox'},",
-            "        {browserName: 'chrome', version: '40'}",
-            "    ],",
-            "    captures: [{",
-            "        name: 'Home Page',",
-            "        capture: function(client) {",
-            "            return client.url('http://localhost:8000')",
-            "                .waitForExist('main');",
-            "        }",
-            "    }]",
-            "});"
+            "require('sherlocked')",
+            ".investigate('Home Page', function(client) {",
+            "    return client",
+            "        .url('http://localhost:8000')",
+            "        .waitForExist('main');",
+            "})",
+            ".start([",
+            "    {browserName: 'firefox'},",
+            "    {browserName: 'chrome', 'version': '40'}",
+            "]);"
         ].join('\n');
     },
     render: function() {
