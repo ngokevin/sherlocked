@@ -3,7 +3,8 @@ install:
 	@node_modules/.bin/gulp build
 
 sherlocked:
-	@python -m SimpleHTTPServer & && sleep 5 && node sherlocked.js
+	@python -m SimpleHTTPServer &
+	@sleep 5 && node sherlocked.js
 
 travis: install sherlocked
 
