@@ -10,8 +10,6 @@ env:
 - RUN_TEST=test-api
 - RUN_TEST=test-client
 - RUN_TEST=test-lib
-before_script:
-- cd client && npm install && node_modules/.bin/gulp build && python -m SimpleHTTPServer
 script:
 - make $RUN_TEST
 cache:
