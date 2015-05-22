@@ -7,7 +7,7 @@ test-api:
 test-client:
 	@cd client
 	@make install
-	@python -m SimpleHTTPServer
+	@python -m SimpleHTTPServer &
 	@sleep 5
 	node sherlocked.js
 

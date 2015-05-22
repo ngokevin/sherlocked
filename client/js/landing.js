@@ -192,7 +192,7 @@ var LandingTravisExample = React.createClass({
             "    - secure: <ENCRYPTED SAUCE_ACCESS_KEY>",
             "    - secure: <ENCRYPTED SAUCE_USERNAME>",
             "script:",
-            "  python -m SimpleHTTPServer",
+            "  python -m SimpleHTTPServer &",
             "  node sherlocked-test.js",
         ].join('\n');
     },
