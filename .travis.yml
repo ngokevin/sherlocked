@@ -7,9 +7,13 @@ node_js:
 addons:
   sauce_connect: true
 env:
-- RUN_TEST=test-api
-- RUN_TEST=test-client
-- RUN_TEST=test-lib
+  matrix:
+  - RUN_TEST=test-api
+  - RUN_TEST=test-client
+  - RUN_TEST=test-lib
+  global:
+  - secure: Vx7++v6qjOOfipxyVua2/OkX+3EoCg94QBci4V6r9EN7jsYUoeIxOpseMIEEurqwJauSnChFFM/S+qvnq4fGxPmO8J5qgsigBBBL0+de1CPM7/cCiLudjrs7yUxVV35lDUjEw9pvUhY9hs0f/Pj+j6JIq/yXsRrT9A+CcRI6rVs=
+  - secure: dR59+orvlZ060ieAxooEZ//IIuOrUFBFwccQGeyuht2LZ97sYgCcPRQaJcVle14tDi8cPGzbKKuPpf6AjNEFFsLnvgYN3JnewEf4Bzv8UrFIyBWW/sRXypDIwJjlwjZHLgubRRaw/tE5vHOKzp02M2qwSATtKbATVelQVdxcptE=
 script:
 - make $RUN_TEST
 cache:
