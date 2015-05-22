@@ -1,17 +1,8 @@
 test-api:
-	@cd api
-	@npm install
-	@node db.js
-	make test
+	@cd api && make travis
 
 test-client:
-	@cd client
-	@make install
-	@python -m SimpleHTTPServer &
-	@sleep 5
-	node sherlocked.js
+	@cd client && make travis
 
 test-lib:
-	@cd lib
-	@npm install
-	make test
+	@cd lib && make travis

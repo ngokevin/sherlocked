@@ -1,3 +1,6 @@
+install:
+	@npm install
+
 test:
 	NODE_ENV=test \
 	SAUCE_ACCESS_KEY=my-sauce-key \
@@ -10,3 +13,5 @@ test:
     TRAVIS_PULL_REQUEST=1001 \
     TRAVIS_REPO_SLUG=ngokevin/sherlocked \
     node_modules/.bin/mocha test.js
+
+travis: install test

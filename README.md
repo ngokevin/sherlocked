@@ -1,7 +1,7 @@
 sherlocked
 ==========
 
-[![NPM version][npm-image]][npm-url] [![Build Status](https://travis-ci.org/travis-ci/travis-build.png?branch=master)](https://travis-ci.org/ngokevin/sherlocked)
+[![NPM version][npm-image]][npm-url] [![Build Status](https://travis-ci.org/ngokevin/sherlocked.png?branch=master)](https://travis-ci.org/ngokevin/sherlocked)
 
 Agnostic visual regression testing service with Sauce Labs and Travis CI.
 
