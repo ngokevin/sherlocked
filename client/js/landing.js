@@ -136,7 +136,7 @@ var LandingTestExample = React.createClass({
             "        .url('http://localhost:8000')",
             "        .waitForExist('main');",
             "})",
-            ".start([",
+            ".begin([",
             "    {browserName: 'firefox'},",
             "    {browserName: 'chrome', 'version': '40'}",
             "]);"
