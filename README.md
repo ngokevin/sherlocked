@@ -42,21 +42,23 @@ Keep the API key because we will need it for later.
 
 ### 2. Writing a Sherlocked Test Script
 
-A Sherlocked test script specifies ```environments``` and ```captures```:
-
-- *environments*: list of configurations of what environments we want to take
-  captures of, in the form of Selenium's [desiredCapabilities]
-  (https://code.google.com/p/selenium/wiki/DesiredCapabilities)
-- *captures*: a list of functions that take a Webdriver client and executes
-  to reach a desired state for a screen capture. Returns the client.
+A Sherlocked test script adds screenshots to the case with
+```.investigate(captureName, captureFn)``` where ```captureFn``` operates
+on a [WebdriverIO](http://webdriver.io) client. Then the investigation begins
+with ```.begin(environmentList)``` where ```environmentList``` is a list of
+configurations of what environments we want to take captures of, in the form of
+Selenium's [desiredCapabilities]
+(https://code.google.com/p/selenium/wiki/DesiredCapabilities)
 
 ```
 require('sherlocked')
+
 .investigate('Home Page', function(client) {
     return client
         .url('http://localhost:8000')
         .waitFor('main');
 })
+
 .begin([
     {
         browserName: 'firefox',
