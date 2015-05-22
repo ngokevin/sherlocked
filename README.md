@@ -1,6 +1,8 @@
 sherlocked
 ==========
 
+[![NPM version][npm-image]][npm-url] [![Build Status](https://travis-ci.org/travis-ci/travis-build.png?branch=master)](https://travis-ci.org/ngokevin/sherlocked)
+
 Agnostic visual regression testing service with Sauce Labs and Travis CI.
 
 The world of Sherlocked:
@@ -218,3 +220,6 @@ gulp
 This will start a server on port 2118 by default. Set SHERLOCKED_CLIENT_PORT
 environment variable to configure it. Set ```NODE_ENV=production``` to build
 the project for production.
+
+[npm-url]: https://npmjs.org/package/sherlocked
+[npm-image]: http://img.shields.io/npm/v/sherlocked.svg
