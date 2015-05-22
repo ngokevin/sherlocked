@@ -51,26 +51,23 @@ A Sherlocked test script specifies ```environments``` and ```captures```:
   to reach a desired state for a screen capture. Returns the client.
 
 ```
-module.exports = {
-    environments: [
-        {
-            browserName: 'firefox',
-            version: '40',
-            platform: 'OS X 10.9',
-        },
-        {
-            browserName: 'chrome',
-            platform: 'OS X 10.9',
-        }
-    ],
-    captures: [
-        function(client) {
-            return client.setViewportSize({width: 320, height: 480})
-                .url('localhost/some-page')
-                .waitFor('.some-element');
-        },
-    ]
-};
+require('sherlocked')
+.investigate('Home Page', function(client) {
+    return client
+        .url('http://localhost:8000')
+        .waitFor('main');
+})
+.begin([
+    {
+        browserName: 'firefox',
+        version: '40',
+        platform: 'OS X 10.9',
+    },
+    {
+        browserName: 'chrome',
+        platform: 'OS X 10.9',
+    }
+]);
 ```
 
 ### 3. Setting up Sherlocked with Travis CI
