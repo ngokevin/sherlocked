@@ -13,7 +13,7 @@ require('sherlocked')
 })
 
 .begin([
-    {browserName: 'firefox'},
-    {browserName: 'chrome'},
-    {browserName: 'safari'}
+    {browserName: 'firefox', platform: 'OS X 10.9'},
+    {browserName: 'chrome', platform: 'OS X 10.9'},
+    {browserName: 'safari', platform: 'OS X 10.9'}
 ]);
