@@ -21,6 +21,8 @@ if (!fs.existsSync(process.env.SHERLOCKED_TEST_DB)) {
 
 beforeEach(function(done) {
     // Teardown and rebuild database.
+    this.timeout(10000);
+
     Promise.all([
         knex('build').truncate(),
         knex('browserEnv').truncate(),
