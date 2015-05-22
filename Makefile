@@ -1,6 +1,7 @@
 test-api:
 	@cd api
 	@npm install
+	@node db.js
 	make test
 
 test-client:
