@@ -2,6 +2,8 @@ require('./lib/prism');
 var classnames = require('classnames');
 var React = require('react');
 
+var pageTypesStore = require('./page-types-store');
+
 
 var Landing = React.createClass({
     getInitialState: function() {
@@ -14,9 +16,7 @@ var Landing = React.createClass({
         };
     },
     componentDidMount: function() {
-        if (this.props.setPageTypes) {
-            this.props.setPageTypes(['landing']);
-        }
+        pageTypesStore.publish(['landing']);
     },
     renderGraphicLetter: function(letter, i) {
         var graphicLetterClasses = classnames({

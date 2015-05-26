@@ -5,6 +5,7 @@ var request = require('superagent');
 var urljoin = require('url-join');
 
 var API_URL = require('./config').API_URL;
+var titleStore = require('./title-store');
 
 
 var Builds = React.createClass({
@@ -17,6 +18,7 @@ var Builds = React.createClass({
         return {
             apiRoute: this.getApiRoute(params.user, params.repo),
             builds: [],
+            notFound: false,
             userRepo: (params.user && params.repo) ?
                       (params.user + '/' + params.repo) : '',
         };
@@ -37,16 +39,24 @@ var Builds = React.createClass({
         request
             .get(this.state.apiRoute)
             .end(function(err, res) {
-                if (!err || err.statusCode === 404) {
-                    root.setState({builds: res.body});
+                if (res.status === 404) {
+                    root.setState({
+                        notFound: true,
+                        builds: []
+                    });
+                } else {
+                    root.setState({
+                        notFound: false,
+                        builds: res.body
+                    });
                 }
             });
     },
     setPageTitle: function() {
-        if (this.state.userRepo.length) {
-            this.props.setPageTitle(<p>{this.state.userRepo}</p>);
+        if (this.state.userRepo) {
+            titleStore.publish(<p>{this.state.userRepo}</p>);
         } else {
-            this.props.setPageTitle(<p>Builds</p>);
+            titleStore.publish(<p>Builds</p>);
         }
     },
     setUserRepo: function(user, repo) {
@@ -78,14 +88,15 @@ var Builds = React.createClass({
         return <BuildsSearch setUserRepo={this.setUserRepo}/>
     },
     renderError: function() {
-        if (!this.state.builds.length) {
+        if (this.state.notFound) {
             if (this.state.userRepo) {
                 var repoSlug = this.state.userRepo;
-                return <h2>
+                return <h2 className="error-msg">
                   The scene of the crime yielded no clues for {repoSlug}
                 </h2>
             }
-            return <h2>The scene of the crime yielded no clues</h2>
+            return <h2 className="error-msg">
+              The scene of the crime yielded no clues</h2>
         }
     },
     render: function() {

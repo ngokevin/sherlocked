@@ -7,6 +7,8 @@ var API_URL = require('./config').API_URL;
 var Build = require('./build');
 var Builds = require('./builds');
 var Landing = require('./landing');
+var pageTypesStore = require('./page-types-store');
+var titleStore = require('./title-store');
 
 
 var App = React.createClass({
@@ -18,6 +20,15 @@ var App = React.createClass({
             pageTypes: [],
             title: ''
         };
+    },
+    componentDidMount: function() {
+        var root = this;
+        titleStore.subscribe(function(title) {
+            root.setState({title: title});
+        });
+        pageTypesStore.subscribe(function(pageTypes) {
+            root.setState({pageTypes: pageTypes});
+        });
     },
     render: function() {
         return <div className="app"
@@ -32,21 +43,10 @@ var App = React.createClass({
             <h1 className="header-title">{this.state.title}</h1>
           </header>
           <main>
-            <Router.RouteHandler setPageTypes={this.setPageTypes}
-                                 setPageTitle={this.setPageTitle}/>
+            <Router.RouteHandler/>
           </main>
         </div>
     },
-    setPageTypes: function(pageTypes) {
-        this.setState({
-            pageTypes: pageTypes
-        });
-    },
-    setPageTitle: function(title) {
-        this.setState({
-            title: title
-        });
-    }
 });
 
 

@@ -9,6 +9,9 @@ var API_URL = require('./config').API_URL;
 var MEDIA_URL = require('./config').MEDIA_URL;
 var ImageComparator = require('./image-comparator');
 var buildFilters = require('./build-filters');
+var pageTypesStore = require('./page-types-store');
+var titleStore = require('./title-store');
+var utils = require('./utils');
 
 
 var Build = React.createClass({
@@ -21,6 +24,7 @@ var Build = React.createClass({
             buildId: this.context.router.getCurrentParams().buildId,
             filteredBrowserEnvs: [],
             filteredCaptures: [],
+            notFound: false,
             travisId: 0,
             travisRepoSlug: ''
         };
@@ -29,17 +33,24 @@ var Build = React.createClass({
         // Fetch the Build from Sherlocked.
         var root = this;
         request
-            .get(urljoin(API_URL, 'builds', this.state.buildId))
+            .get(urljoin(API_URL, 'builds', root.state.buildId))
             .end(function(err, res) {
-                var data = res.body;
-                root.setState(data, function() {
-                    if (root.props.setPageTitle) {
-                        root.props.setPageTitle(root.renderHeader());
-                    }
-                });
+                if (res.status === 404) {
+                    root.setState({
+                        notFound: true
+                    });
+                    titleStore.publish('Build #' + root.state.buildId +
+                                       ' Not Found');
+                } else {
+                    var data = res.body;
+                    root.setState(data, function() {
+                        notFound: false,
+                        titleStore.publish(root.renderHeader());
+                    });
+                }
             });
 
-        root.props.setPageTypes(['build']);
+        pageTypesStore.publish(['build']);
     },
     filterBrowserEnvs: function(browserEnvs) {
         var filteredBrowserEnvs = browserEnvs ?
@@ -84,14 +95,33 @@ var Build = React.createClass({
                            key={i} hidden={hidden}
                            filteredCaptures={this.state.filteredCaptures}/>;
     },
+    renderFilters: function() {
+        if (this.state.notFound || !this.state.id) {
+            return;
+        }
+
+        return <div>
+          <buildFilters.BrowserEnvFilter captures={this.state.captures}
+                filterBrowserEnvs={this.filterBrowserEnvs}/>
+          <buildFilters.CaptureFilter captures={this.state.captures}
+                filterCaptures={this.filterCaptures}/>
+        </div>
+    },
+    renderError: function() {
+        if (this.state.notFound) {
+            return <h2 className="error-msg">
+                The scene of the crime yielded no clues for
+                Build #{this.state.travisId}
+            </h2>
+        }
+    },
     render: function() {
         return <div className="build">
           {this.renderHeader()}
-          <buildFilters.BrowserEnvFilter captures={this.state.captures}
-              filterBrowserEnvs={this.filterBrowserEnvs}/>
-          <buildFilters.CaptureFilter captures={this.state.captures}
-              filterCaptures={this.filterCaptures}/>
+          {this.renderFilters()}
+
           <div className="build-content">
+            {this.renderError()}
             {this.state.captures.map(this.renderBrowserEnv)}
           </div>
         </div>
@@ -131,9 +161,7 @@ var BrowserEnv = React.createClass({
 
         return <div className={browserEnvClasses}>
           <div className="browser-env-header" onClick={this.toggle}>
-            <h3>{this.props.browserEnv.name}</h3>
-            <h3>{this.props.browserEnv.version}</h3>
-            <h3>{this.props.browserEnv.platform}</h3>
+            <h3>{utils.slugifyBrowserEnv(this.props.browserEnv)}</h3>
           </div>
 
           <div className="browser-env-captures">

@@ -2,18 +2,10 @@ var _ = require('lodash');
 var React = require('react');
 var Select = require('react-select');
 
+var utils = require('./utils');
+
 
 var BrowserEnvFilter = React.createClass({
-    slugifyBrowserEnv: function(browserEnv) {
-        var slug = browserEnv.name;
-        if (browserEnv.version) {
-            slug += ' | Version ' + browserEnv.version;
-        }
-        if (browserEnv.platform) {
-            slug += ' | ' + browserEnv.platform;
-        }
-        return slug;
-    },
     shouldComponentUpdate: function(nextProps, nextState) {
         // Don't update to prevent value reset, options will never change.
         if (this.props.captures.length === 0) {
@@ -27,7 +19,7 @@ var BrowserEnvFilter = React.createClass({
             var browserEnv = capture.browserEnv;
             return {
                 value: browserEnv.id,
-                label: root.slugifyBrowserEnv(browserEnv)
+                label: utils.slugifyBrowserEnv(browserEnv)
             };
         });
 
