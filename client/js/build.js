@@ -70,7 +70,7 @@ var Build = React.createClass({
         return urljoin('https://github.com/', repoSlug);
     },
     getTravisUrl: function(repoSlug, travisId) {
-        return urljoin('https://travis.ci.org/', repoSlug, 'builds',
+        return urljoin('https://travis-ci.org/', repoSlug, 'builds',
                        travisId.toString());
     },
     renderHeader: function() {
