@@ -3,7 +3,7 @@ var classnames = require('classnames');
 var React = require('react');
 var request = require('superagent');
 var resemble = require('resemblejs').resemble;
-var url = require('url');
+var urljoin = require('url-join');
 
 var API_URL = require('./config').API_URL;
 var MEDIA_URL = require('./config').MEDIA_URL;
@@ -29,7 +29,7 @@ var Build = React.createClass({
         // Fetch the Build from Sherlocked.
         var root = this;
         request
-            .get(url.resolve(API_URL, 'builds/' + this.state.buildId))
+            .get(urljoin(API_URL, 'builds', this.state.buildId))
             .end(function(err, res) {
                 var data = res.body;
                 root.setState(data, function() {
@@ -56,12 +56,11 @@ var Build = React.createClass({
         });
     },
     getGithubUrl: function(repoSlug) {
-        return url.resolve('https://github.com/', repoSlug);
+        return urljoin('https://github.com/', repoSlug);
     },
     getTravisUrl: function(repoSlug, travisId) {
-        var tUrl = url.resolve('https://travis.ci.org/', repoSlug + '/');
-        tUrl = url.resolve(tUrl, 'builds/');
-        return url.resolve(tUrl, travisId.toString());
+        return urljoin('https://travis.ci.org/', repoSlug, 'builds',
+                       travisId.toString());
     },
     renderHeader: function() {
         return <div className="build-header">
@@ -152,10 +151,10 @@ var Captures = React.createClass({
         };
     },
     getCaptureSrc: function() {
-        return url.resolve(MEDIA_URL, this.props.capture.src);
+        return urljoin(MEDIA_URL, this.props.capture.src);
     },
     getMasterCaptureSrc: function() {
-        return url.resolve(MEDIA_URL, this.props.masterCapture.src);
+        return urljoin(MEDIA_URL, this.props.masterCapture.src);
     },
     toggleImageDiffer: function() {
         this.setState({

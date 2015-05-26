@@ -1,4 +1,6 @@
 sudo: false
+notifications:
+  email: false
 language: node_js
 python:
 - '2.7'

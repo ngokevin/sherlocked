@@ -46,7 +46,7 @@ describe('GET /builds/', function() {
     it('returns 0 builds', function(done) {
         request(app.app).get(prefix('/builds/'))
         .end(function(err, res) {
-            assert.equal(res.body.length, 0);
+            assert.equal(res.statusCode, 404);
             done();
         });
     });
@@ -70,6 +70,29 @@ describe('GET /builds/', function() {
                     // Order by created_by DESC.
                     assert.equal(res.body[0].travisId, 239);
                     assert.equal(res.body[1].travisId, 221);
+                    done();
+                });
+        });
+    });
+});
+
+
+describe('GET /:user/:repo/builds/', function() {
+    it('returns build', function(done) {
+        createBuilds([buildFactory()]).then(function() {
+            request(app.app).get(prefix('/sherlocked/adlerjs/builds/'))
+                .end(function(err, res) {
+                    assert.equal(res.body[0].travisId, 221);
+                    done();
+                });
+        });
+    });
+
+    it('404s', function(done) {
+        createBuilds([buildFactory()]).then(function() {
+            request(app.app).get(prefix('/ngokevin/ngokevin/builds/'))
+                .end(function(err, res) {
+                    assert.equal(res.statusCode, 404);
                     done();
                 });
         });

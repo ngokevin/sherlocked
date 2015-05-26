@@ -55,6 +55,7 @@ var Route = Router.Route;
 var routes = <Route name="app" handler={App}>
   <Route name="landing" path="/" handler={Landing.Landing}/>
   <Route name="builds" path="/builds/" handler={Builds}/>
+  <Route name="builds-repo" path="/:user/:repo/builds/" handler={Builds}/>
   <Route name="build" path="/builds/:buildId" handler={Build}/>
 </Route>;
 

@@ -129,11 +129,34 @@ app.get('/api/', function (req, res) {
 
 app.get('/api/builds/', function(req, res) {
     // List builds.
-    Build.query('limit', 25)
-         .query('orderBy', 'created_at', 'DESC')
-         .fetchAll().then(function(builds) {
-        res.send(builds);
-    });
+    Build
+        .query('limit', 25)
+        .query('orderBy', 'created_at', 'DESC')
+        .fetchAll().then(function(builds) {
+            if (builds.length) {
+                res.send(builds);
+            } else {
+                res.sendStatus(404);
+            }
+        });
+});
+
+
+app.get('/api/:user/:repo/builds/', function(req, res) {
+    // List builds for a repo.
+    var repoSlug = req.params.user + '/' + req.params.repo;
+
+    Build
+        .where({travisRepoSlug: repoSlug})
+        .query('limit', 25)
+        .query('orderBy', 'created_at', 'DESC')
+        .fetchAll().then(function(builds) {
+            if (builds.length) {
+                res.send(builds);
+            } else {
+                res.sendStatus(404);
+            }
+        });
 });
 
 

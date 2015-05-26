@@ -6,3 +6,7 @@ test-client:
 
 test-lib:
 	@cd lib && make travis
+
+deploy:
+	@cd api && make deploy
+	@cd client && make deploy

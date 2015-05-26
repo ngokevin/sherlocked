@@ -9,3 +9,7 @@ travis: install test
 
 start:
 	@node_modules/.bin/forever start index.js
+
+deploy:
+	@git pull --rebase origin master
+	@node_modules/.bin/forever restart index.js
