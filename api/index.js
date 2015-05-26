@@ -13,6 +13,8 @@ var Promise = require('es6-promise').Promise;
 var knex = require('knex')(require('./config'));
 var bookshelf = require('bookshelf')(knex);
 
+var github = require('./github');
+
 
 var app = express();
 app.set('bookshelf', bookshelf);
@@ -215,6 +217,11 @@ app.get('/api/builds/:buildId', function(req, res) {
             res.sendStatus(404);
         }
     });
+});
+
+
+app.post('/api/builds/:buildId/done', function(req, res) {
+    // Endpoint for notifying API that Sherlocked build is complete.
 });
 
 
