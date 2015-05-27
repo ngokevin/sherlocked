@@ -6,7 +6,8 @@ var Promise = require('es6-promise').Promise;
 var request = require('supertest');
 
 var app = require('./index');
-var knex = require('knex')(require('./config'));
+var config = require('./config');
+var knex = require('knex')(config);
 
 
 function prefix(url) {
@@ -243,6 +244,26 @@ describe('GET /builds/:buildId', function() {
                         });
                 });
         });
+        });
+    });
+});
+
+
+describe('POST /builds/:buildId/done', function() {
+    it('is successful', function(done) {
+        if (!config.githubToken) {
+            done();
+            return;
+        }
+
+        var build = buildFactory({
+            travisRepoSlug: 'ngokevin/sherlocked',
+            travisPullRequest: '1',
+        });
+        createBuilds([build]).then(function() {
+            request(app.app)
+                .post(prefix('/builds/221/done'))
+                .expect(201, done);
         });
     });
 });

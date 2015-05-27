@@ -222,6 +222,22 @@ app.get('/api/builds/:buildId', function(req, res) {
 
 app.post('/api/builds/:buildId/done', function(req, res) {
     // Endpoint for notifying API that Sherlocked build is complete.
+    Build
+        .where({travisId: req.params.buildId})
+        .fetch()
+        .then(function(build) {
+            if (!build) {
+                return;
+            }
+            var repoSlug = build.get('travisRepoSlug').split('/');
+            github.postBuildIssueComment(repoSlug[0], repoSlug[1],
+                                         build.get('travisPullRequest'),
+                                         build.get('travisId'))
+                .then(function(githubRes) {
+                    res.sendStatus(
+                        parseInt(githubRes.meta.status.substring(0, 3), 10));
+                });
+        });
 });
 
 
