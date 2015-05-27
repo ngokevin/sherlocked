@@ -11,7 +11,7 @@ var Landing = React.createClass({
             graphicLetterGroups: [
                 'I AM'.split(''),
                 'SHER'.split(''),
-                'LOCKED'.split('')
+                'LOLED'.split('')
             ]
         };
     },
