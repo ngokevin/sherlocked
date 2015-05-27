@@ -1,3 +1,4 @@
+var _ = require('lodash');
 var classnames = require('classnames');
 var React = require('react');
 
@@ -15,31 +16,29 @@ var ImageComparator = React.createClass({
     animateIfVisible: function() {
         // Check until comparator is in the viewport to animate it.
         var root = this;
-        if (root.state.animated) {
-            return;
-        }
 
         var comparator = React.findDOMNode(root);
-        var comparatorTop = comparator.getBoundingClientRect().top +
-                            document.body.scrollTop;
+        var comparatorTop = comparator.getBoundingClientRect().top;
 
-        var viewportHalf = -1 * document.body.getBoundingClientRect().top +
+        var viewportHalf = document.body.scrollTop +
                            document.body.offsetHeight * 0.5;
         if (viewportHalf > comparatorTop) {
             root.setState({
                 animated: true,
-                resizePercentage: '92%',
+                resizePercentage: '100%',
             });
+
+            window.removeEventListener('scroll', this.animateIfVisible);
         }
     },
     componentDidMount: function() {
-        window.addEventListener('resize', this.updateHandleVisibility);
         window.addEventListener('scroll', this.animateIfVisible);
         this.animateIfVisible();
     },
     componentWillUnmount: function() {
-        window.removeEventListener('resize', this.updateHandleVisibility);
-        window.removeEventListener('scroll', this.animateIfVisible);
+        if (!root.state.animated) {
+            window.removeEventListener('scroll', this.animateIfVisible);
+        }
     },
     dragEndHandler: function(e) {
         // Remove the drag handlers once done dragging.
@@ -77,8 +76,8 @@ var ImageComparator = React.createClass({
             comparatorWidth: comparatorWidth,
             dragging: true,
             handleXPos: handleLeft + handleWidth - e.pageX,
-            handleXPosMin: comparatorLeft + 10,
-            handleXPosMax: comparatorLeft + comparatorWidth - handleWidth - 10,
+            handleXPosMin: comparatorLeft - handleWidth / 2,
+            handleXPosMax: comparatorLeft + comparatorWidth - handleWidth / 2,
             handleWidth: handleWidth
         });
 
@@ -110,7 +109,7 @@ var ImageComparator = React.createClass({
 
         root.updateLabelVisibility();
     },
-    updateLabelVisibility: function() {
+    updateLabelVisibility: _.debounce(function() {
         // Toggle whether the label is visible based on whether the resize
         // image edges intersect with the label.
         var root = this;
@@ -128,7 +127,7 @@ var ImageComparator = React.createClass({
             if (_label.props.position == 'left') {
                 root.setState({
                     originalLabelVisible: labelLeft + label.offsetWidth <
-                                           resizeRight
+                                          resizeRight
                 });
             } else if (_label.props.position == 'right') {
                 root.setState({
@@ -137,7 +136,7 @@ var ImageComparator = React.createClass({
                 });
             }
         });
-    },
+    }, 50),
     render: function() {
         var comparatorClasses = classnames({
             'image-comparator': true,
