@@ -1,4 +1,4 @@
-var config = require('config-local');
+var config = require('./config-local');
 
 
 module.exports = {

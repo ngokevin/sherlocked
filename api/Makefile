@@ -13,4 +13,5 @@ start:
 
 deploy:
 	@git pull --rebase origin master
+	@npm install
 	@node_modules/.bin/forever restart index.js
