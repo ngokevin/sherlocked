@@ -36,7 +36,7 @@ var ImageComparator = React.createClass({
         this.animateIfVisible();
     },
     componentWillUnmount: function() {
-        if (!root.state.animated) {
+        if (!this.state.animated) {
             window.removeEventListener('scroll', this.animateIfVisible);
         }
     },
