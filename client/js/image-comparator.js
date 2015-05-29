@@ -32,6 +32,9 @@ var ImageComparator = React.createClass({
         }
     },
     componentDidMount: function() {
+        if (!this.props.originalSrc || !this.props.modifiedSrc) {
+            return;
+        }
         window.addEventListener('scroll', this.animateIfVisible);
         this.animateIfVisible();
     },

@@ -1,4 +1,5 @@
 var classnames = require('classnames');
+var moment = require('moment');
 var React = require('react');
 var resemble = require('resemblejs').resemble;
 var urljoin = require('url-join');
@@ -17,7 +18,14 @@ var Captures = React.createClass({
         return urljoin(MEDIA_URL, this.props.capture.src);
     },
     getMasterCaptureSrc: function() {
+        if (!this.props.masterCapture.src) {
+            return null;
+        }
         return urljoin(MEDIA_URL, this.props.masterCapture.src);
+    },
+    getSauceUrl: function() {
+        return urljoin('https://saucelabs.com/tests/',
+                       this.props.capture.sauceSessionId);
     },
     toggleImageDiffer: function() {
         this.setState({
@@ -25,18 +33,38 @@ var Captures = React.createClass({
         })
     },
     render: function() {
-        return <div className="captures">
-          <h4>
-            {this.props.capture.name}
-            <button onClick={this.toggleImageDiffer}>Toggle Diff</button>
-          </h4>
-          <ImageComparator originalLabel="Master"
-                           originalSrc={this.getCaptureSrc()}
-                           modifiedLabel="Branch"
-                           modifiedSrc={this.getMasterCaptureSrc()}/>
-          <ImageDiffer originalSrc={this.getCaptureSrc()}
-                       modifiedSrc={this.getMasterCaptureSrc()}
-                       visible={this.state.imageDifferVisible}/>
+        return <div className="captures"
+                    data-has-master-capture={!!this.props.masterCapture.src}>
+          <div className="captures-controls">
+            <h3>{this.props.capture.name}</h3>
+            <table className="captures-metadata">
+              <tr>
+                <td>Name</td>
+                <td>{this.props.capture.name}</td>
+              </tr>
+              <tr>
+                <td>Sauce Labs Session</td>
+                <td><a href={this.getSauceUrl()}>
+                  {this.props.capture.sauceSessionId}</a></td>
+              </tr>
+              <tr>
+                <td>Created</td>
+                <td>{moment(this.props.capture.created_at)
+                     .format('MM-DD-YYYY h:mma')}</td>
+              </tr>
+            </table>
+            <button className="captures-toggle-diff"
+                    onClick={this.toggleImageDiffer}>Toggle Diff</button>
+          </div>
+          <div className="captures-images">
+            <ImageComparator originalLabel="Master"
+                             originalSrc={this.getCaptureSrc()}
+                             modifiedLabel="Branch"
+                             modifiedSrc={this.getMasterCaptureSrc()}/>
+            <ImageDiffer originalSrc={this.getCaptureSrc()}
+                         modifiedSrc={this.getMasterCaptureSrc()}
+                         visible={this.state.imageDifferVisible}/>
+          </div>
         </div>
     }
 });

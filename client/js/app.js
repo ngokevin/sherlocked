@@ -38,6 +38,8 @@ var App = React.createClass({
               <a href="/">Sherlocked</a>
             </h1>
 
+            <a className="header-icon" href="/" title="Sherlocked"/>
+
             <Landing.LandingNav/>
 
             <h1 className="header-title">{this.state.title}</h1>

@@ -1,33 +1,13 @@
 @import 'lib';
 
 
+$color-browser-env-header-bg = $color-tertiary;
+$color-browser-env-header-hover-bg = $color-secondary;
+
+
 browser-env--toggled-off() {
     .browser-env--toggled-off & {
         {block}
-    }
-}
-
-
-.build .build-header {
-    background: $color-build-header-bg;
-    color: $color-text;
-    display: flex;
-    font-size: 15px;
-    height: 60px;
-    justify-content: center;
-    width: 100%;
-
-    +media--desktop() {
-        display: none;
-    }
-    .build-header-separator {
-        display: none;
-    }
-    a {
-        line-height: 50px;
-        height: 100%;
-        text-align: center;
-        width: 50%;
     }
 }
 
@@ -52,8 +32,12 @@ browser-env--toggled-off() {
     &:hover {
         background: $color-browser-env-header-hover-bg;
     }
+    +media--desktop() {
+        border-radius: 2px 2px 0 0;
+    }
     h3 {
         color: $color-text;
+        font-weight: 400;
         margin-left: 5px;
         margin-right: 5px;
         text-transform: capitalize;
@@ -67,7 +51,7 @@ browser-env--toggled-off() {
     justify-content: center;
     max-height: 9999px;
     overflow: hidden;
-    padding-bottom: 30px;
+    padding: 0 10px 30px;
     transition: max-height .5s;
 
     +media--desktop() {
@@ -75,10 +59,17 @@ browser-env--toggled-off() {
         flex-wrap: wrap;
         margin-bottom: 20px;
         max-width: 100%;
+        padding: 0 30px 30px;
     }
     +browser-env--toggled-off() {
-        max-height: 0 !important;
-        padding: 0;
+        border-bottom: 1px solid $color-secondary;
+        max-height: 0;
+        padding-bottom: 0;
+        padding-top: 0;
+
+        +media--desktop() {
+            border: 0;
+        }
     }
 }
 
@@ -87,5 +78,7 @@ browser-env--toggled-off() {
 }
 
 .capture-filter {
-    margin-bottom: 30px;
+    +media--desktop() {
+        margin-bottom: 30px;
+    }
 }

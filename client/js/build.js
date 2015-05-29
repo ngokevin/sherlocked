@@ -116,7 +116,6 @@ var Build = React.createClass({
     },
     render: function() {
         return <div className="build">
-          {this.renderHeader()}
           {this.renderFilters()}
 
           <div className="build-content">
