@@ -40,7 +40,15 @@ var ImageComparator = React.createClass({
         window.addEventListener('resize', this.resizeContainer);
 
         this.animateIfVisible();
-        this.resizeContainer();
+
+        var root = this;
+        var resizeInterval = setInterval(function() {
+            if (!root.state.containerWidth) {
+                root.resizeContainer();
+            } else {
+                clearInterval(resizeInterval);
+            }
+        }, 500);
     },
     componentWillUnmount: function() {
         if (!this.state.animated) {
