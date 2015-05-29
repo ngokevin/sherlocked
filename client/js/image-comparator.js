@@ -17,6 +17,10 @@ var ImageComparator = React.createClass({
         // Check until comparator is in the viewport to animate it.
         var root = this;
 
+        if (!this.state.containerWidth) {
+            return;
+        }
+
         var comparator = React.findDOMNode(root);
         var comparatorTop = comparator.getBoundingClientRect().top;
 
@@ -38,8 +42,6 @@ var ImageComparator = React.createClass({
 
         window.addEventListener('scroll', this.animateIfVisible);
         window.addEventListener('resize', this.resizeContainer);
-
-        this.animateIfVisible();
 
         var root = this;
         var resizeInterval = setInterval(function() {
@@ -128,7 +130,7 @@ var ImageComparator = React.createClass({
     resizeContainer: function() {
         this.setState({
             containerWidth: this.getDOMNode().offsetWidth
-        });
+        }, this.animateIfVisible);
     },
     updateLabelVisibility: _.debounce(function() {
         // Toggle whether the label is visible based on whether the resize
