@@ -48,7 +48,6 @@ gulp.task('serve', function() {
     return gulp.src(['./'])
         .pipe(webserver({
             fallback: 'index.html',
-            livereload: true,
             port: process.env.SHERLOCKED_CLIENT_PORT || '2118'
         }));
 });

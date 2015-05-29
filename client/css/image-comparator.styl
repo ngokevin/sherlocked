@@ -7,6 +7,13 @@ image-comparator--animated() {
     }
 }
 
+image-differ--visible() {
+    [data-image-differ--visible="true"] & {
+        {block}
+    }
+}
+
+
 .image-comparator {
     display: flex;
     max-width: 100%;
@@ -59,7 +66,7 @@ image-comparator--animated() {
 
     +image-comparator--animated() {
         animation: image-comparator-bounce-in 0.7s;
-        width: 92%;
+        width: 100%;
     }
 }
 
@@ -89,7 +96,10 @@ image-comparator--animated() {
     +image-comparator--animated() {
         opacity: 1;
         transform: translate3d(0, 0, 0) scale(1);
-        transition: transform 0.3s 0.7s, opacity 0s 0.7s;
+        transition: transform 0.3s 0.7s, opacity 0.7s;
+    }
+    +image-differ--visible() {
+        opacity: 0;
     }
 }
 
@@ -102,10 +112,13 @@ image-comparator--animated() {
     0% {
       width: 0;
     }
-    60% {
+    50% {
       width: 100%;
     }
+    75% {
+      width: 90%;
+    }
     100% {
-      width: 92%;
+      width: 100%;
     }
 }

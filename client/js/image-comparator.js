@@ -35,6 +35,11 @@ var ImageComparator = React.createClass({
         if (!this.props.originalSrc || !this.props.modifiedSrc) {
             return;
         }
+
+        this.setState({
+            containerWidth: this.getDOMNode().offsetWidth
+        });
+
         window.addEventListener('scroll', this.animateIfVisible);
         this.animateIfVisible();
     },
@@ -149,6 +154,12 @@ var ImageComparator = React.createClass({
             backgroundImage: 'url(\'' + this.props.modifiedSrc + '\')',
             width: this.state.resizePercentage
         };
+
+        // Need to emulate background-size: contain while not depending on
+        // a percentage width to keep it fixed.
+        if (this.state.containerWidth) {
+            resizeStyle.backgroundSize = this.state.containerWidth + 'px auto';
+        }
 
         return <div className={comparatorClasses}>
           <img className="image-comparator-img"

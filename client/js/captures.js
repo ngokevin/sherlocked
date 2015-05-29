@@ -56,7 +56,8 @@ var Captures = React.createClass({
             <button className="captures-toggle-diff"
                     onClick={this.toggleImageDiffer}>Toggle Diff</button>
           </div>
-          <div className="captures-images">
+          <div className="captures-images" ref="capturesImages"
+               data-image-differ--visible={this.state.imageDifferVisible}>
             <ImageComparator originalLabel="Master"
                              originalSrc={this.getCaptureSrc()}
                              modifiedLabel="Branch"
