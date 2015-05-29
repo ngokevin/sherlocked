@@ -36,17 +36,17 @@ var ImageComparator = React.createClass({
             return;
         }
 
-        this.setState({
-            containerWidth: this.getDOMNode().offsetWidth
-        });
-
         window.addEventListener('scroll', this.animateIfVisible);
+        window.addEventListener('resize', this.resizeContainer);
+
         this.animateIfVisible();
+        this.resizeContainer();
     },
     componentWillUnmount: function() {
         if (!this.state.animated) {
             window.removeEventListener('scroll', this.animateIfVisible);
         }
+        window.removeEventListener('resize', this.resizeContainer);
     },
     dragEndHandler: function(e) {
         // Remove the drag handlers once done dragging.
@@ -116,6 +116,11 @@ var ImageComparator = React.createClass({
         root.setState({resizePercentage: resizePercentage});
 
         root.updateLabelVisibility();
+    },
+    resizeContainer: function() {
+        this.setState({
+            containerWidth: this.getDOMNode().offsetWidth
+        });
     },
     updateLabelVisibility: _.debounce(function() {
         // Toggle whether the label is visible based on whether the resize
