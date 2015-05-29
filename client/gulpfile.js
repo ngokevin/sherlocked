@@ -2,6 +2,7 @@ var autoprefixer = require('gulp-autoprefixer');
 var browserify = require('browserify');
 var concat = require('gulp-concat');
 var gulp = require('gulp');
+var minifyCss = require('gulp-minify-css');
 var reactify = require('reactify');
 var stylus = require('gulp-stylus');
 var uglify = require('gulp-uglify');
@@ -20,6 +21,7 @@ gulp.task('css', function() {
         .pipe(stylus({compress: true}))
         .pipe(autoprefixer())
         .pipe(concat('bundle.css'))
+        .pipe(minifyCss())
         .pipe(gulp.dest('build'));
 });
 
