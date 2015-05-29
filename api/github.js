@@ -3,6 +3,7 @@
 */
 var Github = require('github');
 var Promise = require('es6-promise').Promise;
+var sherlocked = require('sherlocked');
 
 var config = require('./config');
 
@@ -24,12 +25,16 @@ function postBuildIssueComment(user, repo, prNum, buildId) {
         token: config.githubToken
     });
 
+    var buildTitle = 'The Adventure of the ' + sherlocked.getVerb() + ' Build';
+    var url = 'http://sherlocked.dev.mozaws.net/builds/' + buildId;
+    var body = '[ ' + buildTitle + '](' + url + ')';
+
     return new Promise(function(resolve) {
         github.issues.createComment({
             user: user,
             repo: repo,
             number: prNum,
-            body: 'http://sherlocked.dev.mozaws.net/builds/' + buildId
+            body: body
         }, function(err, res) {
             if (err) {
                 console.log(err);

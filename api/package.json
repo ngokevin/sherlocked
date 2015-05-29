@@ -12,9 +12,10 @@
     "cors": "^2.6.0",
     "es6-promise": "^2.1.1",
     "express": "4.12.3",
-    "github": "0.2.4",
     "forever": "~0.14.1",
+    "github": "0.2.4",
     "knex": "^0.7.6",
+    "sherlocked": "^0.14.0",
     "sqlite3": "^3.0.5"
   },
   "devDependencies": {
