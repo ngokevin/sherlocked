@@ -1,4 +1,5 @@
 var autoprefixer = require('gulp-autoprefixer');
+var babel = require('gulp-babel');
 var browserify = require('browserify');
 var concat = require('gulp-concat');
 var gulp = require('gulp');
@@ -29,12 +30,12 @@ gulp.task('css', function() {
 function jsBundle(bundler) {
     var bundle = bundler
         .bundle()
-        .pipe(vinylSource('bundle.js'));
+        .pipe(vinylSource('bundle.js'))
+        .pipe(vinylBuffer())
+        .pipe(babel());
 
     if (process.env.NODE_ENV == 'production') {
-        bundle = bundle
-            .pipe(vinylBuffer())
-            .pipe(uglify());
+        bundle = bundle.pipe(uglify());
     }
 
     return bundle.pipe(gulp.dest('build'));
