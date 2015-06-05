@@ -59,9 +59,9 @@ var Captures = React.createClass({
           <div className="captures-images" ref="capturesImages"
                data-image-differ--visible={this.state.imageDifferVisible}>
             <ImageComparator originalLabel="Master"
-                             originalSrc={this.getCaptureSrc()}
+                             originalSrc={this.getMasterCaptureSrc()}
                              modifiedLabel="Branch"
-                             modifiedSrc={this.getMasterCaptureSrc()}/>
+                             modifiedSrc={this.getCaptureSrc()}/>
             <ImageDiffer originalSrc={this.getCaptureSrc()}
                          modifiedSrc={this.getMasterCaptureSrc()}
                          visible={this.state.imageDifferVisible}/>
