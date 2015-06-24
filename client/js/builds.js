@@ -78,7 +78,10 @@ var Builds = React.createClass({
               <p className="builds-build-id">#{build.travisId}</p>
             </span>
             <p className="builds-created">
-              Created: {moment(build.created_at).format('MM-DD-YYYY h:mma')}
+              <i className="ion-clock" title="Created"/>
+              <span>
+                {moment(build.created_at).format('MM-DD-YYYY h:mma')}
+              </span>
             </p>
           </Router.Link>
         </li>

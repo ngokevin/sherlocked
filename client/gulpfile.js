@@ -1,7 +1,9 @@
 var autoprefixer = require('gulp-autoprefixer');
 var babelify = require('babelify');
 var browserify = require('browserify');
+var browserSync = require('browser-sync');
 var concat = require('gulp-concat');
+var connectFallback = require('connect-history-api-fallback');
 var envify = require('envify/custom');
 var gulp = require('gulp');
 var minifyCss = require('gulp-minify-css');
@@ -34,13 +36,19 @@ gulp.task('css', function() {
     .pipe(autoprefixer())
     .pipe(concat('bundle.css'))
     .pipe(minifyCss())
-    .pipe(gulp.dest('build'));
+    .pipe(gulp.dest('build'))
+    .pipe(browserSync.stream());
 });
 
 
 function jsBundle(bundler) {
   var bundle = bundler
     .bundle()
+    .on('error', function(err) {
+      console.log(err.message);
+      console.log(err.codeFrame);
+      this.emit('end');
+    })
     .pipe(vinylSource('bundle.js'));
 
   if (process.env.NODE_ENV == 'production') {
@@ -59,11 +67,14 @@ gulp.task('js', function() {
 
 
 gulp.task('serve', function() {
-  return gulp.src(['./'])
-    .pipe(webserver({
-      fallback: 'index.html',
-      port: process.env.SHERLOCKED_CLIENT_PORT || '2118'
-    }));
+  browserSync.init({
+    index: 'index.html',
+    middleware: [connectFallback()],
+    notify: false,
+    open: false,
+    server: './',
+    port: process.env.SHERLOCKED_CLIENT_PORT || 2118
+  });
 });
 
 gulp.task('watch', function() {

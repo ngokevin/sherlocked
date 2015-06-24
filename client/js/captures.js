@@ -47,7 +47,7 @@ var Captures = React.createClass({
                   {this.props.capture.sauceSessionId}</a></td>
               </tr>
               <tr>
-                <td>Created</td>
+                <td><i className="ion-clock" title="Created"/></td>
                 <td>{moment(this.props.capture.created_at)
                      .format('MM-DD-YYYY h:mma')}</td>
               </tr>
