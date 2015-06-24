@@ -14,13 +14,13 @@ const Captures = React.createClass({
         };
     },
     getCaptureSrc: function() {
-        return urljoin(process.env.MEDIA_ROOT, this.props.capture.src);
+        return urljoin(process.env.CAPTURE_ROOT, this.props.capture.src);
     },
     getMasterCaptureSrc: function() {
         if (!this.props.masterCapture.src) {
             return null;
         }
-        return urljoin(process.env.MEDIA_ROOT, this.props.masterCapture.src);
+        return urljoin(process.env.CAPTURE_ROOT, this.props.masterCapture.src);
     },
     getSauceUrl: function() {
         return urljoin('https://saucelabs.com/tests/',
@@ -32,6 +32,9 @@ const Captures = React.createClass({
         })
     },
     render: function() {
+        const placeholderSrc = urljoin(process.env.MEDIA_ROOT,
+                                       'img/placeholder.png');
+
         return <div className="captures"
                     data-has-master-capture={!!this.props.masterCapture.src}>
           <div className="captures-controls">
@@ -60,7 +63,8 @@ const Captures = React.createClass({
             <ImageComparator originalLabel="Master"
                              originalSrc={this.getMasterCaptureSrc()}
                              modifiedLabel="Branch"
-                             modifiedSrc={this.getCaptureSrc()}/>
+                             modifiedSrc={this.getCaptureSrc()}
+                             placeholderSrc={placeholderSrc}/>
             <ImageDiffer originalSrc={this.getCaptureSrc()}
                          modifiedSrc={this.getMasterCaptureSrc()}
                          visible={this.state.imageDifferVisible}/>

@@ -217,9 +217,15 @@ npm install
 gulp
 ```
 
-This will start a server on port 2118 by default. Set SHERLOCKED_CLIENT_PORT
-environment variable to configure it. Set ```NODE_ENV=production``` to build
-the project for production.
+This will start a server on port 2118 by default.
+
+#### Environment Variables
+
+- SHERLOCKED_API_ROOT - API root the frontend will point to
+- SHERLOCKED_CLIENT_PORT - port of the local development webserver
+- SHERLOCKED_MEDIA_ROOT - media root the frontend will pull assets from
+- NODE_ENV=production - build the project for production
+  (e.g., excludes React development code)
 
 [npm-url]: https://npmjs.org/package/sherlocked
 [npm-image]: http://img.shields.io/npm/v/sherlocked.svg

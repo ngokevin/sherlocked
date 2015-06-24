@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import classnames from 'classnames';
 import React from 'react';
+import urlJoin from 'url-join';
 
 
 const ImageComparator = React.createClass({
@@ -9,7 +10,7 @@ const ImageComparator = React.createClass({
       animated: false,
       containerWidth: null,
       dragging: false,
-      imageLoaded: false,
+      originalImageLoaded: false,
       originalLabelVisible: false,
       resizeLabelVisible: true,
       resizePercentage: '0%',
@@ -47,7 +48,7 @@ const ImageComparator = React.createClass({
 
     const root = this;
     const resizeInterval = setInterval(() => {
-      if (root.state.imageLoaded) {
+      if (root.state.originalImageLoaded) {
         if (!root.state.containerWidth) {
           root.resizeContainer();
         } else {
@@ -56,12 +57,12 @@ const ImageComparator = React.createClass({
       }
     }, 500);
 
-    // Check when the background-image is loaded to determine how to
-    // resize the container.
+    // Check when the original image is loaded to determine how to resize the
+    // container and for placeholder image.
     const image = new Image();
     image.src = this.props.originalSrc;
     image.onload = () => {
-      root.setState({imageLoaded: true});
+      root.setState({originalImageLoaded: true});
     };
   },
   componentWillUnmount() {
@@ -174,7 +175,8 @@ const ImageComparator = React.createClass({
   render() {
     const comparatorClasses = classnames({
       'image-comparator': true,
-      'image-comparator--animated': this.state.animated
+      'image-comparator--animated': this.state.animated,
+      'image-comparator--originalImageLoading': !this.state.orignalImageLoaded,
     });
     const resizeStyle = {
       backgroundImage: 'url(\'' + this.props.modifiedSrc + '\')',
@@ -187,8 +189,12 @@ const ImageComparator = React.createClass({
       resizeStyle.backgroundSize = this.state.containerWidth + 'px auto';
     }
 
+    let originalSrc = this.state.originalImageLoaded ?
+      this.props.originalSrc :
+      this.props.placeholderSrc || this.props.originalSrc;
+
     return <div className={comparatorClasses}>
-      <img className="image-comparator-img" src={this.props.originalSrc}/>
+      <img className="image-comparator-img" src={originalSrc}/>
       <ImageComparatorLabel label="Original" position="left"
                             ref="originalLabel"/>
 

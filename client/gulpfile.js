@@ -23,6 +23,8 @@ var bundler = browserify('./js/app.js', watchify.args)
   .transform(envify({
     API_ROOT: process.env.SHERLOCKED_API_ROOT ||
               'http://sherlocked.dev.mozaws.net/api/',
+    CAPTURE_ROOT: process.env.SHERLOCKED_CAPTURE_ROOT ||
+                  'http://sherlocked.dev.mozaws.net/',
     MEDIA_ROOT: process.env.SHERLOCKED_MEDIA_ROOT ||
                 'http://sherlocked.dev.mozaws.net/'
   }))
