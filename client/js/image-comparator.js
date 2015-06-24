@@ -7,6 +7,7 @@ const ImageComparator = React.createClass({
   getInitialState() {
     return {
       animated: false,
+      containerWidth: null,
       dragging: false,
       imageLoaded: false,
       originalLabelVisible: false,
@@ -46,10 +47,12 @@ const ImageComparator = React.createClass({
 
     const root = this;
     const resizeInterval = setInterval(() => {
-      if (!root.state.containerWidth && root.state.imageLoaded) {
-        root.resizeContainer();
-      } else {
-        clearInterval(resizeInterval);
+      if (root.state.imageLoaded) {
+        if (!root.state.containerWidth) {
+          root.resizeContainer();
+        } else {
+          clearInterval(resizeInterval);
+        }
       }
     }, 500);
 

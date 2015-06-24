@@ -1,13 +1,13 @@
-var classnames = require('classnames');
-var moment = require('moment');
-var React = require('react');
-var resemble = require('resemblejs').resemble;
-var urljoin = require('url-join');
+import classnames from 'classnames';
+import moment from 'moment';
+import React from 'react';
+import {resemble} from 'resemblejs';
+import urljoin from 'url-join';
 
-var ImageComparator = require('./image-comparator');
+import ImageComparator from './image-comparator';
 
 
-var Captures = React.createClass({
+const Captures = React.createClass({
     getInitialState: function() {
         return {
             imageDifferVisible: false
@@ -68,9 +68,10 @@ var Captures = React.createClass({
         </div>
     }
 });
+export default Captures;
 
 
-var ImageDiffer = React.createClass({
+const ImageDiffer = React.createClass({
     getInitialState: function() {
         return {
             imageDataUrl: ''
@@ -109,6 +110,3 @@ var ImageDiffer = React.createClass({
         </div>
     }
 });
-
-
-module.exports = Captures;

@@ -1,9 +1,9 @@
-var React = require('react');
-var Router = require('react-router');
-var request = require('superagent');
-var url = require('url');
+import React from 'react';
+import Router from 'react-router';
+import request from 'superagent';
+import url from 'url';
 
-var Build = require('./build');
+import Build from './build';
 var Builds = require('./builds');
 var Landing = require('./landing');
 var pageTypesStore = require('./page-types-store');
