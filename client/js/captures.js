@@ -4,7 +4,6 @@ var React = require('react');
 var resemble = require('resemblejs').resemble;
 var urljoin = require('url-join');
 
-var MEDIA_URL = require('./config').MEDIA_URL;
 var ImageComparator = require('./image-comparator');
 
 
@@ -15,13 +14,13 @@ var Captures = React.createClass({
         };
     },
     getCaptureSrc: function() {
-        return urljoin(MEDIA_URL, this.props.capture.src);
+        return urljoin(process.env.MEDIA_ROOT, this.props.capture.src);
     },
     getMasterCaptureSrc: function() {
         if (!this.props.masterCapture.src) {
             return null;
         }
-        return urljoin(MEDIA_URL, this.props.masterCapture.src);
+        return urljoin(process.env.MEDIA_ROOT, this.props.masterCapture.src);
     },
     getSauceUrl: function() {
         return urljoin('https://saucelabs.com/tests/',

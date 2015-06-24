@@ -4,7 +4,6 @@ var Router = require('react-router');
 var request = require('superagent');
 var urljoin = require('url-join');
 
-var API_URL = require('./config').API_URL;
 var titleStore = require('./title-store');
 
 
@@ -29,9 +28,9 @@ var Builds = React.createClass({
     },
     getApiRoute: function(user, repo) {
         if (user && repo) {
-            return urljoin(API_URL, user, repo, 'builds/');
+            return urljoin(process.env.API_ROOT, user, repo, 'builds/');
         }
-        return urljoin(API_URL, 'builds/');
+        return urljoin(process.env.API_ROOT, 'builds/');
     },
     request: function() {
         // Fetch Build listing.

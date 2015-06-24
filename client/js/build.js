@@ -5,7 +5,6 @@ var request = require('superagent');
 var resemble = require('resemblejs').resemble;
 var urljoin = require('url-join');
 
-var API_URL = require('./config').API_URL;
 var buildFilters = require('./build-filters');
 var Captures = require('./captures');
 var pageTypesStore = require('./page-types-store');
@@ -32,7 +31,7 @@ var Build = React.createClass({
         // Fetch the Build from Sherlocked.
         var root = this;
         request
-            .get(urljoin(API_URL, 'builds', root.state.buildId))
+            .get(urljoin(process.env.API_ROOT, 'builds', root.state.buildId))
             .end(function(err, res) {
                 if (res.status === 404) {
                     root.setState({

@@ -3,7 +3,6 @@ var Router = require('react-router');
 var request = require('superagent');
 var url = require('url');
 
-var API_URL = require('./config').API_URL;
 var Build = require('./build');
 var Builds = require('./builds');
 var Landing = require('./landing');

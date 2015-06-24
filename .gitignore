@@ -7,3 +7,4 @@ db.sqlite
 testdb.sqlite
 build/
 config-local.js
+.DS_Store
