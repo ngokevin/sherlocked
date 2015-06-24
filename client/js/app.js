@@ -2,6 +2,7 @@ import React from 'react';
 import Router from 'react-router';
 import request from 'superagent';
 import url from 'url';
+import urljoin from 'url-join';
 
 import Build from './build';
 var Builds = require('./builds');
@@ -10,44 +11,47 @@ var pageTypesStore = require('./page-types-store');
 var titleStore = require('./title-store');
 
 
-var App = React.createClass({
-    contextTypes: {
-        router: React.PropTypes.func
-    },
-    getInitialState: function() {
-        return {
-            pageTypes: [],
-            title: ''
-        };
-    },
-    componentDidMount: function() {
-        var root = this;
-        titleStore.subscribe(function(title) {
-            root.setState({title: title});
-        });
-        pageTypesStore.subscribe(function(pageTypes) {
-            root.setState({pageTypes: pageTypes});
-        });
-    },
-    render: function() {
-        return <div className="app"
-                    data-page-types={this.state.pageTypes.join(' ')}>
-          <header>
-            <h1 className="header-name">
-              <a href="/">Sherlocked</a>
-            </h1>
+const App = React.createClass({
+  contextTypes: {
+    router: React.PropTypes.func
+  },
+  getInitialState() {
+    return {
+      pageTypes: [],
+      title: ''
+    };
+  },
+  componentDidMount() {
+    var root = this;
+    titleStore.subscribe(title => {
+      root.setState({title: title});
+    });
+    pageTypesStore.subscribe(pageTypes => {
+      root.setState({pageTypes: pageTypes});
+    });
 
-            <a className="header-icon" href="/" title="Sherlocked"/>
+    // Preload placeholder image.
+    const placeholderImg = new Image();
+    placeholderImg.src = urljoin(process.env.MEDIA_ROOT,
+                                 'img/placeholder.png');
+  },
+  render: function() {
+    return <div className="app"
+                data-page-types={this.state.pageTypes.join(' ')}>
+      <header>
+        <h1 className="header-name">
+          <a href="/">Sherlocked</a>
+        </h1>
+        <a className="header-icon" href="/" title="Sherlocked"/>
+        <Landing.LandingNav/>
+        <h1 className="header-title">{this.state.title}</h1>
+      </header>
 
-            <Landing.LandingNav/>
-
-            <h1 className="header-title">{this.state.title}</h1>
-          </header>
-          <main>
-            <Router.RouteHandler/>
-          </main>
-        </div>
-    },
+      <main>
+        <Router.RouteHandler/>
+      </main>
+    </div>
+  },
 });
 
 
@@ -62,6 +66,6 @@ var routes = <Route name="app" handler={App}>
 
 
 // Begin investigation.
-Router.run(routes, Router.HistoryLocation, function(Handler) {
+Router.run(routes, Router.HistoryLocation, Handler => {
   React.render(<Handler/>, document.body);
 });
