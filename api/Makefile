@@ -4,7 +4,7 @@ install:
 	@cp config-local.js.dist config-local.js
 
 test:
-	@SHERLOCKED_TEST_DB=testdb.sqlite node_modules/.bin/mocha test.js
+	@npm test
 
 travis: install test
 

@@ -43,3 +43,13 @@ knex.schema.createTable('browserEnv', function(browserEnv) {
     browserEnv.string('platform');
     browserEnv.string('version');
 }).then();
+
+knex.schema.createTable('captureDiff', function(captureDiff) {
+    captureDiff.increments('id').primary();
+    captureDiff.integer('captureId').references('capture.id');
+    captureDiff.integer('dimensionDifferenceHeight');
+    captureDiff.integer('dimensionDifferenceWidth');
+    captureDiff.string('mismatchPercentage');
+    captureDiff.bool('isSameDimensions');
+    captureDiff.string('sauceSessionId');
+}).then();

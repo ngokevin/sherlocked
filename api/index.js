@@ -9,6 +9,7 @@ var bodyParser = require('body-parser');
 var cors = require('cors');
 var express = require('express');
 var Promise = require('es6-promise').Promise;
+var resemble = require('node-resemble-js');
 
 var knex = require('knex')(require('./config'));
 var bookshelf = require('bookshelf')(knex);
@@ -44,6 +45,19 @@ function getCapturePath(sauceSessionId) {
 function deserializeCapture(capture) {
     capture.src = url.resolve('/api/captures/', capture.sauceSessionId);
     return capture;
+}
+
+
+var CaptureDiff = bookshelf.Model.extend({
+    tableName: 'captureDiff',
+    browserEnv: function() {
+        return this.belongsTo(Capture, 'captureId');
+    }
+});
+
+
+function getCaptureDiffPath(sauceSessionId) {
+    return path.resolve('./captures/', sauceSessionId + '-diff.png');
 }
 
 
@@ -298,6 +312,55 @@ app.post('/api/builds/:buildId/captures/', function(req, res) {
         return capture.set('buildId', build.id).save();
     }
 
+    function imageDiffCreated(build, capture) {
+        // Run resemblejs on the new capture against the master build.
+        var masterBuildId = build.get('masterBuildId');
+        if (!masterBuildId) {
+            return Promise.resolve();
+        }
+        return new Promise(function(resolve, reject) {
+            Capture.where({buildId: masterBuildId, name: capture.get('name')})
+                   .fetch().then(function(originalCapture) {
+                var originalImgPath = getCapturePath(
+                    originalCapture.get('sauceSessionId'));
+                var modifiedImgPath = getCapturePath(
+                    capture.get('sauceSessionId'));
+
+                var opts = {encoding: 'base64'};
+                resemble(modifiedImgPath)
+                    .compareTo(originalImgPath)
+                    .ignoreAntialiasing()
+                    .onComplete(function(diffData) {
+                        // Write diff image, save CaptureDiff object.
+                        // SO: writing-buffer-response-from-resemble-js-to-file.
+                        var png = diffData.getDiffImage();
+                        var buf = new Buffer([]);
+                        var strm = png.pack()
+                        strm.on('data', function (dat) {
+                            buf = Buffer.concat([buf, dat])
+                        });
+                        strm.on('end', function() {
+                            var dest = getCaptureDiffPath(capture.get('sauceSessionId'));
+                            fs.writeFile(dest, buf, null, function (err) {
+                                if (err) {
+                                  console.log(err);
+                                  return reject(err);
+                                }
+                                CaptureDiff.forge({
+                                    captureId: capture.get('id'),
+                                    dimensionDifferenceHeight: diffData.dimensionDifference.height,
+                                    dimensionDifferenceWidth: diffData.dimensionDifference.width,
+                                    mismatchPercentage: diffData.mismatchPercentage,
+                                    isSameDimensions: diffData.isSameDimensions,
+                                    sauceSessionId: capture.get('sauceSessionId'),
+                                }).save().then(resolve);
+                            });
+                        });
+                    });
+            });
+        });
+    }
+
     function error() {
         return res.sendStatus(400);
     }
@@ -312,7 +375,9 @@ app.post('/api/builds/:buildId/captures/', function(req, res) {
                     createBuildCapture(build, capture).then(buildFound)
                         .then(function(build) {
                             // Return updated build.
-                            res.sendStatus(201);
+                            imageDiffCreated(build, capture).then(function() {
+                                res.sendStatus(201);
+                            });
                         });
                 });
         });

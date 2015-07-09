@@ -6,6 +6,9 @@
     "url": "git://github.com/ngokevin/sherlocked.git",
     "type": "git"
   },
+  "scripts": {
+    "test": "SHERLOCKED_TEST_DB=testdb.sqlite node_modules/.bin/mocha --harmony tests/test.js"
+  },
   "dependencies": {
     "body-parser": "^1.12.3",
     "bookshelf": "^0.7.9",
@@ -15,6 +18,8 @@
     "forever": "~0.14.1",
     "github": "0.2.4",
     "knex": "^0.7.6",
+    "migrate": "^0.2.1",
+    "node-resemble-js": "0.0.4",
     "sherlocked": "^0.14.0",
     "sqlite3": "^3.0.5"
   },
