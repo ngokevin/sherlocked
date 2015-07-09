@@ -5,8 +5,8 @@ var extend = require('extend');
 var Promise = require('es6-promise').Promise;
 var request = require('supertest');
 
-var app = require('./index');
-var config = require('./config');
+var app = require('../index');
+var config = require('../config');
 var knex = require('knex')(config);
 
 
@@ -16,7 +16,7 @@ function prefix(url) {
 
 
 if (!fs.existsSync(process.env.SHERLOCKED_TEST_DB)) {
-    require('./db');
+    require('../db');
 }
 
 
@@ -335,6 +335,36 @@ describe('POST /builds/:id/captures/', function() {
                 });
         });
     });
+
+    it('creates captureDiff with master build capture', function(done) {
+        function assertBuild(build) {
+            done();
+        }
+
+        var masterBuild = buildFactory({travisBranch: 'master',
+                                        travisId: 123});
+        // Create builds.
+        createBuilds([masterBuild]).then(function() {
+        createBuilds([buildFactory()]).then(function() {
+            // Send capture to master build.
+            request(app.app).post(prefix('/builds/123/captures/'))
+                .send(captureFactory({name: 'testcapture'}))
+                .end(function(err, res) {
+                    // Send capture to modified build.
+                    request(app.app).post(prefix('/builds/221/captures/'))
+                        .send(captureFactory({sauceSessionId: 'abc',
+                                              name: 'testcapture'}))
+                        .end(function(err, res) {
+                            // Assert that we have a diff.
+                            request(app.app).get(prefix('/builds/221'))
+                                .end(function(err, res) {
+                                    assertBuild(res.body);
+                                });
+                        });
+                });
+        });
+        });
+    });
 });
 
 
@@ -394,7 +424,7 @@ function captureFactory(extendObj) {
         browserName: 'firefox',
         browserPlatform: 'OS X 10.9',
         browserVersion: '40',
-        image: 'data:image/png;base64,R0lGODlhDwAPAKECAAAAzMzM',
+        image: fs.readFileSync('captures/test.png', {encoding: 'utf8'}),
         name: 'watsonsButt',
         sauceSessionId: '221B',
     }, extendObj);

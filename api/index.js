@@ -9,6 +9,7 @@ var bodyParser = require('body-parser');
 var cors = require('cors');
 var express = require('express');
 var Promise = require('es6-promise').Promise;
+var resemble = require('resemblejs').resemble;
 
 var knex = require('knex')(require('./config'));
 var bookshelf = require('bookshelf')(knex);
@@ -45,6 +46,14 @@ function deserializeCapture(capture) {
     capture.src = url.resolve('/api/captures/', capture.sauceSessionId);
     return capture;
 }
+
+
+var CaptureDiff = bookshelf.Model.extend({
+    tableName: 'captureDiff',
+    browserEnv: function() {
+        return this.belongsTo(Capture, 'captureId');
+    }
+});
 
 
 var Build = bookshelf.Model.extend({
@@ -298,6 +307,46 @@ app.post('/api/builds/:buildId/captures/', function(req, res) {
         return capture.set('buildId', build.id).save();
     }
 
+    function imageDiffCreated(build, capture) {
+        // Run resemblejs on the new capture against the master build.
+        var masterBuildId = build.get('masterBuildId');
+        if (!masterBuildId) {
+            return Promise.resolve();
+        }
+        return new Promise(function(resolve, reject) {
+            Capture.where({buildId: masterBuildId, name: capture.get('name')})
+                   .fetch().then(function(originalCapture) {
+                var originalImgPath = getCapturePath(
+                    originalCapture.get('sauceSessionId'));
+                var modifiedImgPath = getCapturePath(
+                    capture.get('sauceSessionId'));
+
+                console.log(originalImgPath);
+                console.log(modifiedImgPath);
+
+                var opts = {encoding: 'base64'};
+                fs.readFile(modifiedImgPath, opts, function(err, modifiedImg) {
+                fs.readFile(originalImgPath, opts, function(err, originalImg) {
+                    resemble(modifiedImg)
+                        .compareTo(originalImg)
+                        .ignoreAntialiasing()
+                        .onComplete(function(diffData) {
+                            // Write diff image, save CaptureDiff object.
+                            fs.writeFile(imagePath, diffData.getImageDataUrl(),
+                                         'base64', function(err) {
+                                if (err) {
+                                    console.log(err);
+                                    return reject(err);
+                                }
+                                CaptureDiff.forge(data).save().then(resolve);
+                            });
+                        });
+                });
+                });
+            });
+        });
+    }
+
     function error() {
         return res.sendStatus(400);
     }
@@ -312,7 +361,9 @@ app.post('/api/builds/:buildId/captures/', function(req, res) {
                     createBuildCapture(build, capture).then(buildFound)
                         .then(function(build) {
                             // Return updated build.
-                            res.sendStatus(201);
+                            imageDiffCreated(build, capture).then(function() {
+                                res.sendStatus(201);
+                            });
                         });
                 });
         });
