@@ -7,13 +7,14 @@
     "type": "git"
   },
   "scripts": {
-    "test": "SHERLOCKED_TEST_DB=testdb.sqlite node_modules/.bin/mocha --harmony tests/test.js"
+    "test": "SHERLOCKED_TEST_DB=testdb.sqlite node_modules/.bin/mocha --compilers .:mocha.js tests/test.js"
   },
   "dependencies": {
+    "babel": "^5.6.14",
+    "babel-runtime": "^5.6.17",
     "body-parser": "^1.12.3",
     "bookshelf": "^0.7.9",
     "cors": "^2.6.0",
-    "es6-promise": "^2.1.1",
     "express": "4.12.3",
     "forever": "~0.14.1",
     "github": "0.2.4",
