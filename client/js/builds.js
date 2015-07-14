@@ -75,7 +75,6 @@ var Builds = React.createClass({
                 to="build" params={{buildId: build.travisId}}>
             <span className="builds-link-meta">
               <p className="builds-repo-slug">{build.travisRepoSlug}</p>
-              <p className="builds-build-id">#{build.travisId}</p>
             </span>
             <p className="builds-created">
               <i className="ion-clock" title="Created"/>

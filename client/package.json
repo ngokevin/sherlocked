@@ -34,6 +34,8 @@
     "browser-sync": "^2.7.12",
     "connect-history-api-fallback": "^1.1.0",
     "envify": "^3.4.0",
+    "gulp-webserver": "^0.9.1",
+    "nib": "^1.1.0",
     "sherlocked": "^0.11.1"
   }
 }

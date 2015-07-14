@@ -7,6 +7,7 @@ var connectFallback = require('connect-history-api-fallback');
 var envify = require('envify/custom');
 var gulp = require('gulp');
 var minifyCss = require('gulp-minify-css');
+var nib = require('nib');
 var reactify = require('reactify');
 var stylus = require('gulp-stylus');
 var uglify = require('gulp-uglify');
@@ -34,7 +35,7 @@ var bundler = browserify('./js/app.js', watchify.args)
 gulp.task('css', function() {
   gulp
     .src(['css/*.styl', 'css/lib/*.css'])
-    .pipe(stylus({compress: true}))
+    .pipe(stylus({compress: true, use: [nib()]}))
     .pipe(autoprefixer())
     .pipe(concat('bundle.css'))
     .pipe(minifyCss())
