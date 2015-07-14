@@ -216,47 +216,35 @@ app.get('/api/builds/:buildId', (req, res) => {
 });
 
 
-app.post('/api/builds/:buildId/done', (req, res) => {
+app.post('/api/builds/:buildId/done', async function(req, res) {
   // Endpoint for notifying API that Sherlocked build is complete.
-  Build
+  const build = await Build
     .where({travisId: req.params.buildId})
-    .fetch()
-    .then(build => {
-      if (!build) {
-        return;
-      }
-      const repoSlug = build.get('travisRepoSlug').split('/');
-      github.postBuildIssueComment(repoSlug[0], repoSlug[1],
-                     build.get('travisPullRequest'),
-                     build.get('travisId'))
-        .then(githubRes => {
-          res.sendStatus(
-            parseInt(githubRes.meta.status.substring(0, 3), 10));
-        });
-    });
+    .fetch();
+
+  if (!build) {
+    return res.sendStatus(404);
+  }
+
+  const repoSlug = build.get('travisRepoSlug').split('/');
+  const githubRes = await github.postBuildIssueComment(
+    repoSlug[0], repoSlug[1], build.get('travisPullRequest'),
+    build.get('travisId'));
+
+  res.sendStatus(parseInt(githubRes.meta.status.substring(0, 3), 10));
 });
 
 
-app.post('/api/builds/:buildId/captures/', (req, res) => {
+app.post('/api/builds/:buildId/captures/', async function(req, res) {
   // Attach a Capture to a Build.
-  let data = req.body;
-  let bData = {
-    name: data.browserName || '',
-    platform: data.browserPlatform || '',
-    version: data.browserVersion || '',
-  };
-  delete data.browserName;
-  delete data.browserPlatform;
-  delete data.browserVersion;
+  const data = req.body;
 
-  function saveCapture() {
+  function saveCaptureImageToDisk(data) {
     return new Promise((resolve, reject) => {
       const image = data.image.replace(/^data:image\/png;base64,/, '');
       const imagePath = getCapturePath(data.sauceSessionId);
 
       fs.writeFile(imagePath, image, 'base64', err => {
-        delete data.image;
-
         if (err) {
           console.log(err);
           return reject(err);
@@ -266,101 +254,105 @@ app.post('/api/builds/:buildId/captures/', (req, res) => {
     });
   }
 
-  function buildFound() {
-    return Build.where({travisId: req.params.buildId}).fetch();
-  }
+  function browserEnvGetOrCreate(browserEnvData) {
+    return new Promise(async function(resolve) {
+      let browserEnv = await BrowserEnv
+        .where(browserEnvData)
+        .fetch();
 
-  function browserEnvGetOrCreate() {
-    return new Promise(resolve => {
-      BrowserEnv.where(bData).fetch().then(browserEnv => {
-        if (!browserEnv) {
-          BrowserEnv.forge(bData).save().then(browserEnv => {
-            data.browserEnvId = browserEnv.id;
-            resolve();
-          });
-        } else {
-          data.browserEnvId = browserEnv.id;
-          resolve();
-        }
-      });
+      if (!browserEnv) {
+        browserEnv = await BrowserEnv
+          .forge(browserEnvData)
+          .save();
+      }
+      resolve(browserEnv);
     });
   }
 
-  function captureCreated() {
-    return Capture.forge(data).save();
-  }
-
-  function createBuildCapture(build, capture) {
-    return capture.set('buildId', build.id).save();
-  }
-
-  function imageDiffCreated(build, capture) {
+  function captureDiffCreate(build, capture) {
     // Run resemblejs on the new capture against the master build.
     const masterBuildId = build.get('masterBuildId');
     if (!masterBuildId) {
       return Promise.resolve();
     }
-    return new Promise((resolve, reject) => {
-      Capture.where({buildId: masterBuildId, name: capture.get('name')})
-           .fetch().then(originalCapture => {
-        const originalImgPath = getCapturePath(
-          originalCapture.get('sauceSessionId'));
-        const modifiedImgPath = getCapturePath(
-          capture.get('sauceSessionId'));
 
-        resemble(modifiedImgPath)
-          .compareTo(originalImgPath)
-          .ignoreAntialiasing()
-          .onComplete(diffData => {
-            // Write diff image, save CaptureDiff object.
-            // SO: writing-buffer-response-from-resemble-js-to-file.
-            let buf = new Buffer([]);
-            const png = diffData.getDiffImage();
-            const strm = png.pack()
-            strm.on('data', data => {
-              buf = Buffer.concat([buf, data])
-            });
-            strm.on('end', () => {
-              const dest = getCaptureDiffPath(capture.get('sauceSessionId'));
-              fs.writeFile(dest, buf, null, err => {
-                if (err) {
-                  console.log(err);
-                  return reject(err);
-                }
-                CaptureDiff.forge({
+    return new Promise(async function(resolve, reject) {
+      const masterCapture = await Capture
+        .where({buildId: masterBuildId, name: capture.get('name')})
+        .fetch();
+
+      const masterImgPath = getCapturePath(
+        masterCapture.get('sauceSessionId'));
+      const modifiedImgPath = getCapturePath(
+        capture.get('sauceSessionId'));
+
+      resemble(modifiedImgPath)
+        .compareTo(masterImgPath)
+        .ignoreAntialiasing()
+        .onComplete(diffData => {
+          // Write diff image, save CaptureDiff object.
+          // SO: writing-buffer-response-from-resemble-js-to-file.
+          let buf = new Buffer([]);
+          const png = diffData.getDiffImage();
+          const strm = png.pack();
+          strm.on('data', data => {
+            buf = Buffer.concat([buf, data])
+          });
+          strm.on('end', () => {
+            const dest = getCaptureDiffPath(capture.get('sauceSessionId'));
+            fs.writeFile(dest, buf, null, err => {
+              if (err) {
+                console.log(err);
+                return reject(err);
+              }
+
+              const dimDiff = diffData.dimensionDifference;
+              CaptureDiff
+                .forge({
                   captureId: capture.get('id'),
-                  dimensionDifferenceHeight: diffData.dimensionDifference.height,
-                  dimensionDifferenceWidth: diffData.dimensionDifference.width,
+                  dimensionDifferenceHeight: dimDiff.height,
+                  dimensionDifferenceWidth: dimDiff.width,
                   mismatchPercentage: diffData.mismatchPercentage,
                   isSameDimensions: diffData.isSameDimensions,
-                }).save().then(resolve);
-              });
+                })
+                .save()
+                .then(resolve);
             });
           });
       });
     });
   }
 
-  function error() {
-    return res.sendStatus(400);
-  }
+  // Save capture.
+  await saveCaptureImageToDisk(data);
 
-  // Upload capture, get build.
-  saveCapture().then(buildFound, error)
-    .then(build => {
-      // Get or create BrowserEnv, create capture.
-      browserEnvGetOrCreate().then(captureCreated)
-        .then(capture => {
-          // Attach Capture to Build.
-          createBuildCapture(build, capture).then(buildFound)
-            .then(build => {
-              // Return updated build.
-              imageDiffCreated(build, capture).then(() => {
-                res.sendStatus(201);
-              });
-            });
-        });
-    });
+  // Get build.
+  let build = await Build.where({travisId: req.params.buildId}).fetch();
+
+  // Get or create BrowserEnv.
+  const browserEnv = await browserEnvGetOrCreate({
+    name: data.browserName || '',
+    platform: data.browserPlatform || '',
+    version: data.browserVersion || '',
+  });
+
+  // Create capture.
+  const capture = await Capture.forge({
+    browserEnvId: browserEnv.id,
+    name: data.name,
+    sauceSessionId: data.sauceSessionId,
+  }).save();
+
+  // Attach capture to build.
+  await capture.set('buildId', build.id).save();
+
+  // Get updated build.
+  build = await Build.where({travisId: req.params.buildId}).fetch();
+
+  // Create image diff.
+  await captureDiffCreate(build, capture);
+
+  res.sendStatus(201);
 });
 
 
