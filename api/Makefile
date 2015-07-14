@@ -1,6 +1,6 @@
 install:
 	@npm install
-	@node_modules/.bin/babel-node db.js && sleep 5
+	@node_modules/.bin/babel-node --stage 1 db.js && sleep 5
 	@cp config-local.js.dist config-local.js
 
 test:
@@ -9,9 +9,9 @@ test:
 travis: install test
 
 start:
-	@node_modules/.bin/forever -c "node_modules/.bin/babel-node" start index.js
+	@node_modules/.bin/forever -c "node_modules/.bin/babel-node --stage 1" start index.js
 
 deploy:
 	@git pull --rebase origin master
 	@npm install
-	@node_modules/.bin/forever -c "node_modules/.bin/babel-node" restart index.js
+	@node_modules/.bin/forever -c "node_modules/.bin/babel-node --stage 1" restart index.js

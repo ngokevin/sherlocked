@@ -139,78 +139,64 @@ app.get('/api/', (req, res) => {
 });
 
 
-app.get('/api/builds/', (req, res) => {
+app.get('/api/builds/', async function(req, res) {
   // List builds.
-  Build
+  const builds = await Build
     .query('limit', 25)
     .query('orderBy', 'created_at', 'DESC')
-    .fetchAll().then(builds => {
-      if (builds.length) {
-        res.send(builds);
-      } else {
-        res.sendStatus(404);
-      }
-    });
+    .fetchAll();
+
+  if (builds.length) {
+    return res.send(builds);
+  }
+  return res.sendStatus(404);
 });
 
 
-app.get('/api/:user/:repo/builds/', (req, res) => {
+app.get('/api/:user/:repo/builds/', async function(req, res) {
   // List builds for a repo.
   const repoSlug = req.params.user + '/' + req.params.repo;
 
-  Build
+  const builds = await Build
     .where({travisRepoSlug: repoSlug})
     .query('limit', 25)
     .query('orderBy', 'created_at', 'DESC')
-    .fetchAll().then(builds => {
-      if (builds.length) {
-        res.send(builds);
-      } else {
-        res.sendStatus(404);
-      }
-    });
+    .fetchAll();
+
+  if (builds.length) {
+    return res.send(builds);
+  }
+  return res.sendStatus(404);
 });
 
 
-app.post('/api/builds/', (req, res) => {
-  // Get or create a Build, add a Capture to that Build.
+app.post('/api/builds/', async function(req, res) {
+  // Get or create a Build.
   let data = req.body;
 
-  function buildFound() {
-    return Build.where({travisId: data.travisId}).fetch();
+  // Check if Build exists for the Travis ID.
+  let build = await Build.where({travisId: data.travisId}).fetch();
+  if (build) {
+    return res.sendStatus(409);
   }
 
-  function buildCreated() {
-    return Build.forge(data).save();
-  }
+  // Look for master build.
+  const masterBuild = await Build.where({
+    travisBranch: 'master',
+    travisRepoSlug: data.travisRepoSlug
+  }).query('orderBy', 'created_at', 'DESC').fetch();
 
-  function masterBuildFound() {
-    return Build.where({
-      travisBranch: 'master',
-      travisRepoSlug: data.travisRepoSlug
-    }).query('orderBy', 'created_at', 'DESC').fetch();
-  }
+  // Create a Build if it doesn't yet exist.
+  build = await Build.forge(data).save();
 
-  buildFound().then(build => {
-    if (build) {
-      // Check if a Build exists.
-      return res.sendStatus(409);
-    }
-    masterBuildFound().then(masterBuild => {
-      // Create a Build if it doesn't.
-      buildCreated().then(build => {
-        // Attach the current master Build.
-        if (masterBuild) {
-          build.set('masterBuildId', masterBuild.id);
-          build.save().then(() => {
-            res.sendStatus(201);
-          });
-        } else {
-          res.sendStatus(201);
-        }
-      });
-    });
-  });
+  // Attach the current master Build, return.
+  if (masterBuild) {
+    build.set('masterBuildId', masterBuild.id);
+    await build.save();
+    res.sendStatus(201);
+  } else {
+    res.sendStatus(201);
+  }
 });
 
 

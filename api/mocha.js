@@ -1,5 +1,5 @@
 // https://github.com/Khan/react-components/blob/master/test/compiler.js
-var babel = require('babel');
+var babel = require('babel-core');
 var fs = require('fs');
 
 
@@ -10,8 +10,9 @@ function transform(filename) {
   // Transform a file via JSX/Harmony or stubbing.
   var content = fs.readFileSync(filename, 'utf8');
   return babel.transform(content, {
-      optional: ['runtime']
-  }).code
+    optional: ['runtime'],
+    stage: 1
+  }).code;
 }
 
 
@@ -21,6 +22,5 @@ require.extensions['.js'] = function(module, filename) {
     // Skip Node modules.
     return (origJs || require.extensions['.js'])(module, filename);
   }
-
   return module._compile(transform(filename), filename);
 };
