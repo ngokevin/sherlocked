@@ -299,11 +299,22 @@ describe('POST /builds/:id/captures/', () => {
       .post(prefix('/builds/221/captures/'))
       .send(captureFactory({sauceSessionId: 'abc', name: 'testcapture'}));
 
-    // TODO: assert that we have a diff.
     const build = await getBuild();
-    done();
+    const diff = build.captures[0].captures.testcapture.diff;
+    try {
+      assert.equal(diff.captureId, build.captures[0].captures.testcapture.id);
+      assert.equal(diff.dimensionDifferenceHeight, 0);
+      assert.equal(diff.dimensionDifferenceWidth, 0);
+      assert.equal(diff.mismatchPercentage, null);
+      assert.equal(diff.isSameDimensions, 1);
+      assert.equal(diff.src, prefix('/captures/diff/abc'));
+      done();
+    } catch (e) {
+      done(e);
+    }
   });
 });
+
 
 describe('GET /captures/:sauceSessionId', async function(done) {
   it('gets a capture', async function(done) {
@@ -321,6 +332,25 @@ describe('GET /captures/:sauceSessionId', async function(done) {
     done()
   });
 });
+
+
+describe('GET /captures/:sauceSessionId', async function(done) {
+  it('gets a capture diff', async function(done) {
+    await req
+      .get(prefix('/captures/diff/test'))
+      .expect(200)
+      .expect('Content-Type', 'image/png');
+    done();
+  });
+
+  it('404s if capture diff does not exist', async function(done) {
+    await req
+      .get(prefix('/captures/diff/doesnotexist'))
+      .expect(404);
+    done();
+  });
+});
+
 
 
 function getBuild(id) {

@@ -28,11 +28,31 @@ const BrowserEnv = bookshelf.Model.extend({
 });
 
 
+const CaptureDiff = bookshelf.Model.extend({
+  tableName: 'captureDiff'
+});
+
+
+function getCaptureDiffPath(sauceSessionId) {
+  return path.resolve('./captures/', sauceSessionId + '-diff.png');
+}
+
+
+function deserializeCaptureDiff(capture, captureDiff) {
+  captureDiff.src = url.resolve('/api/captures/diff/',
+                                capture.sauceSessionId);
+  return captureDiff;
+}
+
+
 const Capture = bookshelf.Model.extend({
   tableName: 'capture',
   hasTimestamps: ['created_at', 'updated_at'],
   browserEnv() {
     return this.belongsTo(BrowserEnv, 'browserEnvId');
+  },
+  diff() {
+    return this.hasOne(CaptureDiff, 'captureId');
   }
 });
 
@@ -44,20 +64,12 @@ function getCapturePath(sauceSessionId) {
 
 function deserializeCapture(capture) {
   capture.src = url.resolve('/api/captures/', capture.sauceSessionId);
-  return capture;
-}
-
-
-const CaptureDiff = bookshelf.Model.extend({
-  tableName: 'captureDiff',
-  browserEnv() {
-    return this.belongsTo(Capture, 'captureId');
+  if (capture.diff) {
+    capture.diff = deserializeCaptureDiff(capture, capture.diff);
+  } else {
+    capture.diff = {};
   }
-});
-
-
-function getCaptureDiffPath(sauceSessionId) {
-  return path.resolve('./captures/', sauceSessionId + '-diff.png');
+  return capture;
 }
 
 
@@ -121,11 +133,17 @@ const Build = bookshelf.Model.extend({
       return build;
     }
 
-    return new Promise(async function(resolve) {
-      const build = await root.load([
-        'captures', 'captures.browserEnv', 'masterBuild',
-        'masterBuild.captures', 'masterBuild.captures.browserEnv']);
-      resolve(transform(build.toJSON()));
+    return new Promise(async function(resolve, reject) {
+      try {
+        const build = await root.load([
+          'captures', 'captures.browserEnv', 'captures.diff',
+          'masterBuild', 'masterBuild.captures',
+          'masterBuild.captures.browserEnv']);
+        resolve(transform(build.toJSON()));
+      } catch (e) {
+        console.log(e);
+        reject(e);
+      }
     });
   }
 });
@@ -355,6 +373,15 @@ app.post('/api/builds/:buildId/captures/', async function(req, res) {
 
 app.get('/api/captures/:sauceSessionId', (req, res) => {
   res.sendFile(getCapturePath(req.params.sauceSessionId), err => {
+    if (err) {
+      res.sendStatus(err.status);
+    }
+  });
+});
+
+
+app.get('/api/captures/diff/:sauceSessionId', (req, res) => {
+  res.sendFile(getCaptureDiffPath(req.params.sauceSessionId), err => {
     if (err) {
       res.sendStatus(err.status);
     }
