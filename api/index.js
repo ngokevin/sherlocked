@@ -74,8 +74,7 @@ const Build = bookshelf.Model.extend({
     const root = this;
 
     function transform(build) {
-      // Rework the data structure to group Captures by BrowserEnv
-      // alongside the master Build's captures.
+      // Group Captures by BrowserEnv with masterBuild's captures.
 
       // Create BrowserEnv groups.
       let browserEnvIds = [];
@@ -95,11 +94,10 @@ const Build = bookshelf.Model.extend({
       // Attach Captures to our groups.
       build.captures.forEach(capture => {
         groupedCaptures.forEach(groupedCapture => {
-          if (capture.browserEnv.id !=
-            groupedCapture.browserEnv.id) {
+          if (capture.browserEnv.id != groupedCapture.browserEnv.id) {
             return;
           }
-           groupedCapture.captures[capture.name] = deserializeCapture(capture);
+          groupedCapture.captures[capture.name] = deserializeCapture(capture);
         });
       });
 
@@ -123,12 +121,11 @@ const Build = bookshelf.Model.extend({
       return build;
     }
 
-    return new Promise(resolve => {
-      root.load(['captures', 'captures.browserEnv', 'masterBuild',
-                 'masterBuild.captures', 'masterBuild.captures.browserEnv'])
-      .then(build => {
-        resolve(transform(build.toJSON()));
-      });
+    return new Promise(async function(resolve) {
+      const build = await root.load([
+        'captures', 'captures.browserEnv', 'masterBuild',
+        'masterBuild.captures', 'masterBuild.captures.browserEnv']);
+      resolve(transform(build.toJSON()));
     });
   }
 });
@@ -200,19 +197,19 @@ app.post('/api/builds/', async function(req, res) {
 });
 
 
-app.get('/api/builds/:buildId', (req, res) => {
+app.get('/api/builds/:buildId', async function(req, res) {
   // Get a Build.
-  Build.where({travisId: req.params.buildId}).fetch().then(build => {
-    if (build) {
-      build.deserialize().then(build => {
-        res.send(build);
-      });
-    } else {
-      console.log('No trace at the scene of the crime for Build',
-                  req.params.buildId);
-      res.sendStatus(404);
-    }
-  });
+  const build = await Build
+    .where({travisId: req.params.buildId})
+    .fetch();
+
+  if (build) {
+    res.send(await build.deserialize());
+  } else {
+    console.log('No trace at the scene of the crime for Build',
+                req.params.buildId);
+    res.sendStatus(404);
+  }
 });
 
 
