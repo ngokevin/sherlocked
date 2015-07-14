@@ -138,9 +138,16 @@ Example response:
       },
       "captures": {
         "homepageOnMobile": {
+          "diff": {
+            "dimensionDifferenceHeight": 0,
+            "dimensionDifferenceWidth": 0,
+            "isSameDimensions": 1,
+            "mismatchPercentage": null,
+            "src": "https://sherlocked.paas/api/captures/diff/N239"
+          },
           "name": "homepageOnMobile",
           "sauceSessionId": "N239",
-          "src": "https://sherlocked.paas/N239.png"
+          "src": "https://sherlocked.paas/api/captures/N239"
         },
         "homepageOnDesktop": {
           "name": "homepageOnDesktop",
@@ -154,11 +161,6 @@ Example response:
           "sauceSessionId": "N221",
           "src": "https://sherlocked.paas/N221.png"
         },
-        "homepageOnDesktop": {
-          "name": "homepageOnDesktop",
-          "sauceSessionId": "B239",
-          "src": "https://sherlocked.paas/B239.png"
-        }
       },
   ]
 }

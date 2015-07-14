@@ -11,9 +11,7 @@ exports.up = function(next) {
     captureDiff.string('mismatchPercentage');
     captureDiff.bool('isSameDimensions');
   })
-  .then(function() {
-    next();
-  });
+  .then(next);
 };
 
 
