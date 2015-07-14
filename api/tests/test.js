@@ -2,6 +2,7 @@ import fs from 'fs';
 
 import assert from 'assert';
 import extend from 'extend';
+import migrate from 'migrate';
 import request from 'supertest';
 
 import app from '../index';
@@ -16,11 +17,6 @@ function prefix(url) {
 }
 
 
-if (!fs.existsSync(process.env.SHERLOCKED_TEST_DB)) {
-  require('../db');
-}
-
-
 beforeEach(function(done) {
   // Teardown and rebuild database.
   this.timeout(10000);
@@ -28,9 +24,10 @@ beforeEach(function(done) {
   Promise.all([
     knex('build').truncate(),
     knex('browserEnv').truncate(),
-    knex('capture').truncate()
+    knex('capture').truncate(),
+    knex('captureDiff').truncate()
   ]).then(() => {
-    done()
+    done();
   });
 });
 

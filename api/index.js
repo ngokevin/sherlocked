@@ -347,7 +347,6 @@ app.post('/api/builds/:buildId/captures/', (req, res) => {
                   dimensionDifferenceWidth: diffData.dimensionDifference.width,
                   mismatchPercentage: diffData.mismatchPercentage,
                   isSameDimensions: diffData.isSameDimensions,
-                  sauceSessionId: capture.get('sauceSessionId'),
                 }).save().then(resolve);
               });
             });

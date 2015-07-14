@@ -1,25 +1,23 @@
 'use strict'
-var knex = require('knex');
+var knex = require('./helper');
 
-var dbFile = process.env.SHERLOCKED_TEST_DB || '../db.sqlite';
-knex = knex({
-    client: 'sqlite3',
-    connection: {
-        filename: dbFile
-    },
-});
 
 exports.up = function(next) {
   knex.schema.createTable('captureDiff', function(captureDiff) {
-      captureDiff.increments('id').primary();
-      captureDiff.integer('dimensionDifferenceHeight');
-      captureDiff.integer('dimensionDifferenceWidth');
-      captureDiff.string('mismatchPercentage');
-      captureDiff.bool('isSameDimensions');
-      captureDiff.string('sauceSessionId');
-  }).then(next);
+    captureDiff.increments('id').primary();
+    captureDiff.integer('captureId').references('build.id');
+    captureDiff.integer('dimensionDifferenceHeight');
+    captureDiff.integer('dimensionDifferenceWidth');
+    captureDiff.string('mismatchPercentage');
+    captureDiff.bool('isSameDimensions');
+  })
+  .then(function() {
+    next();
+  });
 };
 
+
 exports.down = function(next) {
-  knex.schema.dropTable('captureDiff').then(next);
+  knex.schema.dropTable('captureDiff')
+  .then(next);
 };
