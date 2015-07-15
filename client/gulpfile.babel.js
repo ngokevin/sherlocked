@@ -1,25 +1,24 @@
-var autoprefixer = require('gulp-autoprefixer');
-var babelify = require('babelify');
-var browserify = require('browserify');
-var browserSync = require('browser-sync');
-var concat = require('gulp-concat');
-var connectFallback = require('connect-history-api-fallback');
-var envify = require('envify/custom');
-var gulp = require('gulp');
-var minifyCss = require('gulp-minify-css');
-var nib = require('nib');
-var reactify = require('reactify');
-var stylus = require('gulp-stylus');
-var uglify = require('gulp-uglify');
-var vinylBuffer = require('vinyl-buffer');
-var vinylSource = require('vinyl-source-stream');
-var watchify = require('watchify');
-var webserver = require('gulp-webserver');
+import autoprefixer from 'gulp-autoprefixer';
+import babelify from 'babelify';
+import browserify from 'browserify';
+import browserSync from 'browser-sync';
+import concat from 'gulp-concat';
+import connectFallback from 'connect-history-api-fallback';
+import envify from 'envify/custom';
+import gulp from 'gulp';
+import minifyCss from 'gulp-minify-css';
+import nib from 'nib';
+import reactify from 'reactify';
+import stylus from 'gulp-stylus';
+import uglify from 'gulp-uglify';
+import vinylBuffer from 'vinyl-buffer';
+import vinylSource from 'vinyl-source-stream';
+import watchify from 'watchify';
 
 
-var bundler = browserify('./js/app.js', watchify.args)
+let bundler = browserify('./src/js/app.js', watchify.args)
   .transform(babelify.configure({
-    optional: ['runtime']
+    optional: ['runtime', 'es7.asyncFunctions']
   }))
   .transform(envify({
     API_ROOT: process.env.SHERLOCKED_API_ROOT ||
@@ -32,20 +31,20 @@ var bundler = browserify('./js/app.js', watchify.args)
   .transform(reactify);
 
 
-gulp.task('css', function() {
+gulp.task('css', () => {
   gulp
-    .src(['css/*.styl', 'css/lib/*.css'])
+    .src(['./src/css/*.styl', './src/css/lib/*.css'])
     .pipe(stylus({compress: true, use: [nib()]}))
     .pipe(autoprefixer())
     .pipe(concat('bundle.css'))
     .pipe(minifyCss())
-    .pipe(gulp.dest('build'))
+    .pipe(gulp.dest('src/build'))
     .pipe(browserSync.stream());
 });
 
 
 function jsBundle(bundler) {
-  var bundle = bundler
+  let bundle = bundler
     .bundle()
     .on('error', function(err) {
       console.log(err.message);
@@ -60,35 +59,35 @@ function jsBundle(bundler) {
       .pipe(uglify());
   }
 
-  return bundle.pipe(gulp.dest('build'));
+  return bundle.pipe(gulp.dest('src/build'));
 }
 
 
-gulp.task('js', function() {
+gulp.task('js', () => {
   return jsBundle(bundler);
 });
 
 
-gulp.task('serve', function() {
+gulp.task('serve', () => {
   browserSync.init({
-    index: 'index.html',
+    index: 'src/index.html',
     middleware: [connectFallback()],
     notify: false,
     open: false,
-    server: './',
+    server: 'src/',
     port: process.env.SHERLOCKED_CLIENT_PORT || 2118
   });
 });
 
-gulp.task('watch', function() {
+gulp.task('watch', () => {
   bundler = watchify(bundler);
 
-  bundler.on('update', function() {
+  bundler.on('update', () => {
     jsBundle(bundler);
   });
   bundler.on('log', console.log);
 
-  gulp.watch('css/**/*.styl', ['css']);
+  gulp.watch('./src/css/**/*.styl', ['css']);
 });
 
 

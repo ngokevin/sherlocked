@@ -18,19 +18,17 @@ const ImageComparator = React.createClass({
   },
   animateIfVisible() {
     // Check until comparator is in the viewport to animate it.
-    const root = this;
-
     if (!this.state.containerWidth) {
       return;
     }
 
-    const comparator = React.findDOMNode(root);
+    const comparator = React.findDOMNode(this);
     const comparatorTop = comparator.getBoundingClientRect().top;
 
     const viewportHalf = document.body.scrollTop +
                          document.body.offsetHeight * 0.5;
     if (viewportHalf > comparatorTop) {
-      root.setState({
+      this.setState({
         animated: true,
         resizePercentage: '100%',
       });
@@ -46,11 +44,10 @@ const ImageComparator = React.createClass({
     window.addEventListener('scroll', this.animateIfVisible);
     window.addEventListener('resize', this.resizeContainer);
 
-    const root = this;
     const resizeInterval = setInterval(() => {
-      if (root.state.originalImageLoaded) {
-        if (!root.state.containerWidth) {
-          root.resizeContainer();
+      if (this.state.originalImageLoaded) {
+        if (!this.state.containerWidth) {
+          this.resizeContainer();
         } else {
           clearInterval(resizeInterval);
         }
@@ -62,7 +59,7 @@ const ImageComparator = React.createClass({
     const image = new Image();
     image.src = this.props.originalSrc;
     image.onload = () => {
-      root.setState({originalImageLoaded: true});
+      this.setState({originalImageLoaded: true});
     };
   },
   componentWillUnmount() {
@@ -89,15 +86,14 @@ const ImageComparator = React.createClass({
   },
   dragStartHandler(e) {
     // Add drag handler on element and all its ancestor elements.
-    const root = this;
     let el = React.findDOMNode(this);
 
-    const handle = React.findDOMNode(root.refs.handle);
+    const handle = React.findDOMNode(this.refs.handle);
     const handleLeft = handle.getBoundingClientRect().left +
                        document.body.scrollLeft;
     const handleWidth = handle.offsetWidth;
 
-    const comparator = React.findDOMNode(root);
+    const comparator = React.findDOMNode(this);
     const comparatorLeft = comparator.getBoundingClientRect().left +
                            document.body.scrollLeft;
     const comparatorWidth = comparator.offsetWidth;
@@ -113,46 +109,43 @@ const ImageComparator = React.createClass({
     });
 
     while (el) {
-      el.addEventListener('mousemove', root.dragMoveHandler);
-      el.addEventListener('vmousemove', root.dragMoveHandler);
-      el.addEventListener('mouseup', root.dragEndHandler);
-      el.addEventListener('vmouseup', root.dragEndHandler);
+      el.addEventListener('mousemove', this.dragMoveHandler);
+      el.addEventListener('vmousemove', this.dragMoveHandler);
+      el.addEventListener('mouseup', this.dragEndHandler);
+      el.addEventListener('vmouseup', this.dragEndHandler);
       el = el.parentNode;
     }
   },
   dragMoveHandler(e) {
     e.preventDefault();
-    const root = this;
-
     // Constrain draggable element to within container.
-    let leftValue = e.pageX + root.state.handleXPos -
-            root.state.handleWidth;
-    if (leftValue < root.state.handleXPosMin) {
-      leftValue = root.state.handleXPosMin;
-    } else if (leftValue > root.state.handleXPosMax) {
-      leftValue = root.state.handleXPosMax;
+    let leftValue = e.pageX + this.state.handleXPos -
+                    this.state.handleWidth;
+    if (leftValue < this.state.handleXPosMin) {
+      leftValue = this.state.handleXPosMin;
+    } else if (leftValue > this.state.handleXPosMax) {
+      leftValue = this.state.handleXPosMax;
     }
 
-    let resizePercentage = (leftValue + root.state.handleWidth / 2 -
-                root.state.comparatorLeft);
+    let resizePercentage = leftValue + this.state.handleWidth / 2 -
+                           this.state.comparatorLeft;
     resizePercentage = resizePercentage * 100 /
-               root.state.comparatorWidth + '%';
-    root.setState({resizePercentage: resizePercentage});
+                       this.state.comparatorWidth + '%';
+    this.setState({resizePercentage: resizePercentage});
 
-    root.updateLabelVisibility();
+    this.updateLabelVisibility();
   },
   resizeContainer() {
     this.setState({
       containerWidth: this.getDOMNode().offsetWidth
     }, this.animateIfVisible);
   },
-  updateLabelVisibility: _.debounce(() => {
+  updateLabelVisibility: _.debounce(function() {
     // Toggle whether the label is visible based on whether the resize
     // image edges intersect with the label.
-    const root = this;
-    const labels = [root.refs.originalLabel, root.refs.resizeLabel];
+    const labels = [this.refs.originalLabel, this.refs.resizeLabel];
 
-    const resizeEl = React.findDOMNode(root.refs.resizeEl);
+    const resizeEl = React.findDOMNode(this.refs.resizeEl);
     const resizeElLeft = resizeEl.getBoundingClientRect().left +
                          document.body.scrollLeft;
     const resizeRight = resizeElLeft + resizeEl.offsetWidth;
@@ -162,11 +155,11 @@ const ImageComparator = React.createClass({
       let labelLeft = label.getBoundingClientRect().left +
                       document.body.scrollLeft;
       if (_label.props.position == 'left') {
-        root.setState({
+        this.setState({
           originalLabelVisible: labelLeft + label.offsetWidth < resizeRight
         });
       } else if (_label.props.position == 'right') {
-        root.setState({
+        this.setState({
           resizeLabelVisible: labelLeft + label.offsetWidth < resizeRight
         });
       }

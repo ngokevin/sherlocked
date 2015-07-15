@@ -4,11 +4,11 @@ import React from 'react';
 import request from 'superagent';
 import urljoin from 'url-join';
 
-import buildFilters from './build-filters';
-import Captures from './captures';
-import pageTypesStore from './page-types-store';
-import titleStore from './title-store';
-import utils from './utils';
+import {BrowserEnvFilter, CaptureFilter} from '../buildFilters';
+import Captures from '../captures';
+import pageTypesStore from '../../pageTypesStore';
+import titleStore from '../../titleStore';
+import {browserEnvSlugify} from '../../utils';
 
 
 const Build = React.createClass({
@@ -28,21 +28,20 @@ const Build = React.createClass({
   },
   componentDidMount() {
     // Fetch the Build from Sherlocked.
-    var root = this;
     request
-      .get(urljoin(process.env.API_ROOT, 'builds', root.state.buildId))
+      .get(urljoin(process.env.API_ROOT, 'builds', this.state.buildId))
       .end((err, res) => {
         if (res.status === 404) {
           root.setState({
             notFound: true
           });
-          titleStore.publish('Build #' + root.state.buildId +
+          titleStore.publish('Build #' + this.state.buildId +
                      ' Not Found');
         } else {
-          var data = res.body;
-          root.setState(data, () => {
+          const data = res.body;
+          this.setState(data, () => {
             notFound: false,
-            titleStore.publish(root.renderHeader());
+            titleStore.publish(this.renderHeader());
           });
         }
       });
@@ -50,8 +49,8 @@ const Build = React.createClass({
     pageTypesStore.publish(['build']);
   },
   filterBrowserEnvs(browserEnvs) {
-    var filteredBrowserEnvs = browserEnvs ?  _.unique(browserEnvs.split(',')) :
-                                             [];
+    const filteredBrowserEnvs = browserEnvs ?
+                                _.unique(browserEnvs.split(',')) : [];
     this.setState({
       filteredBrowserEnvs: filteredBrowserEnvs.map(id => {
         return parseInt(id, 10);
@@ -85,14 +84,14 @@ const Build = React.createClass({
     </div>
   },
   renderBrowserEnv(browserEnv, i) {
-    var filteredBrowserEnvs = this.state.filteredBrowserEnvs;
-    var hidden = filteredBrowserEnvs.length &&
+    const filteredBrowserEnvs = this.state.filteredBrowserEnvs;
+    const hidden = filteredBrowserEnvs.length &&
       filteredBrowserEnvs.indexOf(browserEnv.browserEnv.id) === -1;
     return <BrowserEnv browserEnv={browserEnv.browserEnv}
-               captures={browserEnv.captures}
-               masterCaptures={browserEnv.masterCaptures}
-               key={i} hidden={hidden}
-               filteredCaptures={this.state.filteredCaptures}/>;
+                       captures={browserEnv.captures}
+                       masterCaptures={browserEnv.masterCaptures}
+                       key={i} hidden={hidden}
+                       filteredCaptures={this.state.filteredCaptures}/>
   },
   renderFilters() {
     if (this.state.notFound || !this.state.id) {
@@ -100,12 +99,10 @@ const Build = React.createClass({
     }
 
     return <div>
-      <buildFilters.BrowserEnvFilter
-        captures={this.state.captures}
-        filterBrowserEnvs={this.filterBrowserEnvs}/>
-      <buildFilters.CaptureFilter
-        captures={this.state.captures}
-        filterCaptures={this.filterCaptures}/>
+      <BrowserEnvFilter captures={this.state.captures}
+                        filterBrowserEnvs={this.filterBrowserEnvs}/>
+      <CaptureFilter captures={this.state.captures}
+                     filterCaptures={this.filterCaptures}/>
     </div>
   },
   renderError() {
@@ -145,14 +142,14 @@ const BrowserEnv = React.createClass({
              key={i}/>
   },
   render() {
-    var browserEnvClasses = classnames({
+    const browserEnvClasses = classnames({
       'browser-env': true,
       'browser-env--toggled-off': this.state.toggledOff,
       'browser-env--hidden': this.props.hidden,
     });
 
     // If filtering captures, hide rest of captures.
-    var captureNames = Object.keys(this.props.captures);
+    let captureNames = Object.keys(this.props.captures);
     if (this.props.filteredCaptures.length) {
       captureNames = _.intersection(captureNames,
                       this.props.filteredCaptures);
@@ -160,7 +157,7 @@ const BrowserEnv = React.createClass({
 
     return <div className={browserEnvClasses}>
       <div className="browser-env-header" onClick={this.toggle}>
-        <h3>{utils.slugifyBrowserEnv(this.props.browserEnv)}</h3>
+        <h3>{browserEnvSlugify(this.props.browserEnv)}</h3>
       </div>
 
       <div className="browser-env-captures">

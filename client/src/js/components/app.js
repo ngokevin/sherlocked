@@ -1,14 +1,10 @@
 import React from 'react';
 import Router from 'react-router';
-import request from 'superagent';
-import url from 'url';
-import urljoin from 'url-join';
+import urlJoin from 'url-join';
 
-import Build from './build';
-var Builds = require('./builds');
-var Landing = require('./landing');
-var pageTypesStore = require('./page-types-store');
-var titleStore = require('./title-store');
+import Landing from './handlers/landing';
+import pageTypesStore from '../pageTypesStore';
+import titleStore from '../titleStore';
 
 
 const App = React.createClass({
@@ -22,17 +18,16 @@ const App = React.createClass({
     };
   },
   componentDidMount() {
-    var root = this;
     titleStore.subscribe(title => {
-      root.setState({title: title});
+      this.setState({title: title});
     });
     pageTypesStore.subscribe(pageTypes => {
-      root.setState({pageTypes: pageTypes});
+      this.setState({pageTypes: pageTypes});
     });
 
     // Preload placeholder image.
     const placeholderImg = new Image();
-    placeholderImg.src = urljoin(process.env.MEDIA_ROOT,
+    placeholderImg.src = urlJoin(process.env.MEDIA_ROOT,
                                  'img/placeholder.png');
   },
   render: function() {
@@ -55,17 +50,4 @@ const App = React.createClass({
 });
 
 
-// Routes with react-router.
-var Route = Router.Route;
-var routes = <Route name="app" handler={App}>
-  <Route name="landing" path="/" handler={Landing.Landing}/>
-  <Route name="builds" path="/builds/" handler={Builds}/>
-  <Route name="builds-repo" path="/:user/:repo/builds/" handler={Builds}/>
-  <Route name="build" path="/builds/:buildId" handler={Build}/>
-</Route>;
-
-
-// Begin investigation.
-Router.run(routes, Router.HistoryLocation, Handler => {
-  React.render(<Handler/>, document.body);
-});
+export default App;
