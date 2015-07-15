@@ -1,43 +1,38 @@
-@import 'lib';
+@import 'lib'
 
 
-.Select {
-    &.is-multi.has-value .Select-input {
-        height: 0;
-        margin: 0;
-        padding: 0;
-    }
-    .Select-control {
-        border-bottom: 0;
-        border-radius: 0;
+.Select
+  &.is-multi.has-value .Select-input
+    height 0
+    margin 0
+    padding 0
 
-        &:hover {
-            cursor: pointer
-        }
-    }
-    .Select-placeholder,
-    .Select-option {
-        padding-left: 30px;
-    }
-    .Select-item {
-        background: $color-secondary;
-        border-color: $color-tertiary;
-        color: $white;
-        text-transform: capitalize;
+  .Select-control
+    border-bottom 0
+    border-radius 0
 
-        &:first-child {
-            margin-left: 30px;
-        }
-    }
-    .Select-placeholder {
-        color: $black;
-    }
-    .Select-option {
-        text-transform: capitalize;
+    &hover
+      cursor pointer
 
-        &.is-focused {
-            background: $color-tertiary;
-            color: $white;
-        }
-    }
-}
+  .Select-placeholder,
+  .Select-option
+    padding-left 30px
+
+  .Select-item
+    background $color-secondary
+    border-color $color-tertiary
+    color $white
+    text-transform capitalize
+
+    &first-child
+      margin-left 30px
+
+  .Select-placeholder
+    color $black
+
+  .Select-option
+    text-transform capitalize
+
+    &.is-focused
+      background $color-tertiary
+      color $white

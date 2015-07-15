@@ -1,147 +1,122 @@
-@import 'lib';
+@import 'lib'
 
 
-.landing {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    margin-top: -30px;
-}
+.landing
+  display flex
+  flex-wrap wrap
+  justify-content center
+  margin-top -30px
 
-.landing-graphic {
-    background: url(../img/landing/graphic.png);
-    display: flex;
-    padding: 50px 0;
-    justify-content: center;
-    width: 100%;
-}
+.landing-graphic
+  background url(../img/landing/graphic.png)
+  display flex
+  padding 50px 0
+  justify-content center
+  width 100%
 
-.landing-graphic-letters {
-    display: flex;
-    flex-wrap: wrap;
-    height: 100%;
-    justify-content: center;
-    width: 320px;
-}
+.landing-graphic-letters
+  display flex
+  flex-wrap wrap
+  height 100%
+  justify-content center
+  width 320px
 
-.landing-graphic-letter-group {
-    align-items: center;
-    display: flex;
-    justify-content: center;
-    width: 100%;
-}
+.landing-graphic-letter-group
+  align-items center
+  display flex
+  justify-content center
+  width 100%
 
-.landing-graphic-letter {
-    align-items: center;
-    color: $white;
-    font-family: sans-serif;
-    display: flex;
-    justify-content: center;
-    margin: 0;
-    font-size: 36px;
-    padding: 15px
-    width: 45px;
-}
+.landing-graphic-letter
+  align-items center
+  color $white
+  font-family sans-serif
+  display flex
+  justify-content center
+  margin 0
+  font-size 36px
+  padding 15px
+  width 45px
 
-[data-graphic-letter-group-index="1"] .landing-graphic-letter {
-    background: $white;
-    color: $black;
-    margin-left: 3px;
-    margin-right: 3px;
-}
+[data-graphic-letter-group-index="1"] .landing-graphic-letter
+  background $white
+  color $black
+  margin-left 3px
+  margin-right 3px
 
-.landing-graphic-space {
-    width: 25px;
-}
+.landing-graphic-space
+  width 25px
 
-.landing-info {
-    display: flex;
-    flex-wrap: wrap;
-    max-width: 910px;
-    padding: 30px;
-    text-align: center;
-    width: 100%;
+.landing-info
+  display flex
+  flex-wrap wrap
+  max-width 910px
+  padding 30px
+  text-align center
+  width 100%
 
-    h2,
-    h3 {
-        width: 100%;
-    }
-    > div {
-        max-width: 100%;
-    }
-}
+  h2,
+  h3
+    width 100%
+  > div
+    max-width 100%
 
-.landing-brief-desc {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    margin-bottom: 30px;
+.landing-brief-desc
+  display flex
+  flex-direction column
+  justify-content center
+  margin-bottom 30px
 
-    +media--desktop() {
-        flex-direction: row;
-    }
-    li {
-        padding: 0 10px;
-    }
-}
+  +media--desktop()
+    flex-direction row
+  li
+    padding 0 10px
 
-.landing-usage {
-    display: flex;
-    flex-wrap: wrap;
-    width: 100%;
+.landing-usage
+  display flex
+  flex-wrap wrap
+  width 100%
 
-    ul {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
+  ul
+    display flex
+    flex-direction column
+    justify-content center
 
-        +media--desktop() {
-            flex-direction: row;
-        }
-    }
-    li {
-        padding: 0 10px;
-    }
-}
+    +media--desktop()
+      flex-direction row
+  li
+    padding 0 10px
 
-.landing-test-example {
-    margin-bottom: 30px;
+.landing-test-example
+  margin-bottom 30px
 
-    p code {
-        font-size: 15px;
-    }
-}
+  p code
+    font-size 15px
 
-.landing-nav {
-    display: none;
-    align-items: center;
-    padding-left: 30px;
+.landing-nav
+  display none
+  align-items center
+  padding-left 30px
 
-    &,
-    ul,
-    li,
-    a {
-        height: 100%;
-        margin: 0;
-    }
-    a {
-        border-left: 1px solid $gray;
-        border-right: 1px solid $gray;
-        color: $white;
-        font-weight: 300;
-        display: inline-block;
-        line-height: 60px;
-        padding: 0 30px;
-        transition: background .1s, border-color .1s;
+  &,
+  ul,
+  li,
+  a
+    height 100%
+    margin 0
+  a
+    border-left 1px solid $gray
+    border-right 1px solid $gray
+    color $white
+    font-weight 300
+    display inline-block
+    line-height 60px
+    padding 0 30px
+    transition background .1s, border-color .1s
 
-        &:hover {
-            background: $color-secondary;
-            border-color: $color-secondary;
-        }
-    }
-    +media--desktop() {
-        +page-type--landing() {
-            display: flex;
-        }
-    }
-}
+    &hover
+      background $color-secondary
+      border-color $color-secondary
+  +media--desktop()
+    +page-type--landing()
+      display flex

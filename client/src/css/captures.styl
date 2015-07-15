@@ -1,88 +1,70 @@
-@import 'lib';
+@import 'lib'
 
 
-no-master-capture() {
-    [data-has-master-capture="false"] & {
-        {block}
-    }
-}
+no-master-capture()
+  [data-has-master-capture="false"] &
+    {block}
 
 
-.captures {
-    display: flex;
-    flex-direction: column;
-    flex-wrap: wrap;
-    justify-content: center;
-    position: relative;
-    margin: 30px 0;
-    width: 100%;
+.captures
+  display flex
+  flex-direction column
+  flex-wrap wrap
+  justify-content center
+  position relative
+  margin 30px 0
+  width 100%
 
-    +media--desktop() {
-        flex-direction: row;
-    }
-    ul {
-        max-width: 100%;
-    }
-}
+  +media--desktop()
+    flex-direction row
+  ul
+    max-width 100%
 
-.captures-controls {
-    color: $color-text;
-    width: 100%;
+.captures-controls
+  color $color-text
+  width 100%
 
-    h3 {
-        margin-top: 0;
-        text-align: center;
-        text-decoration: underline;
-        width: 100%;
-    }
-    +media--desktop() {
-        padding-right: 30px;
-        width: unquote('calc(25% - 30px)');
-    }
-}
+  h3
+    margin-top 0
+    text-align center
+    text-decoration underline
+    width 100%
+  +media--desktop()
+    padding-right 30px
+    width unquote('calc(25% - 30px)')
 
-.captures-metadata {
-    font-size: 13px;
-}
+.captures-metadata
+  font-size 13px
 
-.captures-toggle-diff {
-    margin-top: 20px;
-    width: 100%;
+.captures-toggle-diff
+  margin-top 20px
+  width 100%
 
-    +no-master-capture() {
-        display: none;
-    }
-}
+  +no-master-capture()
+    display none
 
-.captures-images {
-    display: flex;
-    justify-content: center;
-    margin-top: 20px;
-    position: relative;
-    width: 100%;
+.captures-images
+  display flex
+  justify-content center
+  margin-top 20px
+  position relative
+  width 100%
 
-    +media--desktop() {
-        margin-top: 0;
-        width: unquote('calc(75% - 2px)');
-    }
-}
+  +media--desktop()
+    margin-top 0
+    width unquote('calc(75% - 2px)')
 
-.image-comparator--originalImageLoading .image-comparator-img {
-    box-shadow: none;
-}
+.image-comparator--originalImageLoading .image-comparator-img
+  box-shadow none
 
-.image-comparator-img {
-    box-shadow: 0 0 3px $gray;
-}
+.image-comparator-img
+  box-shadow 0 0 3px $gray
 
 .image-comparator,
 .image-comparator > .image-comparator-img,
-.image-differ img {
-    max-width: 100%;
-}
+.image-differ img
+  max-width 100%
 
-.image-comparator-resize {
-    height: 100%;
-    width: auto;
-}
-
+.image-comparator-resize
+  height 100%
+  width auto

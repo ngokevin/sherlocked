@@ -1,76 +1,62 @@
-@import 'lib';
+@import 'lib'
 
 
-$color-browser-env-header-bg = $color-tertiary;
-$color-browser-env-header-hover-bg = $color-secondary;
+$color-browser-env-header-bg = $color-tertiary
+$color-browser-env-header-hover-bg = $color-secondary
+
+browser-env--toggled-off()
+  .browser-env--toggled-off &
+    {block}
 
 
-browser-env--toggled-off() {
-    .browser-env--toggled-off & {
-        {block}
-    }
-}
+.build-content
+  +media--desktop()
+    padding 0 30px
 
-.build-content {
-    +media--desktop() {
-        padding: 0 30px;
-    }
-}
+.browser-env--hidden
+  display none
 
-.browser-env--hidden {
-    display: none;
-}
+.browser-env-header
+  background $color-browser-env-header-bg
+  cursor pointer
+  display flex
+  justify-content center
+  transition background .1s
+  width 100%
 
-.browser-env-header {
-    background: $color-browser-env-header-bg;
-    cursor: pointer;
-    display: flex;
-    justify-content: center;
-    transition: background .1s;
-    width: 100%;
+  &hover
+    background $color-browser-env-header-hover-bg
+  +media--desktop()
+    border-radius 2px 2px 0 0
+  h3
+    color $color-text
+    font-weight 400
+    margin 15px 5px
+    text-transform capitalize
 
-    &:hover {
-        background: $color-browser-env-header-hover-bg;
-    }
-    +media--desktop() {
-        border-radius: 2px 2px 0 0;
-    }
-    h3 {
-        color: $color-text;
-        font-weight: 400;
-        margin: 15px 5px;
-        text-transform: capitalize;
-    }
-}
+.browser-env-captures
+  background $black
+  display flex
+  flex-direction column
+  justify-content center
+  margin-bottom 20px
+  overflow hidden
+  padding 0 10px 30px
+  transition max-height .5s
 
-.browser-env-captures {
-    background: $black;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    margin-bottom: 20px;
-    overflow: hidden;
-    padding: 0 10px 30px;
-    transition: max-height .5s;
+  +media--desktop()
+    flex-direction row
+    flex-wrap wrap
+    max-width 100%
+    padding 0 30px 30px
+  +browser-env--toggled-off()
+    border-bottom 1px solid $color-secondary
+    max-height 0
+    padding-bottom 0
+    padding-top 0
 
-    +media--desktop() {
-        flex-direction: row;
-        flex-wrap: wrap;
-        max-width: 100%;
-        padding: 0 30px 30px;
-    }
-    +browser-env--toggled-off() {
-        border-bottom: 1px solid $color-secondary;
-        max-height: 0;
-        padding-bottom: 0;
-        padding-top: 0;
-    }
-}
+[data-page-types~="build"] header
+  margin-bottom 0
 
-[data-page-types~="build"] header {
-    margin-bottom: 0;
-}
-
-.capture-filter {
-    margin-bottom: 30px;
-}
+.capture-filter
+  margin-bottom 30px

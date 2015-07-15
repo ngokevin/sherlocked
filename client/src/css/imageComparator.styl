@@ -1,0 +1,103 @@
+@import 'lib'
+
+
+image-comparator--animated()
+  .image-comparator--animated &
+    {block}
+
+image-differ--visible()
+  [data-image-differ--visible="true"] &
+    {block}
+
+
+.image-comparator
+  display flex
+  max-width 100%
+  position relative
+
+.image-comparator-img
+  display block
+  object-fit contain
+  object-position 0 0
+  user-select none
+
+.image-comparator-label
+  -moz-osx-font-smoothing grayscale
+  -webkit-font-smoothing antialiased
+  bottom 0
+  color $white
+  opacity 0
+  padding 1em
+  position absolute
+  right 0
+  transform translateY(20px)
+  transition transform 0.3s 0.7s, opacity 0.3s 0.7s
+  visibility hidden
+
+  &.image-comparator-label--visible
+    visibility visible
+
+.image-comparator-img--visible
+  opacity 1
+  transform translateY(0)
+
+.image-comparator-resize
+  backface-visibility hidden
+  background-position left top
+  background-repeat no-repeat
+  background-size auto 100%
+  height 100%
+  left 0
+  max-width 100%
+  overflow hidden
+  position absolute
+  top 0
+  transform translateZ(0)
+  width 0
+
+  +image-comparator--animated()
+    animation image-comparator-bounce-in 0.7s
+    width 100%
+
+.image-comparator-resize .image-comparator-label
+  left 0
+  right auto
+
+.image-comparator-handle
+  // Center element.
+  background $color-tertiary url("../img/image-comparator/arrows.svg") \
+             no-repeat center center
+  border-radius 50%
+  box-shadow 0 0 0 6px rgba(0, 0, 0, 0.2), 0 0 10px rgba(0, 0, 0, 0.6), \
+             inset 0 1px 0 rgba(255, 255, 255, 0.3)
+  cursor move
+  height 44px
+  left 50%
+  margin-left -22px
+  margin-top -22px
+  opacity 0
+  position absolute
+  top 50%
+  transform translate3d(0, 0, 0) scale(0)
+  width 44px
+
+  +image-comparator--animated()
+    opacity 1
+    transform translate3d(0, 0, 0) scale(1)
+    transition transform 0.3s 0.7s, opacity 0.7s
+  +image-differ--visible()
+    opacity 0
+
+.image-comparator-handle--draggable
+  // Change background color when active.
+  background-color $color-secondary
+
+@keyframes image-comparator-bounce-in
+  0%
+    width 0
+  50%
+    width 100%
+  75%
+    width 90%
+  100%
+    width 100%

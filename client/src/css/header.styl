@@ -1,75 +1,63 @@
-@import 'lib';
+@import 'lib'
 
 
-header {
-    align-items: center;
-    background: url(../img/header/bg.png);
-    color: $color-text;
-    display: flex;
-    font-weight: 300;
-    height: 60px;
-    justify-content: flex-start;
-    padding: 0 30px;
-    position: relative;
+header
+  align-items center
+  background url(../img/header/bg.png)
+  color $color-text
+  display flex
+  font-weight 300
+  height 60px
+  justify-content flex-start
+  padding 0 30px
+  position relative
 
-    +media--desktop() {
-        justify-content: space-between;
-        margin-bottom: 30px;
+  +media--desktop()
+    justify-content space-between
+    margin-bottom 30px
 
-        +page-type--landing() {
-            justify-content: flex-start;
-        }
-    }
-    h1 {
-        font-family: $font-header;
-        margin: 0;
+    +page-type--landing()
+      justify-content flex-start
+  h1
+    font-family $font-header
+    margin 0
 
-        a {
-            color: $white;
-        }
-    }
-    .build-header {
-        display: flex;
-        height: 100%;
-    }
-    .build-header a,
-    .build-header-separator {
-        align-self: center;
-        font-size: 20px;
-        margin: 0 5px;
-    }
-}
+    a
+      color $white
+  .build-header
+    display flex
+    height 100%
+  .build-header a,
+  .build-header-separator
+    align-self center
+    font-size 20px
+    margin 0 5px
 
-.header-name {
-    display: none;
+.header-name
+  display none
 
-    +media--desktop() {
-        display: inline-block;
-    }
-}
+  +media--desktop()
+    display inline-block
 
-.header-icon {
-    background: url(/img/favicon.ico);
-    background-size: 32px 32px;
-    background-repeat: no-repeat;
-    height: 32px;
-    position: relative;
-    right: 16px;
-    width: 32px;
+.header-icon
+  background url(/img/favicon.ico)
+  background-size 32px 32px
+  background-repeat no-repeat
+  height 32px
+  position relative
+  right 16px
+  width 32px
 
-    +media--desktop() {
-        display: none;
-    }
-}
+  +media--desktop()
+    display none
 
-.header-title {
-    align-items: center;
-    display: flex;
-    height: 100%;
-    left: 0;
-    margin: 0 auto;
-    position: absolute;
-    right: 0;
-    top: 0;
-    width: fit-content;
-}
+.header-title
+  align-items center
+  display flex
+  height 100%
+  left 0
+  margin 0 auto
+  position absolute
+  right 0
+  top 0
+  width fit-content
