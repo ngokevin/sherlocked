@@ -39,7 +39,7 @@ const AppBody = React.createClass({
                 data-page-types={this.props.pageTypes.join(' ')}>
       <Header title={this.props.title}/>
       <main>
-        <Router.RouteHandler/>
+        <Router.RouteHandler dispatch={this.props.dispatch}/>
       </main>
     </div>
   },

@@ -4,7 +4,7 @@ import Router from 'react-router';
 import request from 'superagent';
 import urljoin from 'url-join';
 
-import titleStore from '../../titleStore';
+import TitleActions from '../../actions/title';
 
 
 const Builds = React.createClass({
@@ -52,9 +52,9 @@ const Builds = React.createClass({
   },
   setPageTitle() {
     if (this.state.userRepo) {
-      titleStore.publish(<p>{this.state.userRepo}</p>);
+      this.props.dispatch(TitleActions.setTitle(<p>{this.state.userRepo}</p>));
     } else {
-      titleStore.publish(<p>Builds</p>);
+      this.props.dispatch(TitleActions.setTitle(<p>Builds</p>));
     }
   },
   setUserRepo(user, repo) {

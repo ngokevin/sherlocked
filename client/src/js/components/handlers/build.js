@@ -5,10 +5,10 @@ import request from 'superagent';
 import urljoin from 'url-join';
 
 import {BrowserEnvFilter, CaptureFilter} from '../buildFilters';
-import Captures from '../captures';
-import pageTypesStore from '../../pageTypesStore';
-import titleStore from '../../titleStore';
 import {browserEnvSlugify} from '../../utils';
+import Captures from '../captures';
+import PageTypesActions from '../../actions/pageTypes';
+import TitleActions from '../../actions/title';
 
 
 const Build = React.createClass({
@@ -35,18 +35,18 @@ const Build = React.createClass({
           root.setState({
             notFound: true
           });
-          titleStore.publish('Build #' + this.state.buildId +
-                     ' Not Found');
+          this.props.dispatch(TitleActions.setTitle(
+            `Build #${this.state.buildId} Not Found`));
         } else {
-          const data = res.body;
+          let data = res.body;
+          data.notFound = false;
           this.setState(data, () => {
-            notFound: false,
-            titleStore.publish(this.renderHeader());
+            this.props.dispatch(TitleActions.setTitle(this.renderHeader()));
           });
         }
       });
 
-    pageTypesStore.publish(['build']);
+    this.props.dispatch(PageTypesActions.setPageTypes(['build']));
   },
   filterBrowserEnvs(browserEnvs) {
     const filteredBrowserEnvs = browserEnvs ?

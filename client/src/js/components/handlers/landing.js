@@ -6,9 +6,6 @@ import PageTypeActions from '../../actions/pageTypes';
 
 
 const Landing = React.createClass({
-  contextTypes: {
-    redux: React.PropTypes.object.isRequired
-  },
   getInitialState() {
     return {
       graphicLetterGroups: [
@@ -19,7 +16,7 @@ const Landing = React.createClass({
     };
   },
   componentDidMount() {
-    this.context.redux.dispatch(PageTypeActions.setPageTypes(['landing']));
+    this.props.dispatch(PageTypeActions.setPageTypes(['landing']));
   },
   renderGraphicLetter(letter, i) {
     const graphicLetterClasses = classnames({
