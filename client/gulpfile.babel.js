@@ -18,7 +18,8 @@ import watchify from 'watchify';
 
 let bundler = browserify('./src/js/app.js', watchify.args)
   .transform(babelify.configure({
-    optional: ['runtime', 'es7.asyncFunctions']
+    optional: ['runtime'],
+    stage: 1
   }))
   .transform(envify({
     API_ROOT: process.env.SHERLOCKED_API_ROOT ||

@@ -2,10 +2,13 @@ import classnames from 'classnames';
 import React from 'react';
 
 import '../../lib/prism';
-import pageTypesStore from '../../pageTypesStore';
+import PageTypeActions from '../../actions/pageTypes';
 
 
 const Landing = React.createClass({
+  contextTypes: {
+    redux: React.PropTypes.object.isRequired
+  },
   getInitialState() {
     return {
       graphicLetterGroups: [
@@ -16,7 +19,7 @@ const Landing = React.createClass({
     };
   },
   componentDidMount() {
-    pageTypesStore.publish(['landing']);
+    this.context.redux.dispatch(PageTypeActions.setPageTypes(['landing']));
   },
   renderGraphicLetter(letter, i) {
     const graphicLetterClasses = classnames({
