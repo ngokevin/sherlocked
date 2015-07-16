@@ -24,6 +24,7 @@
     "resemblejs": "^1.2.1",
     "stylus": "^0.50.0",
     "superagent": "^1.2.0",
+    "superagent-promise": "^1.0.3",
     "uniqueid": "^0.1.0",
     "url-join": "0.0.1",
     "urlgray": "^0.2.2",

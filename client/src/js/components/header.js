@@ -1,9 +1,10 @@
 import React from 'react';
 
-import Landing from './handlers/landing';
-
 
 const Header =React.createClass({
+  contextTypes: {
+    router: React.PropTypes.func
+  },
   propTypes: {
     title: React.PropTypes.string.isRequired
   },
@@ -13,7 +14,13 @@ const Header =React.createClass({
         <a href="/">Sherlocked</a>
       </h1>
       <a className="header-icon" href="/" title="Sherlocked"/>
-      <Landing.LandingNav/>
+
+      <nav className="landing-nav">
+        <ul>
+          <li><Router.Link to="builds">Builds</Router.Link></li>
+        </ul>
+      </nav>
+
       <h1 className="header-title">{this.props.title}</h1>
     </header>
   }

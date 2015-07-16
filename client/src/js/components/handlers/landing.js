@@ -1,5 +1,6 @@
 import classnames from 'classnames';
 import React from 'react';
+import Router from 'react-router';
 
 import '../../lib/prism';
 import PageTypeActions from '../../actions/pageTypes';
@@ -227,25 +228,4 @@ const LandingTravisExample = React.createClass({
 });
 
 
-const LandingNav = React.createClass({
-  contextTypes: {
-    router: React.PropTypes.func
-  },
-  render() {
-    return <nav className="landing-nav">
-      <ul>
-        <li>
-          <a href={this.context.router.namedRoutes.builds.path}>
-            Builds
-          </a>
-        </li>
-      </ul>
-    </nav>
-  }
-});
-
-
-export default {
-  Landing: Landing,
-  LandingNav: LandingNav,
-};
+export default Landing;
