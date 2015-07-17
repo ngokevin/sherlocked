@@ -4,9 +4,17 @@ import React from 'react';
 import urlJoin from 'url-join';
 
 
-const ImageComparator = React.createClass({
-  getInitialState() {
-    return {
+export default class ImageComparator extends React.Component {
+  static propTypes = {
+    modifiedSrc: React.PropTypes.string.isRequired,
+    originalSrc: React.PropTypes.string,
+    placeholderSrc: React.PropTypes.string,
+  };
+
+  constructor(props) {
+    super(props);
+
+    this.state = {
       animated: false,
       containerWidth: null,
       dragging: false,
@@ -15,28 +23,7 @@ const ImageComparator = React.createClass({
       resizeLabelVisible: true,
       resizePercentage: '0%',
     };
-  },
-  animateIfVisible() {
-    // Check until comparator is in the viewport to animate it.
-    if (!this.state.containerWidth) {
-      return;
-    }
 
-    const comparator = React.findDOMNode(this);
-    const comparatorTop = comparator.getBoundingClientRect().top;
-
-    const viewportHalf = document.body.scrollTop +
-                         document.body.offsetHeight * 0.5;
-    if (viewportHalf > comparatorTop) {
-      this.setState({
-        animated: true,
-        resizePercentage: '100%',
-      });
-
-      window.removeEventListener('scroll', this.animateIfVisible);
-    }
-  },
-  componentDidMount() {
     if (!this.props.originalSrc || !this.props.modifiedSrc) {
       return;
     }
@@ -61,14 +48,37 @@ const ImageComparator = React.createClass({
     image.onload = () => {
       this.setState({originalImageLoaded: true});
     };
-  },
+  }
+
+  animateIfVisible = () => {
+    // Check until comparator is in the viewport to animate it.
+    if (!this.state.containerWidth) {
+      return;
+    }
+
+    const comparator = React.findDOMNode(this);
+    const comparatorTop = comparator.getBoundingClientRect().top;
+
+    const viewportHalf = document.body.scrollTop +
+                         document.body.offsetHeight * 0.5;
+    if (viewportHalf > comparatorTop) {
+      this.setState({
+        animated: true,
+        resizePercentage: '100%',
+      });
+
+      window.removeEventListener('scroll', this.animateIfVisible);
+    }
+  }
+
   componentWillUnmount() {
     if (!this.state.animated) {
       window.removeEventListener('scroll', this.animateIfVisible);
     }
     window.removeEventListener('resize', this.resizeContainer);
-  },
-  dragEndHandler(e) {
+  }
+
+  dragEndHandler = e => {
     // Remove the drag handlers once done dragging.
     if (!this.state.dragging) {
       return;
@@ -83,8 +93,9 @@ const ImageComparator = React.createClass({
     }
 
     this.setState({dragging: false});
-  },
-  dragStartHandler(e) {
+  }
+
+  dragStartHandler = e => {
     // Add drag handler on element and all its ancestor elements.
     let el = React.findDOMNode(this);
 
@@ -115,8 +126,9 @@ const ImageComparator = React.createClass({
       el.addEventListener('vmouseup', this.dragEndHandler);
       el = el.parentNode;
     }
-  },
-  dragMoveHandler(e) {
+  }
+
+  dragMoveHandler = e => {
     e.preventDefault();
     // Constrain draggable element to within container.
     let leftValue = e.pageX + this.state.handleXPos -
@@ -134,13 +146,15 @@ const ImageComparator = React.createClass({
     this.setState({resizePercentage: resizePercentage});
 
     this.updateLabelVisibility();
-  },
-  resizeContainer() {
+  }
+
+  resizeContainer = () => {
     this.setState({
-      containerWidth: this.getDOMNode().offsetWidth
+      containerWidth: React.findDOMNode(this).offsetWidth
     }, this.animateIfVisible);
-  },
-  updateLabelVisibility: _.debounce(function() {
+  }
+
+  updateLabelVisibility = _.debounce(() => {
     // Toggle whether the label is visible based on whether the resize
     // image edges intersect with the label.
     const labels = [this.refs.originalLabel, this.refs.resizeLabel];
@@ -164,7 +178,8 @@ const ImageComparator = React.createClass({
         });
       }
     });
-  }, 50),
+  }, 50)
+
   render() {
     const comparatorClasses = classnames({
       'image-comparator': true,
@@ -186,41 +201,51 @@ const ImageComparator = React.createClass({
       this.props.originalSrc :
       this.props.placeholderSrc || this.props.originalSrc;
 
-    return <div className={comparatorClasses}>
-      <img className="image-comparator-img" src={originalSrc}/>
-      <ImageComparatorLabel label="Original" position="left"
-                            ref="originalLabel"/>
+    return (
+      <div className={comparatorClasses}>
+        <img className="image-comparator-img" src={originalSrc}/>
+        <ImageComparatorLabel label="Original" position="left"
+                              ref="originalLabel"/>
 
-      <div className="image-comparator-resize" ref="resizeEl"
-           style={resizeStyle}>
-        <ImageComparatorLabel label="Modified" position="right"
-                              ref="resizeLabel"/>
+        <div className="image-comparator-resize" ref="resizeEl"
+             style={resizeStyle}>
+          <ImageComparatorLabel label="Modified" position="right"
+                                ref="resizeLabel"/>
+        </div>
+
+        <ImageComparatorHandle dragStart={this.dragStartHandler}
+                               dragging={this.state.dragging}
+                               resizePercentage={this.state.resizePercentage}
+                               ref="handle"/>
       </div>
-
-      <ImageComparatorHandle dragStart={this.dragStartHandler}
-                             dragging={this.state.dragging}
-                             resizePercentage={this.state.resizePercentage}
-                             ref="handle"/>
-    </div>
+    );
   }
-});
-export default ImageComparator;
+}
 
 
-const ImageComparatorHandle = React.createClass({
+class ImageComparatorHandle extends React.Component {
+  static propTypes = {
+    dragging: React.PropTypes.bool,
+    dragStart: React.PropTypes.func,
+    resizePercentage: React.PropTypes.string.isRequired,
+  };
+
   componentDidMount() {
     const handle = React.findDOMNode(this);
     handle.addEventListener('mousedown', this.dragStart);
     handle.addEventListener('vmousedown', this.dragStart);
-  },
+  }
+
   componentWillUnmount() {
-    window.removeEventListener('mouseup', this.dragEnd);
-    window.removeEventListener('vmouseup', this.dragEnd);
-  },
-  dragStart(e) {
+    window.removeEventListener('mouseup', this.dragStart);
+    window.removeEventListener('vmouseup', this.dragStart);
+  }
+
+  dragStart = e => {
     e.preventDefault();
     this.props.dragStart(e);
-  },
+  }
+
   render() {
     const handleClasses = classnames({
       'image-comparator-handle': true,
@@ -229,19 +254,28 @@ const ImageComparatorHandle = React.createClass({
     const handleStyle = {
       left: this.props.resizePercentage
     };
-    return <span className={handleClasses} style={handleStyle}/>
+    return (
+      <span className={handleClasses} style={handleStyle}/>
+    );
   }
-});
+}
 
 
-const ImageComparatorLabel = React.createClass({
+class ImageComparatorLabel extends React.Component {
+  static propTypes = {
+    label: React.PropTypes.string.isRequired,
+    visible: React.PropTypes.bool,
+  };
+
   render() {
     const labelClasses = classnames({
       'image-comparator-label': true,
       'image-comparator-label--visible': this.props.visible,
     });
-    return <span className={labelClasses}>
-      {this.props.label}
-    </span>
+    return (
+      <span className={labelClasses}>
+        {this.props.label}
+      </span>
+    );
   }
-});
+}

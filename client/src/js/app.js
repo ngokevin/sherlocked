@@ -1,55 +1,82 @@
-/*
-  Initializes the app.
-  Instantiates Redux the long way to add Promise support.
-*/
-import {createRedux, createDispatcher, compose, composeStores} from 'redux';
-import {Provider} from 'redux/react';
 import React from 'react';
-import {reduxRouteComponent} from 'redux-react-router';
-import Router from 'react-router';
-import thunkMiddleware from 'redux/lib/middleware/thunk';
+import {Provider} from 'react-redux';
+import {Route, Router} from 'react-router';
+import {history} from 'react-router/lib/BrowserHistory';
+import {applyMiddleware, combineReducers, compose, createStore} from 'redux';
+import persistState from 'redux-localstorage';
+import persistSlicer from 'redux-localstorage-slicer';
+import loggerMiddleware from 'redux-logger';
+import {reduxRouteComponent,
+        routerStateReducer as router} from 'redux-react-router';
+import thunkMiddleware from 'redux-thunk';
 
-import App from './components/app';
-import Build from './components/handlers/build';
-import Builds from './components/handlers/builds';
-import Landing from './components/handlers/landing';
-import PageTypesStore from './stores/pageTypes';
-import {promiseMiddleware} from './lib/reduxHelpers';
-import TitleStore from './stores/title';
+import App from './containers/app';
+import Build from './containers/build';
+import BuildList from './containers/buildList';
+import Landing from './containers/landing';
+
+import build from './reducers/build';
+import buildList from './reducers/buildList';
+import site from './reducers/site';
+
+
+const reducer = combineReducers({
+  // The name of the reducers, as imported, will be the keys of the state tree.
+  build,
+  buildList,
+  router,
+  site
+});
+
+
+const createEnhancedStore = compose(
+  persistState(null, {
+    slicer: persistSlicer()
+  }),
+  applyMiddleware(
+    thunkMiddleware,
+    loggerMiddleware
+  ),
+)(createStore);
 
 
 // Compose all Stores into single Store function.
-const store = composeStores({
-  PageTypes: PageTypesStore,
-  Title: TitleStore,
-});
-
-// Create Dispatcher function for composite Store.
-// thunkMiddleware is default middleware.
-const dispatcher = createDispatcher(
-  store,
-  getState => [promiseMiddleware(), thunkMiddleware(getState)]
-);
-
-// Create Redux instance using the dispatcher.
-const redux = createRedux(dispatcher);
+const store = createEnhancedStore(reducer);
 
 
-// Routes with react-router.
-const Route = Router.Route;
-const routes = <Route component={reduxRouteComponent(store)}>
-  <Route name="app" handler={App}>
-    <Route name="landing" path="/" handler={Landing}/>
-    <Route name="builds" path="/builds/" handler={Builds}/>
-    <Route name="builds-repo" path="/:user/:repo/builds/" handler={Builds}/>
-    <Route name="build" path="/builds/:buildId" handler={Build}/>
-  </Route>
-</Route>;
+function renderRoutes() {
+  return (
+    <Router history={history}>
+      <Route component={reduxRouteComponent(store)}>
+        <Route name="app" component={App}>
+          <Route name="landing" path="/" component={Landing}/>
+          <Route name="build-list" path="/builds/" component={BuildList}/>
+          <Route name="build-list-by-repo" path="/:user/:repo/builds/"
+                 component={BuildList}/>
+          <Route name="build" path="/builds/:buildId" component={Build}/>
+        </Route>
+      </Route>
+    </Router>
+  );
+}
 
 
-Router.run(routes, Router.HistoryLocation, function(Handler) {
-  const App = <Provider redux={redux}>
-    {() => <Handler/>}
-  </Provider>
-  React.render(App, document.body);
-});
+class ReduxApp extends React.Component {
+  renderDevTools() {
+    return;
+  }
+  render() {
+    return (
+      <div className="app-container">
+        <Provider store={store}>
+          {renderRoutes.bind(null)}
+        </Provider>
+
+        {this.renderDevTools()}
+      </div>
+    );
+  }
+}
+
+
+React.render(<ReduxApp/>, document.querySelector('.app-container'));
