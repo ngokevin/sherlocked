@@ -30,17 +30,26 @@ export default class Build extends React.Component {
     this.props.setTitle(this.renderHeader());
   }
 
-  filterBrowserEnvs = browserEnvs => {
+  handleFilterBrowserEnvs = browserEnvs => {
+    /*
+      Handle <select> filter of browserEnv, which will supply list of
+      browserEnv IDs as a comma-separated string.
+      We split the string and set the state of browserEnvs to filter by.
+    */
     const filteredBrowserEnvs = browserEnvs ?
-                                _.unique(browserEnvs.split(',')) : [];
+      _.unique(browserEnvs.split(',')).map(id => parseInt(id, 10)) :
+      [];
     this.setState({
-      filteredBrowserEnvs: filteredBrowserEnvs.map(id => {
-        return parseInt(id, 10);
-      })
+      filteredBrowserEnvs: filteredBrowserEnvs
     });
   }
 
   filterCaptures = captures => {
+    /*
+      Handle <select> filter of captures, which will supply list of
+      capture names as a comma-separated string.
+      We split the string and set the state of captures to filter by.
+    */
     this.setState({
       filteredCaptures: captures ? _.unique(captures.split(',')) : []
     });
@@ -72,8 +81,10 @@ export default class Build extends React.Component {
 
   renderBrowserEnv = (browserEnv, i) => {
     const filteredBrowserEnvs = this.state.filteredBrowserEnvs;
-    const isHidden = filteredBrowserEnvs.length &&
-      filteredBrowserEnvs.indexOf(browserEnv.browserEnv.id) === -1;
+    const isHidden = !!(
+      filteredBrowserEnvs.length &&
+      filteredBrowserEnvs.indexOf(browserEnv.browserEnv.id) === -1
+    );
     return <BrowserEnv browserEnv={browserEnv.browserEnv}
                        captures={browserEnv.captures}
                        filteredCaptures={this.state.filteredCaptures}
@@ -87,10 +98,12 @@ export default class Build extends React.Component {
       <section className="build">
         {this.props.captures && this.props.captures.length &&
           <div>
-            <BrowserEnvFilter captures={this.props.captures}
-                              filterBrowserEnvs={this.filterBrowserEnvs}/>
-            <CaptureFilter captures={this.props.captures}
-                           filterCaptures={this.filterCaptures}/>
+            <BrowserEnvFilter
+              captures={this.props.captures}
+              filterBrowserEnvs={this.handleFilterBrowserEnvs}/>
+            <CaptureFilter
+              captures={this.props.captures}
+              filterCaptures={this.handleFilterCaptures}/>
           </div>
         || ''}
 
@@ -113,11 +126,11 @@ export default class Build extends React.Component {
 
 export class BrowserEnv extends React.Component {
   static propTypes = {
-    browserEnv: React.PropTypes.string.isRequired,
-    captures: React.PropTypes.array.isRequired,
+    browserEnv: React.PropTypes.object.isRequired,
+    captures: React.PropTypes.object.isRequired,
     filteredCaptures: React.PropTypes.array,
     isHidden: React.PropTypes.bool,
-    masterCaptures: React.PropTypes.array.isRequired,
+    masterCaptures: React.PropTypes.object.isRequired,
   };
 
   constructor(props) {
@@ -142,7 +155,7 @@ export class BrowserEnv extends React.Component {
     const browserEnvClasses = classnames({
       'browser-env': true,
       'browser-env--toggled-off': this.state.toggledOff,
-      'browser-env--hidden': this.props.hidden,
+      'browser-env--hidden': this.props.isHidden,
     });
 
     // If filtering captures, hide rest of captures.

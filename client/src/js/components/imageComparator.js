@@ -1,3 +1,11 @@
+/*
+  Compares two images via slider.
+
+  originalSrc will be rendered as <img>.
+  modifiedSrc will be rendered as <div> with background-image.
+
+  If originalSrc not given, then modifiedSrc will be rendered as <img> alone.
+*/
 import _ from 'lodash';
 import classnames from 'classnames';
 import React from 'react';
@@ -181,6 +189,15 @@ export default class ImageComparator extends React.Component {
   }, 50)
 
   render() {
+    if (!this.props.originalSrc) {
+      // Nothing to compare, just render a single image of the modifiedSrc.
+      return (
+        <div className="image-comparator">
+          <img className="image-comparator-img" src={this.props.modifiedSrc}/>
+        </div>
+      );
+    }
+
     const comparatorClasses = classnames({
       'image-comparator': true,
       'image-comparator--animated': this.state.animated,

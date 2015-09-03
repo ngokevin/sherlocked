@@ -9,7 +9,7 @@ export class AppContainer extends React.Component {
   static propTypes = {
     children: React.PropTypes.object,
     pageTypes: React.PropTypes.array,
-    title: React.PropTypes.string,
+    title: React.PropTypes.any,
   };
 
   constructor(props) {
