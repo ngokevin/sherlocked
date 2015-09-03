@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import autoprefixer from 'gulp-autoprefixer';
 import babelify from 'babelify';
 import browserify from 'browserify';
@@ -6,6 +7,7 @@ import concat from 'gulp-concat';
 import connectFallback from 'connect-history-api-fallback';
 import envify from 'envify/custom';
 import gulp from 'gulp';
+import gulpIf from 'gulp-if';
 import minifyCss from 'gulp-minify-css';
 import nib from 'nib';
 import reactify from 'reactify';
@@ -16,9 +18,12 @@ import vinylSource from 'vinyl-source-stream';
 import watchify from 'watchify';
 
 
+let bundlerArgs = _.extend(watchify.args, {
+  debug: process.env.NODE_ENV !== 'production'
+});
 let bundler = browserify('./src/js/app.js', watchify.args)
   .transform(babelify.configure({
-    optional: ['runtime'],
+    optional: ['runtime', 'es7.classProperties'],
     stage: 1
   }))
   .transform(envify({
@@ -45,22 +50,17 @@ gulp.task('css', () => {
 
 
 function jsBundle(bundler) {
-  let bundle = bundler
+  return bundler
     .bundle()
     .on('error', function(err) {
       console.log(err.message);
       console.log(err.codeFrame);
       this.emit('end');
     })
-    .pipe(vinylSource('bundle.js'));
-
-  if (process.env.NODE_ENV == 'production') {
-    bundle = bundle
-      .pipe(vinylBuffer())
-      .pipe(uglify());
-  }
-
-  return bundle.pipe(gulp.dest('src/build'));
+    .pipe(vinylSource('bundle.js'))
+    .pipe(vinylBuffer())
+    .pipe(gulpIf(process.env.NODE_ENV == 'production', uglify()))
+    .pipe(gulp.dest('src/build'));
 }
 
 

@@ -5,11 +5,12 @@ import Select from 'react-select';
 import {browserEnvSlugify} from '../utils';
 
 
-const BrowserEnvFilter = React.createClass({
+export class BrowserEnvFilter extends React.Component {
   shouldComponentUpdate(nextProps, nextState) {
     // Don't update to prevent value reset, options will never change.
     return this.props.captures.length === 0;
-  },
+  }
+
   render() {
     const browserEnvs = this.props.captures.map(capture => {
       const browserEnv = capture.browserEnv;
@@ -19,21 +20,25 @@ const BrowserEnvFilter = React.createClass({
       };
     });
 
-    return <Select className="browser-env-filter"
-                   placeholder="Filter browser environments..."
-                   searchable={false} multi={true}
-                   onChange={this.props.filterBrowserEnvs}
-                   name="browser-env-filter" options={browserEnvs}/>
+    return (
+      <Select className="browser-env-filter"
+              multi={true}
+              name="browser-env-filter"
+              onChange={this.props.filterBrowserEnvs}
+              options={browserEnvs}
+              placeholder="Filter browser environments..."
+              searchable={false}/>
+    );
   }
-});
-export {BrowserEnvFilter};
+}
 
 
-const CaptureFilter = React.createClass({
+export class CaptureFilter extends React.Component {
   shouldComponentUpdate(nextProps, nextState) {
     // Don't update to prevent value reset, options will never change.
     return this.props.captures.length === 0;
-  },
+  }
+
   render() {
     let captureNames = [];
     if (this.props.captures.length) {
@@ -48,11 +53,14 @@ const CaptureFilter = React.createClass({
       ));
     }
 
-    return <Select className="capture-filter"
-                   placeholder="Filter captures..."
-                   searchable={false} multi={true}
-                   onChange={this.props.filterCaptures}
-                   name="capture-filter" options={captureNames}/>
+    return (
+      <Select className="capture-filter"
+              multi={true}
+              name="capture-filter"
+              options={captureNames}
+              onChange={this.props.filterCaptures}
+              placeholder="Filter captures..."
+              searchable={false}/>
+    );
   }
-});
-export {CaptureFilter};
+}

@@ -1,4 +1,4 @@
-function browserEnvSlugify(browserEnv) {
+export function browserEnvSlugify(browserEnv) {
   let slug = browserEnv.name;
   if (browserEnv.version) {
     slug += ' | Version ' + browserEnv.version;
@@ -8,4 +8,3 @@ function browserEnvSlugify(browserEnv) {
   }
   return slug;
 }
-export {browserEnvSlugify};

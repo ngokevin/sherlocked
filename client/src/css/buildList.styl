@@ -1,13 +1,13 @@
 @import 'lib'
 
 
-.builds
+.build-list
   display flex
   justify-content center
   padding 0 10px
   flex-wrap wrap
 
-.builds-build
+.build-list-build
   align-items flex-start
   background $pure-white
   border 1px solid $gray
@@ -19,7 +19,7 @@
   transition background .1s
   width 300px
 
-  &hover
+  &:hover
     background $color-tertiary
     border-color $color-tertiary
     cursor pointer
@@ -27,7 +27,7 @@
     a
       color $white
 
-.builds-link
+.build-list-link
   border-left 10px solid $color-secondary
   color $black
   display flex
@@ -39,25 +39,25 @@
   p
     margin 5px 0
 
-.builds-link-meta
+.build-list-link-meta
   display flex
   justify-content space-between
   margin-bottom 20px
   width 100%
 
-.builds-repo-slug
+.build-list-repo-slug
   max-width 90%
   overflow hidden
   text-overflow ellipsis
   white-space nowrap
 
-.builds-created
+.build-list-created
   width 100%
 
   .ion-clock
     margin-right 5px
 
-.builds-search
+.search
   display flex
   justify-content center
   margin 0 0 25px

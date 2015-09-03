@@ -1,6 +1,6 @@
 install:
 	@npm install
-	@node_modules/.bin/babel-node --stage 1 db.js && sleep 5
+	@npm run migrate
 	@cp config-local.js.dist config-local.js
 
 test:
