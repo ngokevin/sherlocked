@@ -24,24 +24,19 @@ The world of Sherlocked:
 To use Sherlocked in your project, install the Node library, get a Sauce Labs
 API key, write a Sherlocked test script, and hook it into your Travis build.
 
-```
-npm install sherlocked --save
+```bash
+npm install --save-dev sherlocked
 ```
 
 ### 1. Setting up Sauce Labs
 
-You must create a Sauce Labs account and generate an API key.
+You must have a [Sauce Labs](https://saucelabs.com/) account and find your API
+key. Once you are logged in, you can find it at your [SauceLabs account
+page](https://saucelabs.com/account) like below.
 
-To let Sauce Labs through a firewall, use [Sauce
-Connect](https://docs.saucelabs.com/reference/sauce-connect/). You download
-the binary, and then run it in the background with your sauce username and
-sauce key:
+![Sauce Labs account page](https://cloud.githubusercontent.com/assets/674727/9673795/e9ec21cc-525c-11e5-8420-add113487dfd.png)
 
-```
-bin/sc -u my-sauce-username -k my-sauce-key
-```
-
-Keep the API key because we will need it for later.
+Keep your API key for later.
 
 ### 2. Writing a Sherlocked Test Script
 
@@ -53,7 +48,7 @@ configurations of what environments we want to take captures of, in the form of
 Selenium's [desiredCapabilities]
 (https://code.google.com/p/selenium/wiki/DesiredCapabilities)
 
-```
+```js
 require('sherlocked')
 
 .investigate('Home Page', function(client) {
@@ -81,16 +76,24 @@ First, you will want to encrypt your Sauce Labs API key and set it as an
 environment variable in Travis CI. ```-add``` will automatically add it to
 your ```.travis.yml```.
 
-```
+```bash
 gem install travis
 travis encrypt SAUCE_ACCESS_KEY=my-sauce-key --add
 travis encrypt SAUCE_USERNAME=my-sauce-username --add
 ```
 
+Then, you'll want to enable your Travis' ```sauce_connect``` addon to allow
+Travis CI to tunnel through the firewall into Sauce Labs.
+
+```yaml
+addons:
+  sauce_connect: true
+```
+
 Lastly, all you need to do is to call your Sherlocked test script from your
 Travis CI build.
 
-```
+```bash
 node my-sherlocked-script.js
 ```
 
@@ -180,6 +183,7 @@ image | Base64 image
 name | Name of the capture (e.g., ```homePageOnDesktop```)
 sauceSessionId | Sauce Labs session ID, each session generates one capture.
 
+
 ## Development
 
 Sherlocked consist of several moving parts: the backend API, the npm module,
@@ -207,7 +211,16 @@ The npm module ran by consuming projects to hook Sauce Labs, Travis CI, and the
 Sherlocked API together. Follow the **Setup** section on how to use it.
 
 ```
-npm install sherlocked --save
+npm install --save-dev sherlocked
+```
+
+To let Sauce Labs through a firewall, use [Sauce
+Connect](https://docs.saucelabs.com/reference/sauce-connect/). You download
+the binary, and then run it in the background with your sauce username and
+sauce key:
+
+```
+bin/sc -u my-sauce-username -k my-sauce-key
 ```
 
 ### Web Frontend
@@ -232,3 +245,14 @@ This will start a server on port 2118 by default.
 
 [npm-url]: https://npmjs.org/package/sherlocked
 [npm-image]: http://img.shields.io/npm/v/sherlocked.svg
+
+
+## Who is Sherlocked Investigating?
+
+Sherlocked always has clients in need.
+
+- [Himself](https://github.com/ngokevin/sherlocked)
+- [Firefox Content Tools](https://github.com/mozilla/marketplace-content-tools)
+- [Firefox Marketplace](https://github.com/mozilla/fireplace)
+
+Are you using Sherlocked? Let us know!
