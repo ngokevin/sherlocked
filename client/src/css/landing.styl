@@ -7,12 +7,14 @@
   justify-content center
   margin-top -30px
 
+
 .landing-graphic
   background url(../img/landing/graphic.png)
   display flex
   padding 50px 0
   justify-content center
   width 100%
+
 
 .landing-graphic-letters
   display flex
@@ -21,11 +23,13 @@
   justify-content center
   width 320px
 
+
 .landing-graphic-letter-group
   align-items center
   display flex
   justify-content center
   width 100%
+
 
 .landing-graphic-letter
   align-items center
@@ -38,14 +42,17 @@
   padding 15px
   width 45px
 
+
 [data-graphic-letter-group-index="1"] .landing-graphic-letter
   background $white
   color $black
   margin-left 3px
   margin-right 3px
 
+
 .landing-graphic-space
   width 25px
+
 
 .landing-info
   display flex
@@ -61,6 +68,7 @@
   > div
     max-width 100%
 
+
 .landing-brief-desc
   display flex
   flex-direction column
@@ -71,6 +79,7 @@
     flex-direction row
   li
     padding 0 10px
+
 
 .landing-usage
   display flex
@@ -87,11 +96,13 @@
   li
     padding 0 10px
 
+
 .landing-test-example
   margin-bottom 30px
 
   p code
     font-size 15px
+
 
 .landing-nav
   display none
@@ -120,3 +131,10 @@
   +media--desktop()
     +page-type--landing()
       display flex
+
+
+.landing img
+  border-radius 2px
+  height auto
+  margin-bottom 30px
+  width 100%

@@ -92,6 +92,8 @@ export class LandingContainer extends React.Component {
             </li>
           </ul>
 
+          <img src="https://cloud.githubusercontent.com/assets/674727/9673673/aff66564-525b-11e5-8eda-21b81f140d40.png"/>
+
           <div className="landing-usage">
             <h2>Need me on the case?</h2>
             <ul>
