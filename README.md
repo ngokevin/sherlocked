@@ -16,6 +16,9 @@ The world of Sherlocked:
 - The Sherlocked webpage will contain side-by-side capture comparisons of the
   master and the pull request branch as well display image diffs.
 
+Sherlocked is hosted at
+[sherlocked.dev.mozaws.net](http://sherlocked.dev.mozaws.net).
+
 ![Sherlocked on the Case](https://cloud.githubusercontent.com/assets/674727/9673673/aff66564-525b-11e5-8eda-21b81f140d40.png)
 
 
