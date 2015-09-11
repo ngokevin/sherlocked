@@ -250,6 +250,24 @@ This will start a server on port 2118 by default.
 [npm-image]: http://img.shields.io/npm/v/sherlocked.svg
 
 
+### Running Sherlocked Manually
+
+It is possible to run Sherlocked manually on a project from the CLI. For
+development purposes to test the npm module, you can clone Sherlocked and run
+```npm link``` from within the Sherlocked ```lib/``` folder.
+
+First install and run
+[Sauce Connect](https://docs.saucelabs.com/reference/sauce-connect/). This will
+allow us to tunnel into Sauce Labs.
+
+```bash
+bin/sc -u my-sauce-username -k my-sauce-key -i 100
+
+SAUCE_KEY=my-sauce-key SAUCE_USERNAME=my-sauce-username \
+TRAVIS_BUILD_ID=abc TRAVIS_JOB_NUMBER=100 node ./my-sherlocked-script.js
+```
+
+
 ## Who is Sherlocked Investigating?
 
 Sherlocked always has clients in need.
